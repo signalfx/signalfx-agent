@@ -11,13 +11,12 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/signalfx/golib/v3/datapoint"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	log "github.com/sirupsen/logrus"
 )
-
-var logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorType}), 30*time.Second)
 
 const (
 	nodePath = "/_node/"
@@ -56,10 +55,12 @@ type Monitor struct {
 	ctx           context.Context
 	cancel        context.CancelFunc
 	metricTypeMap map[string]datapoint.MetricType
+	logger        *utils.ThrottledLogger
 }
 
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
+	m.logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID}), 30*time.Second)
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 	m.conf = conf
 	m.metricTypeMap = conf.getMetricTypeMap()
@@ -75,7 +76,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	dims, err := m.fetchNodeInfo(client, fmt.Sprintf("%s://%s:%d%s", scheme, m.conf.Host, m.conf.Port, nodePath))
 	if err != nil {
-		logger.WithError(err).Error("Couldn't get node info.")
+		m.logger.WithError(err).Error("Couldn't get node info.")
 	}
 
 	utils.RunOnInterval(m.ctx, func() {
@@ -85,7 +86,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		for prefix, path := range prefixPathMap {
 			fetched, err = m.fetchMetrics(client, fmt.Sprintf("%s://%s:%d%s", scheme, m.conf.Host, m.conf.Port, path), prefix, dims)
 			if err != nil {
-				logger.WithError(err).Errorf("Couldn't fetch metrics for path %s", path)
+				m.logger.WithError(err).Errorf("Couldn't fetch metrics for path %s", path)
 				continue
 			}
 			dps = append(dps, fetched...)
@@ -94,19 +95,19 @@ func (m *Monitor) Configure(conf *Config) error {
 		if fetched, err = m.fetchPipelineMetrics(client, fmt.Sprintf("%s://%s:%d%s", scheme, m.conf.Host, m.conf.Port, pipelinePath), "node.pipelines", dims); err == nil {
 			dps = append(dps, fetched...)
 		} else {
-			logger.WithError(err).Error("Couldn't fetch metrics for pipelines")
+			m.logger.WithError(err).Error("Couldn't fetch metrics for pipelines")
 		}
 
 		if fetched, err = m.fetchPipelineMetrics(client, fmt.Sprintf("%s://%s:%d%s", scheme, m.conf.Host, m.conf.Port, pipelineStatPath), "node.stats.pipelines", dims); err == nil {
 			dps = append(dps, fetched...)
 		} else {
-			logger.WithError(err).Error("Couldn't fetch metrics for pipeline stats")
+			m.logger.WithError(err).Error("Couldn't fetch metrics for pipeline stats")
 		}
 
 		if fetched, err = m.fetchPluginMetrics(client, fmt.Sprintf("%s://%s:%d%s", scheme, m.conf.Host, m.conf.Port, pluginPath), "node.plugins", dims); err == nil {
 			dps = append(dps, fetched...)
 		} else {
-			logger.WithError(err).Error("Couldn't fetch metrics for plugins")
+			m.logger.WithError(err).Error("Couldn't fetch metrics for plugins")
 		}
 
 		now := time.Now()
@@ -239,7 +240,7 @@ func (m *Monitor) extractDatapoints(metricPath string, metricsJSON map[string]in
 		} else if metricType, exists := m.metricTypeMap[childPath]; exists {
 			metricValue, err := datapoint.CastMetricValueWithBool(v)
 			if err != nil {
-				logger.WithError(err).Errorf("Couldn't cast value: %s", childPath)
+				m.logger.WithError(err).Errorf("Couldn't cast value: %s", childPath)
 				continue
 			}
 			dps = append(dps, &datapoint.Datapoint{

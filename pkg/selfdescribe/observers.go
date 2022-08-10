@@ -8,9 +8,10 @@ import (
 	"sort"
 	"strings"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/services"
 	"github.com/signalfx/signalfx-agent/pkg/observers"
-	log "github.com/sirupsen/logrus"
 )
 
 type observerMetadata struct {

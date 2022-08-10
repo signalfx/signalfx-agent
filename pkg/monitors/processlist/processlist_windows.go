@@ -9,6 +9,7 @@ import (
 
 	"github.com/StackExchange/wmi"
 	"github.com/shirou/gopsutil/mem"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/windows"
 )
 
@@ -112,7 +113,7 @@ var getUsername = func(id uint32) (username string, err error) {
 }
 
 // ProcessList takes a snapshot of running processes
-func ProcessList(conf *Config, cache *osCache) ([]*TopProcess, error) {
+func ProcessList(conf *Config, cache *osCache, logger logrus.FieldLogger) ([]*TopProcess, error) {
 	var procs []*TopProcess
 
 	// Get all processes
@@ -131,7 +132,7 @@ func ProcessList(conf *Config, cache *osCache) ([]*TopProcess, error) {
 	// iterate over each process and build an entry for the process list
 	for _, p := range ps {
 		username, err := getUsername(p.ProcessID)
-		if err != nil {
+		if err != nil && logger != nil {
 			logger.Debugf("Unable to collect username for process %v. %v", p, err)
 		}
 
@@ -141,7 +142,7 @@ func ProcessList(conf *Config, cache *osCache) ([]*TopProcess, error) {
 		var memPercent float64
 		if systemMemory, err := mem.VirtualMemory(); err == nil {
 			memPercent = 100 * float64(p.WorkingSetSize) / float64(systemMemory.Total)
-		} else {
+		} else if logger != nil {
 			logger.WithError(err).Error("Unable to collect system memory total")
 		}
 

@@ -3,12 +3,13 @@ package winperfcounters
 import (
 	"strings"
 
-	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
-
 	"github.com/influxdata/telegraf"
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 )
 
 func init() {
@@ -75,6 +76,7 @@ type Config struct {
 type Monitor struct {
 	Output types.Output
 	cancel func()
+	logger logrus.FieldLogger // nolint: structcheck,unused
 }
 
 // Shutdown stops the metric sync

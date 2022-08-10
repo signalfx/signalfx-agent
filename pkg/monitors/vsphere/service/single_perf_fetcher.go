@@ -8,7 +8,7 @@ import (
 
 type singlePagePerfFetcher struct {
 	gateway IGateway
-	log     *log.Entry
+	log     log.FieldLogger
 }
 
 func (f *singlePagePerfFetcher) invIterator(

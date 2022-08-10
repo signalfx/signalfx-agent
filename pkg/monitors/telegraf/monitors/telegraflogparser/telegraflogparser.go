@@ -7,14 +7,15 @@ import (
 
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
 	telegrafPlugin "github.com/influxdata/telegraf/plugins/inputs/logparser"
+	log "github.com/sirupsen/logrus"
+	"github.com/ulule/deepcopier"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/accumulator"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	log "github.com/sirupsen/logrus"
-	"github.com/ulule/deepcopier"
 )
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
@@ -52,6 +53,7 @@ type Monitor struct {
 	Output types.Output
 	cancel context.CancelFunc
 	plugin *telegrafPlugin.LogParserPlugin
+	logger log.FieldLogger
 }
 
 // fetch the factory function used to generate the plugin
@@ -59,11 +61,12 @@ var factory = telegrafInputs.Inputs["logparser"]
 
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) (err error) {
+	m.logger = logger.WithField("monitorID", conf.MonitorID)
 	m.plugin = factory().(*telegrafPlugin.LogParserPlugin)
 
 	// copy configurations to the plugin
 	if err = deepcopier.Copy(conf).To(m.plugin); err != nil {
-		logger.Error("unable to copy configurations to plugin")
+		m.logger.Error("unable to copy configurations to plugin")
 		return err
 	}
 
@@ -71,7 +74,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 
 	// copy configurations to the plugin
 	if err = deepcopier.Copy(conf).To(&grokConf); err != nil {
-		logger.Error("unable to copy grok configurations to plugin")
+		m.logger.Error("unable to copy grok configurations to plugin")
 		return err
 	}
 
@@ -82,7 +85,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	ctx, m.cancel = context.WithCancel(context.Background())
 
 	// create the emitter
-	em := baseemitter.NewEmitter(m.Output, logger)
+	em := baseemitter.NewEmitter(m.Output, m.logger)
 
 	// Hard code the plugin name because the emitter will parse out the
 	// configured measurement name as plugin and that is confusing.
@@ -99,7 +102,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	// look for new files to tail on the defined interval
 	utils.RunOnInterval(ctx, func() {
 		if err := m.plugin.Gather(ac); err != nil {
-			logger.WithError(err).Errorf("an error occurred while gathering metrics")
+			m.logger.WithError(err).Errorf("an error occurred while gathering metrics")
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 

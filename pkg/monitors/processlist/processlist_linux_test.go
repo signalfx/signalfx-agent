@@ -11,7 +11,7 @@ import (
 func TestProcessListLinux(t *testing.T) {
 	cache := initOSCache()
 
-	tps, err := ProcessList(&Config{}, cache)
+	tps, err := ProcessList(&Config{}, cache, nil)
 	require.Nil(t, err)
 	require.Greater(t, len(tps), 0)
 

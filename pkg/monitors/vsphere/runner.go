@@ -3,19 +3,20 @@ package vsphere
 import (
 	"context"
 
-	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
 	"github.com/sirupsen/logrus"
+
+	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
 )
 
 type runner struct {
 	ctx                   context.Context
-	log                   *logrus.Entry
+	log                   logrus.FieldLogger
 	conf                  *model.Config
 	vsm                   *vSphereMonitor
 	vsphereReloadInterval int // seconds
 }
 
-func newRunner(ctx context.Context, log *logrus.Entry, conf *model.Config, monitor *Monitor) runner {
+func newRunner(ctx context.Context, log logrus.FieldLogger, conf *model.Config, monitor *Monitor) runner {
 	vsphereReloadInterval := int(conf.InventoryRefreshInterval.AsDuration().Seconds())
 	vsm := newVsphereMonitor(conf, log, monitor.Output.SendDatapoints)
 	return runner{

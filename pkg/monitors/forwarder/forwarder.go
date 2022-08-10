@@ -17,7 +17,7 @@ import (
 
 type pathSetupFunc = func(*mux.Router, http.Handler)
 
-func startListening(ctx context.Context, listenAddr string, timeout time.Duration, sink signalfx.Sink) (sfxclient.Collector, error) {
+func (m *Monitor) startListening(ctx context.Context, listenAddr string, timeout time.Duration, sink signalfx.Sink) (sfxclient.Collector, error) {
 	listener, err := net.Listen("tcp", listenAddr)
 	if err != nil {
 		return nil, errors.WithMessage(err, "cannot open listening address "+listenAddr)
@@ -28,23 +28,23 @@ func startListening(ctx context.Context, listenAddr string, timeout time.Duratio
 		next.ServeHTTPC(tryToExtractRemoteAddressToContext(ctx, r), rw, r)
 	})
 
-	jaegerMetrics := setupHandler(ctx, router, signalfx.JaegerV1, sink, func(sink signalfx.Sink) signalfx.ErrorReader {
-		return signalfx.NewJaegerThriftTraceDecoderV1(golibLogger, sink)
+	jaegerMetrics := m.setupHandler(ctx, router, signalfx.JaegerV1, sink, func(sink signalfx.Sink) signalfx.ErrorReader {
+		return signalfx.NewJaegerThriftTraceDecoderV1(m.golibLogger, sink)
 	}, httpChain, setupPathFunc(signalfx.SetupThriftByPaths, signalfx.DefaultTracePathV1))
 
-	protobufDatapoints := setupHandler(ctx, router, "protobufv2", sink, func(sink signalfx.Sink) signalfx.ErrorReader {
-		return &signalfx.ProtobufDecoderV2{Sink: sink, Logger: golibLogger}
+	protobufDatapoints := m.setupHandler(ctx, router, "protobufv2", sink, func(sink signalfx.Sink) signalfx.ErrorReader {
+		return &signalfx.ProtobufDecoderV2{Sink: sink, Logger: m.golibLogger}
 	}, httpChain, setupPathFunc(signalfx.SetupProtobufV2ByPaths, "/v2/datapoint"))
 
-	jsonDatapoints := setupHandler(ctx, router, "jsonv2", sink, func(sink signalfx.Sink) signalfx.ErrorReader {
-		return &signalfx.JSONDecoderV2{Sink: sink, Logger: golibLogger}
+	jsonDatapoints := m.setupHandler(ctx, router, "jsonv2", sink, func(sink signalfx.Sink) signalfx.ErrorReader {
+		return &signalfx.JSONDecoderV2{Sink: sink, Logger: m.golibLogger}
 	}, httpChain, setupPathFunc(signalfx.SetupJSONByPaths, "/v2/datapoint"))
 
-	zipkinMetrics := setupHandler(ctx, router, signalfx.ZipkinV1, sink, func(sink signalfx.Sink) signalfx.ErrorReader {
-		return &signalfx.JSONTraceDecoderV1{Logger: golibLogger, Sink: sink}
+	zipkinMetrics := m.setupHandler(ctx, router, signalfx.ZipkinV1, sink, func(sink signalfx.Sink) signalfx.ErrorReader {
+		return &signalfx.JSONTraceDecoderV1{Logger: m.golibLogger, Sink: sink}
 	}, httpChain, setupPathFuncN(signalfx.SetupJSONByPathsN, signalfx.DefaultTracePathV1, signalfx.ZipkinTracePathV1, signalfx.ZipkinTracePathV2))
 
-	router.NotFoundHandler = http.HandlerFunc(notFoundHandler)
+	router.NotFoundHandler = http.HandlerFunc(m.notFoundHandler)
 
 	server := http.Server{
 		Handler:      router,
@@ -58,7 +58,7 @@ func startListening(ctx context.Context, listenAddr string, timeout time.Duratio
 		<-ctx.Done()
 		err := server.Close()
 		if err != nil {
-			logger.WithError(err).Error("Could not close SignalFx forwarding server")
+			m.logger.WithError(err).Error("Could not close SignalFx forwarding server")
 		}
 	}()
 	return sfxclient.NewMultiCollector(jsonDatapoints, protobufDatapoints, jaegerMetrics, zipkinMetrics), nil
@@ -76,15 +76,15 @@ func setupPathFuncN(setupFunc func(*mux.Router, http.Handler, ...string), paths 
 	}
 }
 
-func setupHandler(ctx context.Context, router *mux.Router, chainType string, sink signalfx.Sink, getReader func(signalfx.Sink) signalfx.ErrorReader, httpChain web.NextConstructor, pathSetup pathSetupFunc) sfxclient.Collector {
-	handler, internalMetrics := signalfx.SetupChain(ctx, sink, chainType, getReader, httpChain, golibLogger, &dpsink.Counter{})
+func (m *Monitor) setupHandler(ctx context.Context, router *mux.Router, chainType string, sink signalfx.Sink, getReader func(signalfx.Sink) signalfx.ErrorReader, httpChain web.NextConstructor, pathSetup pathSetupFunc) sfxclient.Collector {
+	handler, internalMetrics := signalfx.SetupChain(ctx, sink, chainType, getReader, httpChain, m.golibLogger, &dpsink.Counter{})
 	pathSetup(router, handler)
 	return internalMetrics
 }
 
-func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+func (m *Monitor) notFoundHandler(w http.ResponseWriter, r *http.Request) {
 	errMsg := "Datapoint or span request received on invalid path"
-	logger.ThrottledError(fmt.Sprintf("%s: %s", errMsg, r.URL.Path))
+	m.logger.ThrottledError(fmt.Sprintf("%s: %s", errMsg, r.URL.Path))
 
 	errMsg = fmt.Sprintf(
 		"%s. Supported paths: /v2/datapoint, %s, %s, and %s.\n", errMsg,

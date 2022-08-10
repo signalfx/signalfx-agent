@@ -4,15 +4,15 @@ import (
 	"context"
 	"time"
 
+	"github.com/beevik/ntp"
 	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
-	"github.com/sirupsen/logrus"
-
-	"github.com/beevik/ntp"
 )
 
 const minInterval = 30 * time.Minute
@@ -43,7 +43,7 @@ type Monitor struct {
 
 // Configure and kick off internal metric collection
 func (m *Monitor) Configure(conf *Config) error {
-	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
 	// respect terms of service https://www.pool.ntp.org/tos.html
 	minIntervalSeconds := minInterval.Seconds()
 	if float64(conf.IntervalSeconds) < minIntervalSeconds {

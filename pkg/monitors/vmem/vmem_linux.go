@@ -12,9 +12,10 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/hostfs"
-	"github.com/sirupsen/logrus"
 )
 
 var cumulativeCounters = map[string]string{
@@ -65,7 +66,7 @@ func (m *Monitor) parseFileForDatapoints(contents []byte) []*datapoint.Datapoint
 
 // Configure and run the monitor on linux
 func (m *Monitor) Configure(conf *Config) (err error) {
-	m.logger = logrus.WithField("monitorType", monitorType)
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
 
 	// create contexts for managing the the plugin loop
 	var ctx context.Context

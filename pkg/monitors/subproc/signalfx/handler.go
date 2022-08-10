@@ -16,9 +16,10 @@ import (
 	signalfxformat "github.com/signalfx/gateway/protocol/signalfx/format"
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/ingest-protocols/protocol/signalfx"
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/monitors/subproc"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
-	"github.com/sirupsen/logrus"
 )
 
 const messageTypeDatapointJSONList subproc.MessageType = 200

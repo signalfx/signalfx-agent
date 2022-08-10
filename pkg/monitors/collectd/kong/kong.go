@@ -1,12 +1,11 @@
 package kong
 
 import (
-	"github.com/signalfx/signalfx-agent/pkg/monitors/collectd"
 	"github.com/sirupsen/logrus"
 
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
-
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/collectd"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/collectd/python"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/subproc"
 )
@@ -189,7 +188,7 @@ func (m *Monitor) Configure(c *Config) error {
 	for _, metric := range m.Output.EnabledMetrics() {
 		metricConfig := metricConfigMap[metric]
 		if metricConfig == "" {
-			log.Warnf("Unable to determine metric configuration name for %s", metric)
+			m.Logger().Warnf("Unable to determine metric configuration name for %s", metric)
 			continue
 		}
 

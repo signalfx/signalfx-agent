@@ -14,10 +14,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/signalfx/signalfx-agent/pkg/utils"
-
 	"github.com/signalfx/golib/v3/datapoint"
-	logger "github.com/sirupsen/logrus"
+
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 // Map of HAProxy metrics name to their equivalent SignalFx names.
@@ -103,27 +102,27 @@ var sfxMetricsMap = map[string]string{
 }
 
 // Fetches proxy stats datapoints from an http endpoint.
-func statsHTTP(conf *Config, pxs proxies) []*datapoint.Datapoint {
-	return statsHelper(conf, httpReader, "GET", pxs)
+func (m *Monitor) statsHTTP(conf *Config, pxs proxies) []*datapoint.Datapoint {
+	return m.statsHelper(conf, httpReader, "GET", pxs)
 }
 
 // Fetches proxy stats datapoints from a unix socket.
-func statsSocket(conf *Config, pxs proxies) []*datapoint.Datapoint {
-	return statsHelper(conf, socketReader, "show stat\n", pxs)
+func (m *Monitor) statsSocket(conf *Config, pxs proxies) []*datapoint.Datapoint {
+	return m.statsHelper(conf, socketReader, "show stat\n", pxs)
 }
 
 // A second order function for taking http and socket functions that fetch proxy stats datapoints.
-func statsHelper(conf *Config, reader func(*Config, string) (io.ReadCloser, error), cmd string, proxies map[string]bool) []*datapoint.Datapoint {
+func (m *Monitor) statsHelper(conf *Config, reader func(*Config, string) (io.ReadCloser, error), cmd string, proxies map[string]bool) []*datapoint.Datapoint {
 	body, err := reader(conf, cmd)
 	defer closeBody(body)
 	if err != nil {
-		logger.Error(err)
+		m.logger.Error(err)
 		return nil
 	}
 	dps := make([]*datapoint.Datapoint, 0)
 	csvMap, err := statsMap(body)
 	if err != nil {
-		logger.Error(err)
+		m.logger.Error(err)
 		return nil
 	}
 	for _, headerValuePairs := range csvMap {
@@ -131,7 +130,7 @@ func statsHelper(conf *Config, reader func(*Config, string) (io.ReadCloser, erro
 			continue
 		}
 		for stat, value := range headerValuePairs {
-			if dp := newDp(stat, value); dp != nil {
+			if dp := m.newDp(stat, value); dp != nil {
 				dp.Dimensions["proxy_name"] = headerValuePairs["pxname"]
 				dp.Dimensions["service_name"] = headerValuePairs["svname"]
 				dp.Dimensions["type"] = headerValuePairs["type"]
@@ -148,22 +147,22 @@ func statsHelper(conf *Config, reader func(*Config, string) (io.ReadCloser, erro
 		}
 	}
 	if len(dps) == 0 {
-		logger.Errorf("failed to create proxy stats datapoints")
+		m.logger.Errorf("failed to create proxy stats datapoints")
 		return nil
 	}
 	return dps
 }
 
 // Fetches process info datapoints from a unix socket.
-func infoSocket(conf *Config, _ proxies) []*datapoint.Datapoint {
+func (m *Monitor) infoSocket(conf *Config, _ proxies) []*datapoint.Datapoint {
 	dps := make([]*datapoint.Datapoint, 0)
 	infoPairs, err := infoMap(conf)
 	if err != nil {
-		logger.Error(err)
+		m.logger.Error(err)
 		return nil
 	}
 	for stat, value := range infoPairs {
-		if dp := newDp(stat, value); dp != nil {
+		if dp := m.newDp(stat, value); dp != nil {
 			// WARNING: Both pid and Process_num are HAProxy process identifiers. pid in the context of
 			// proxy stats and Process_num in the context of HAProxy process info. It says in the docs
 			// https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.1 that pid is zero-based. But, we
@@ -228,7 +227,7 @@ func infoMap(conf *Config) (map[string]string, error) {
 }
 
 // Creates datapoint from proxy stats and process info key value pairs.
-func newDp(stat string, value string) *datapoint.Datapoint {
+func (m *Monitor) newDp(stat string, value string) *datapoint.Datapoint {
 	metric := sfxMetricsMap[stat]
 	if metric == "" || value == "" {
 		return nil
@@ -242,9 +241,9 @@ func newDp(stat string, value string) *datapoint.Datapoint {
 		if err != nil {
 			switch err.(type) {
 			case *strconv.NumError:
-				logger.Debug(err)
+				m.logger.Debug(err)
 			default:
-				logger.Error(err)
+				m.logger.Error(err)
 			}
 			return nil
 		}

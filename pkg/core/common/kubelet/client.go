@@ -12,8 +12,9 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
 )
 
 // AuthType to use when connecting to kubelet
@@ -56,10 +57,11 @@ type APIConfig struct {
 type Client struct {
 	*http.Client
 	config *APIConfig
+	logger log.FieldLogger
 }
 
 // NewClient creates a new client with the given config
-func NewClient(kubeletAPI *APIConfig) (*Client, error) {
+func NewClient(kubeletAPI *APIConfig, logger log.FieldLogger) (*Client, error) {
 	if kubeletAPI.URL == "" {
 		hostname, err := os.Hostname()
 		if err != nil {
@@ -110,7 +112,7 @@ func NewClient(kubeletAPI *APIConfig) (*Client, error) {
 			Token:        string(token),
 		}
 
-		log.Debug("Using service account authentication for Kubelet")
+		logger.Debug("Using service account authentication for Kubelet")
 	default:
 		transport.(*http.Transport).TLSClientConfig = tlsConfig
 	}
@@ -121,6 +123,7 @@ func NewClient(kubeletAPI *APIConfig) (*Client, error) {
 			Transport: transport,
 		},
 		config: kubeletAPI,
+		logger: logger,
 	}, nil
 }
 
@@ -157,7 +160,7 @@ func (kc *Client) DoRequestAndSetValue(req *http.Request, value interface{}) err
 	}
 
 	if kc.config.LogResponses {
-		log.WithField("url", req.URL.String()).WithField("body", string(body)).Info("Raw response from Kubelet url")
+		kc.logger.WithField("url", req.URL.String()).WithField("body", string(body)).Info("Raw response from Kubelet url")
 	}
 
 	err = json.Unmarshal(body, value)

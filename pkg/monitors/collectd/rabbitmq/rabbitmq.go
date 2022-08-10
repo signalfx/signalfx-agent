@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/signalfx/golib/v3/pointer"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 
 	"github.com/signalfx/signalfx-agent/pkg/utils"
@@ -12,10 +13,7 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/monitors/collectd"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/collectd/python"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/subproc"
-	log "github.com/sirupsen/logrus"
 )
-
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
@@ -97,7 +95,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 
 	if conf.SSLVerify && strings.TrimSpace(conf.SSLCACertFile) == "" {
-		logger.Warn("Potential configuration error because SSLVerify is enabled while SSLCACertFile is empty. Default system root CA certificates will be used in SSL verification and may fail silently.")
+		m.Logger().Warn("Potential configuration error because SSLVerify is enabled while SSLCACertFile is empty. Default system root CA certificates will be used in SSL verification and may fail silently.")
 	}
 
 	conf.pyConf = &python.Config{

@@ -10,12 +10,13 @@ import (
 	"strings"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/common/ecs"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/core/services"
 	"github.com/signalfx/signalfx-agent/pkg/observers"
 	"github.com/signalfx/signalfx-agent/pkg/observers/docker"
-	log "github.com/sirupsen/logrus"
 )
 
 const (

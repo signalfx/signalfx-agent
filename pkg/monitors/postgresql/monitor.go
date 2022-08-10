@@ -8,6 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
@@ -15,7 +17,6 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
-	"github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -91,6 +92,8 @@ type Monitor struct {
 	connectionString string
 	// name for execution time column determined by information schema for pg_stat_statement
 	totalTimeColumn string
+
+	logger logrus.FieldLogger
 }
 
 // Configure the monitor and kick off metric collection
@@ -98,8 +101,9 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.conf = conf
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 
-	logger := logrus.WithFields(logrus.Fields{
+	m.logger = logrus.WithFields(logrus.Fields{
 		"monitorType": monitorMetadata.MonitorType,
+		"monitorID":   conf.MonitorID,
 		"host":        conf.Host,
 		"port":        conf.Port,
 	})
@@ -153,7 +157,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		if m.database == nil {
 			m.database, err = dbsql.Open("postgres", connectionStringWithMasterDB)
 			if err != nil {
-				logger.WithError(err).WithField("connStr", connStr).Error("Failed to open database")
+				m.logger.WithError(err).WithField("connStr", connStr).Error("Failed to open database")
 				return
 			}
 		}
@@ -161,14 +165,14 @@ func (m *Monitor) Configure(conf *Config) error {
 		if m.serverMonitor == nil {
 			m.serverMonitor, err = m.monitorServer(connectionStringWithMasterDB)
 			if err != nil {
-				logger.WithError(err).Errorf("could not monitor postgresql server: %v", err)
+				m.logger.WithError(err).Errorf("could not monitor postgresql server: %v", err)
 			}
 		}
 
 		if queriesGroupEnabled && m.statementsMonitor == nil {
 			m.statementsMonitor, err = m.monitorStatements(connectionStringWithMasterDB)
 			if err != nil {
-				logger.WithError(err).Errorf("Could not monitor queries: %v", err)
+				m.logger.WithError(err).Errorf("Could not monitor queries: %v", err)
 			}
 		}
 
@@ -176,12 +180,12 @@ func (m *Monitor) Configure(conf *Config) error {
 			rows, err := m.database.QueryContext(m.ctx, `select AURORA_VERSION();`)
 			if err == nil {
 				defer rows.Close()
-				logger.Info("Aurora server detected, disabling replication monitor")
+				m.logger.Info("Aurora server detected, disabling replication monitor")
 			} else {
-				logger.Debug("Replication metrics enabled")
+				m.logger.Debug("Replication metrics enabled")
 				m.replicationMonitor, err = m.monitorReplication()
 				if err != nil {
-					logger.WithError(err).Errorf("Could not monitor replication: %v", err)
+					m.logger.WithError(err).Errorf("Could not monitor replication: %v", err)
 				}
 			}
 			startedMonitoringReplication = true
@@ -189,7 +193,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 		databases, err := determineDatabases(m.ctx, m.database)
 		if err != nil {
-			logger.WithError(err).Error("Could not determine list of PostgreSQL databases")
+			m.logger.WithError(err).Error("Could not determine list of PostgreSQL databases")
 		}
 
 		dbSet := map[string]bool{}
@@ -204,18 +208,18 @@ func (m *Monitor) Configure(conf *Config) error {
 			if _, ok := m.monitoredDBs[db]; !ok {
 				mon, err := m.startMonitoringDatabase(db)
 				if err != nil {
-					logger.WithError(err).Errorf("Could not monitor database '%s'", db)
+					m.logger.WithError(err).Errorf("Could not monitor database '%s'", db)
 					continue
 				}
 				m.monitoredDBs[db] = mon
-				logger.Infof("Now monitoring PostgreSQL database '%s'", db)
+				m.logger.Infof("Now monitoring PostgreSQL database '%s'", db)
 			}
 		}
 
 		// Stop monitoring any dbs that disappear.
 		for name := range m.monitoredDBs {
 			if !dbSet[name] {
-				logger.Infof("No longer monitoring PostgreSQL database '%s'", name)
+				m.logger.Infof("No longer monitoring PostgreSQL database '%s'", name)
 				m.monitoredDBs[name].Shutdown()
 				delete(m.monitoredDBs, name)
 			}

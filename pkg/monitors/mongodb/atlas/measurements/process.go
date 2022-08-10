@@ -6,9 +6,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/mongodb/go-client-mongodb-atlas/mongodbatlas"
+	log "github.com/sirupsen/logrus"
 )
 
 // ProcessesMeasurements are the metric measurements of a particular MongoDB Process.
@@ -30,10 +29,11 @@ type processesGetter struct {
 	mutex             *sync.Mutex
 	measurementsCache *atomic.Value
 	processesCache    *atomic.Value
+	logger            log.FieldLogger
 }
 
 // NewProcessesGetter returns a new ProcessesGetter.
-func NewProcessesGetter(projectID string, granularity string, period string, client *mongodbatlas.Client, enableCache bool) ProcessesGetter {
+func NewProcessesGetter(projectID string, granularity string, period string, client *mongodbatlas.Client, enableCache bool, logger log.FieldLogger) ProcessesGetter {
 	return &processesGetter{
 		projectID:         projectID,
 		granularity:       granularity,
@@ -43,6 +43,7 @@ func NewProcessesGetter(projectID string, granularity string, period string, cli
 		mutex:             new(sync.Mutex),
 		measurementsCache: new(atomic.Value),
 		processesCache:    new(atomic.Value),
+		logger:            logger,
 	}
 }
 
@@ -79,21 +80,21 @@ func (getter *processesGetter) getProcessesHelper(ctx context.Context, pageNum i
 	list, resp, err := getter.client.Processes.List(ctx, getter.projectID, &mongodbatlas.ListOptions{PageNum: pageNum})
 
 	if err != nil {
-		log.WithError(err).Errorf("the request for getting processes failed (Atlas project: %s)", getter.projectID)
+		getter.logger.WithError(err).Errorf("the request for getting processes failed (Atlas project: %s)", getter.projectID)
 		return
 	}
 
 	if resp == nil {
-		log.Errorf("the response for getting processes returned empty (Atlas project: %s)", getter.projectID)
+		getter.logger.Errorf("the response for getting processes returned empty (Atlas project: %s)", getter.projectID)
 		return
 	}
 
 	if err := mongodbatlas.CheckResponse(resp.Response); err != nil {
-		log.WithError(err).Errorf("the response for getting processes returned an error (Atlas project: %s)", getter.projectID)
+		getter.logger.WithError(err).Errorf("the response for getting processes returned an error (Atlas project: %s)", getter.projectID)
 		return
 	}
 
-	if ok, next := nextPage(resp); ok {
+	if ok, next := nextPage(resp, getter.logger); ok {
 		processes = append(processes, getter.getProcessesHelper(ctx, next)...)
 	}
 
@@ -152,11 +153,11 @@ func (getter *processesGetter) setMeasurements(ctx context.Context, process Proc
 	list, resp, err := getter.client.ProcessMeasurements.List(ctx, getter.projectID, process.Host, process.Port, opts)
 
 	if msg, err := errorMsg(err, resp); err != nil {
-		log.WithError(err).Errorf(msg, "process measurements", getter.projectID, process.Host, process.Port)
+		getter.logger.WithError(err).Errorf(msg, "process measurements", getter.projectID, process.Host, process.Port)
 		return
 	}
 
-	if ok, next := nextPage(resp); ok {
+	if ok, next := nextPage(resp, getter.logger); ok {
 		getter.setMeasurements(ctx, process, processesMeasurements, next)
 	}
 

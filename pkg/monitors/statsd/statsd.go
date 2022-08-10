@@ -6,6 +6,8 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 type statsDListener struct {
@@ -18,6 +20,7 @@ type statsDListener struct {
 	converters     []*converter
 	metricBuffer   []string
 	shutdownCalled int32
+	logger         *utils.ThrottledLogger
 }
 
 type statsDMetric struct {
@@ -46,7 +49,7 @@ func (sl *statsDListener) listenUDP() error {
 		return err
 	}
 
-	logger.Infof("SignalFx StatsD monitor: Listening on host & port %s:%s", conn.LocalAddr().Network(), conn.LocalAddr().String())
+	sl.logger.Infof("SignalFx StatsD monitor: Listening on host & port %s:%s", conn.LocalAddr().Network(), conn.LocalAddr().String())
 
 	sl.udpConn = conn
 	return nil
@@ -64,7 +67,7 @@ func (sl *statsDListener) FetchMetrics() []*statsDMetric {
 	sl.metricBuffer = nil
 	sl.Unlock()
 
-	parsed := parseMetrics(rawMetrics, sl.converters, sl.prefix)
+	parsed := sl.parseMetrics(rawMetrics)
 
 	return parsed
 }
@@ -100,7 +103,7 @@ func (sl *statsDListener) readUDP(chData chan []byte) {
 				break
 			}
 
-			logger.WithError(err).Error("Failed reading UDP datagram.")
+			sl.logger.WithError(err).Error("Failed reading UDP datagram.")
 			continue
 		}
 
@@ -118,18 +121,18 @@ func (sl *statsDListener) Close() {
 	}
 }
 
-func parseMetrics(raw []string, converters []*converter, prefix string) []*statsDMetric {
+func (sl *statsDListener) parseMetrics(raw []string) []*statsDMetric {
 	var metrics []*statsDMetric
 
 	for _, m := range raw {
 		if m == "" {
 			continue
 		}
-		m, dims := parseDogstatsdTags(m)
+		m, dims := parseDogstatsdTags(m, sl.logger)
 		colonIdx := strings.Index(m, ":")
 		pipeIdx := strings.Index(m, "|")
 		if pipeIdx >= len(m)-1 || pipeIdx < 0 || colonIdx-1 > len(m) || colonIdx < 0 {
-			logger.Warnf("Invalid StatsD metric string : %s", m)
+			sl.logger.Warnf("Invalid StatsD metric string : %s", m)
 			continue
 		}
 		secondPipeIdx := pipeIdx + strings.Index(m[pipeIdx+1:], "|")
@@ -144,14 +147,14 @@ func parseMetrics(raw []string, converters []*converter, prefix string) []*stats
 			metricType = m[pipeIdx+1:]
 		}
 
-		if prefix != "" {
-			metricName = strings.TrimPrefix(rawMetricName, prefix+".")
+		if sl.prefix != "" {
+			metricName = strings.TrimPrefix(rawMetricName, sl.prefix+".")
 		} else {
 			metricName = rawMetricName
 		}
 
-		if converters != nil {
-			metricName, dims = convertMetric(metricName, converters, dims)
+		if sl.converters != nil {
+			metricName, dims = convertMetric(metricName, sl.converters, dims)
 		}
 
 		strValue := m[colonIdx+1 : pipeIdx]
@@ -166,7 +169,7 @@ func parseMetrics(raw []string, converters []*converter, prefix string) []*stats
 				dimensions:    dims,
 			})
 		} else {
-			logger.WithError(err).Errorf("Failed parsing metric value %s", strValue)
+			sl.logger.WithError(err).Errorf("Failed parsing metric value %s", strValue)
 		}
 	}
 

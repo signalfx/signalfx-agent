@@ -7,13 +7,13 @@ import (
 
 	"github.com/shirou/gopsutil/net"
 	"github.com/signalfx/golib/v3/datapoint"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
-	"github.com/sirupsen/logrus"
-	log "github.com/sirupsen/logrus"
 )
 
 //nolint:gochecknoglobals setting net.IOCounters to a package variable for testing purposes
@@ -45,7 +45,7 @@ type Monitor struct {
 	filter                 *filter.OverridableStringFilter
 	networkTotal           uint64
 	previousInterfaceStats map[string]*netio
-	logger                 logrus.FieldLogger
+	logger                 log.FieldLogger
 }
 
 func (m *Monitor) updateTotals(iface string, intf *net.IOCountersStat) {
@@ -118,7 +118,7 @@ func (m *Monitor) EmitDatapoints() {
 // Configure is the main function of the monitor, it will report host metadata
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
-	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
+	m.logger = log.WithFields(log.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
 
 	// create contexts for managing the the plugin loop
 	var ctx context.Context

@@ -6,8 +6,9 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/datapoint"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 // Struct keeps track of info required at a level of recursion
@@ -19,6 +20,7 @@ type dpCollector struct {
 	aggsMeta      map[string]*AggregationMeta
 	sfxDimensions map[string]string
 	logger        *utils.ThrottledLogger
+	logFields     log.Fields
 }
 
 // Returns aggregation type
@@ -28,21 +30,27 @@ func (dpC *dpCollector) getType() string {
 
 // Walks through the response, collecting dimensions and datapoints depending on the
 // type of aggregation at each recursive level
-func collectDatapoints(resBody HTTPResponse, aggsMeta map[string]*AggregationMeta, sfxDimensions map[string]string) []*datapoint.Datapoint {
+func collectDatapoints(resBody HTTPResponse, aggsMeta map[string]*AggregationMeta, sfxDimensions map[string]string, logFields log.Fields) []*datapoint.Datapoint {
 	out := make([]*datapoint.Datapoint, 0)
 	aggsResult := resBody.Aggregations
 
 	for k, v := range aggsResult {
+		fields := log.Fields{
+			"aggregation_name": k,
+			"aggregation_type": aggsMeta[k].Type,
+		}
+		for field, val := range logFields {
+			fields[field] = val
+		}
+
 		// each aggregation at the highest level starts with an empty set of dimensions
 		out = append(out, (&dpCollector{
 			aggName:       k,
 			aggRes:        *v,
 			aggsMeta:      aggsMeta,
 			sfxDimensions: sfxDimensions,
-			logger: getNewLoggerWithFields(log.Fields{
-				"aggregation_name": k,
-				"aggregation_type": aggsMeta[k].Type,
-			}),
+			logger:        getNewLoggerWithFields(fields),
+			logFields:     logFields,
 		}).recursivelyCollectDatapoints()...)
 	}
 
@@ -63,7 +71,7 @@ func (dpC *dpCollector) recursivelyCollectDatapoints() []*datapoint.Datapoint {
 		key, ok := b.Key.(string)
 
 		if !ok {
-			log.Warn("Found non string key for bucket. Skipping current aggregation and sub aggregations")
+			dpC.logger.Warn("Found non string key for bucket. Skipping current aggregation and sub aggregations")
 			break
 		}
 
@@ -80,30 +88,42 @@ func (dpC *dpCollector) recursivelyCollectDatapoints() []*datapoint.Datapoint {
 		}
 
 		for k, v := range b.SubAggregations {
+			fields := log.Fields{
+				"aggregation_name": k,
+				"aggregation_type": dpC.aggsMeta[k].Type,
+			}
+			for field, val := range dpC.logFields {
+				fields[field] = val
+			}
+
 			sfxDatapoints = append(sfxDatapoints, (&dpCollector{
 				aggName:       k,
 				aggRes:        *v,
 				aggsMeta:      dpC.aggsMeta,
 				sfxDimensions: sfxDimensionsForBucket,
-				logger: getNewLoggerWithFields(log.Fields{
-					"aggregation_name": k,
-					"aggregation_type": dpC.aggsMeta[k].Type,
-				}),
+				logger:        getNewLoggerWithFields(fields),
+				logFields:     dpC.logFields,
 			}).recursivelyCollectDatapoints()...)
 		}
 	}
 
 	// Recursively collect datapoints from sub aggregations
 	for k, v := range dpC.aggRes.SubAggregations {
+		fields := log.Fields{
+			"aggregation_name": k,
+			"aggregation_type": dpC.aggsMeta[k].Type,
+		}
+		for field, val := range dpC.logFields {
+			fields[field] = val
+		}
+
 		sfxDatapoints = append(sfxDatapoints, (&dpCollector{
 			aggName:       k,
 			aggRes:        *v,
 			aggsMeta:      dpC.aggsMeta,
 			sfxDimensions: dpC.sfxDimensions,
-			logger: getNewLoggerWithFields(log.Fields{
-				"aggregation_name": k,
-				"aggregation_type": dpC.aggsMeta[k].Type,
-			}),
+			logger:        getNewLoggerWithFields(fields),
+			logFields:     dpC.logFields,
 		}).recursivelyCollectDatapoints()...)
 	}
 
@@ -139,15 +159,15 @@ func (dpC *dpCollector) collectDatapointsFromMetricAggregation() []*datapoint.Da
 	case "stats":
 		fallthrough
 	case "extended_stats":
-		out = append(out, getDatapointsFromStats(dpC.aggName, &dpC.aggRes, sfxDimensionsForMetric)...)
+		out = append(out, dpC.getDatapointsFromStats(dpC.aggName, &dpC.aggRes, sfxDimensionsForMetric)...)
 	case "percentiles":
-		out = append(out, getDatapointsFromPercentiles(dpC.aggName, &dpC.aggRes, sfxDimensionsForMetric)...)
+		out = append(out, dpC.getDatapointsFromPercentiles(dpC.aggName, &dpC.aggRes, sfxDimensionsForMetric)...)
 	default:
 		metricName := dpC.aggName
 		dp, ok := collectDatapoint(metricName, dpC.aggRes.Value, sfxDimensionsForMetric)
 
 		if !ok {
-			log.Warnf("Invalid value found: %v", dpC.aggRes.Value)
+			dpC.logger.Warnf("Invalid value found: %v", dpC.aggRes.Value)
 			return out
 		}
 
@@ -175,7 +195,7 @@ func (dpC *dpCollector) collectDatapointsFromMetricAggregation() []*datapoint.Da
 // }
 // Metric names from this integration will look like "extended_stats.count",
 // "extended_stats.min", "extended_stats.std_deviation_bounds.lower" and so on
-func getDatapointsFromStats(aggName string, aggRes *aggregationResponse, dims map[string]string) []*datapoint.Datapoint {
+func (dpC *dpCollector) getDatapointsFromStats(aggName string, aggRes *aggregationResponse, dims map[string]string) []*datapoint.Datapoint {
 	out := make([]*datapoint.Datapoint, 0)
 
 	for k, v := range aggRes.OtherValues {
@@ -184,7 +204,7 @@ func getDatapointsFromStats(aggName string, aggRes *aggregationResponse, dims ma
 			m, ok := v.(map[string]interface{})
 
 			if !ok {
-				log.WithFields(log.Fields{"extended_stat": k}).Warnf("Invalid value found for stat: %v", v)
+				dpC.logger.WithFields(log.Fields{"extended_stat": k}).Warnf("Invalid value found for stat: %v", v)
 				continue
 			}
 
@@ -193,7 +213,7 @@ func getDatapointsFromStats(aggName string, aggRes *aggregationResponse, dims ma
 				dp, ok := collectDatapoint(metricName, bv, dims)
 
 				if !ok {
-					log.WithFields(log.Fields{"stat": k}).Warnf("Invalid value found for stat: %v", bv)
+					dpC.logger.WithFields(log.Fields{"stat": k}).Warnf("Invalid value found for stat: %v", bv)
 					continue
 				}
 
@@ -204,7 +224,7 @@ func getDatapointsFromStats(aggName string, aggRes *aggregationResponse, dims ma
 			dp, ok := collectDatapoint(metricName, v, dims)
 
 			if !ok {
-				log.WithFields(log.Fields{"stat": k}).Warnf("Invalid value found for stat: %v", v)
+				dpC.logger.WithFields(log.Fields{"stat": k}).Warnf("Invalid value found for stat: %v", v)
 				continue
 			}
 
@@ -216,7 +236,7 @@ func getDatapointsFromStats(aggName string, aggRes *aggregationResponse, dims ma
 }
 
 // Collect datapoint from "percentiles" metric aggregation
-func getDatapointsFromPercentiles(aggName string, aggRes *aggregationResponse, dims map[string]string) []*datapoint.Datapoint {
+func (dpC *dpCollector) getDatapointsFromPercentiles(aggName string, aggRes *aggregationResponse, dims map[string]string) []*datapoint.Datapoint {
 	out := make([]*datapoint.Datapoint, 0)
 
 	// Values are always expected to be a map between the percentile and the
@@ -224,7 +244,7 @@ func getDatapointsFromPercentiles(aggName string, aggRes *aggregationResponse, d
 	values, ok := aggRes.Values.(map[string]interface{})
 
 	if !ok {
-		log.Warnf("No valid values found in percentiles aggregation")
+		dpC.logger.Warnf("No valid values found in percentiles aggregation")
 	}
 
 	// Metric name is constituted of the aggregation type "percentiles" and the actual percentile
@@ -235,7 +255,7 @@ func getDatapointsFromPercentiles(aggName string, aggRes *aggregationResponse, d
 		p, err := strconv.ParseFloat(k, 64)
 
 		if err != nil {
-			log.Warnf("Invalid percentile found: %s", k)
+			dpC.logger.Warnf("Invalid percentile found: %s", k)
 			continue
 		}
 
@@ -244,7 +264,7 @@ func getDatapointsFromPercentiles(aggName string, aggRes *aggregationResponse, d
 		dp, ok := collectDatapoint(metricName, v, dims)
 
 		if !ok {
-			log.WithFields(log.Fields{"percentile": k}).Warnf("Invalid value found for percentile: %v", v)
+			dpC.logger.WithFields(log.Fields{"percentile": k}).Warnf("Invalid value found for percentile: %v", v)
 			continue
 		}
 

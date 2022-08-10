@@ -4,8 +4,6 @@ import (
 	"sync"
 
 	"github.com/davecgh/go-spew/spew"
-	k8sutil "github.com/signalfx/signalfx-agent/pkg/monitors/kubernetes/utils"
-	atypes "github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	log "github.com/sirupsen/logrus"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/autoscaling/v2beta1"
@@ -14,6 +12,9 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+
+	k8sutil "github.com/signalfx/signalfx-agent/pkg/monitors/kubernetes/utils"
+	atypes "github.com/signalfx/signalfx-agent/pkg/monitors/types"
 )
 
 type DimensionHandler struct {
@@ -26,10 +27,11 @@ type DimensionHandler struct {
 	serviceCache    *k8sutil.ServiceCache
 	replicaSetCache *k8sutil.ReplicaSetCache
 	jobCache        *k8sutil.JobCache
+	logger          log.FieldLogger
 }
 
 // NewDimensionHandler creates a handler for dimension updates
-func NewDimensionHandler(sendDimensionFunc func(*atypes.Dimension)) *DimensionHandler {
+func NewDimensionHandler(sendDimensionFunc func(*atypes.Dimension), logger log.FieldLogger) *DimensionHandler {
 	return &DimensionHandler{
 		uidKindCache:      make(map[types.UID]string),
 		sendDimensionFunc: sendDimensionFunc,
@@ -37,6 +39,7 @@ func NewDimensionHandler(sendDimensionFunc func(*atypes.Dimension)) *DimensionHa
 		serviceCache:      k8sutil.NewServiceCache(),
 		replicaSetCache:   k8sutil.NewReplicaSetCache(),
 		jobCache:          k8sutil.NewJobCache(),
+		logger:            logger,
 	}
 }
 
@@ -89,7 +92,7 @@ func (dh *DimensionHandler) HandleAdd(newObj runtime.Object) interface{} {
 
 	key, err := keyForObject(newObj)
 	if err != nil {
-		log.WithFields(log.Fields{
+		dh.logger.WithFields(log.Fields{
 			"error": err,
 			"obj":   spew.Sdump(newObj),
 		}).Error("Could not get cache key")
@@ -107,7 +110,7 @@ func (dh *DimensionHandler) HandleAdd(newObj runtime.Object) interface{} {
 func (dh *DimensionHandler) HandleDelete(oldObj runtime.Object) interface{} {
 	key, err := keyForObject(oldObj)
 	if err != nil {
-		log.WithFields(log.Fields{
+		dh.logger.WithFields(log.Fields{
 			"error": err,
 			"obj":   spew.Sdump(oldObj),
 		}).Error("Could not get cache key")
@@ -133,7 +136,7 @@ func (dh *DimensionHandler) DeleteByKey(key interface{}) {
 		err = dh.jobCache.DeleteByKey(cacheKey)
 	}
 	if err != nil {
-		log.WithFields(log.Fields{
+		dh.logger.WithFields(log.Fields{
 			"error": err,
 			"UID":   cacheKey,
 		}).Error("Could not delete key from internal resource cache")

@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/signalfx/signalfx-agent/pkg/core/services"
 	"github.com/signalfx/signalfx-agent/pkg/observers"
@@ -79,23 +80,25 @@ func Test_HostObserver(t *testing.T) {
 	}
 
 	var o *Observer
-	var lock sync.Mutex
+	var obsLock sync.Mutex
+	var endpointLock sync.Mutex
 	var endpoints map[services.ID]services.Endpoint
 
-	startObserver := func() {
+	startObserver := func() (unlock func()) {
 		endpoints = make(map[services.ID]services.Endpoint)
+		obsLock.Lock()
 
 		o = &Observer{
 			serviceCallbacks: &observers.ServiceCallbacks{
 				Added: func(se services.Endpoint) {
-					lock.Lock()
+					endpointLock.Lock()
+					defer endpointLock.Unlock()
 					endpoints[se.Core().ID] = se
-					lock.Unlock()
 				},
 				Removed: func(se services.Endpoint) {
-					lock.Lock()
+					endpointLock.Lock()
+					defer endpointLock.Unlock()
 					delete(endpoints, se.Core().ID)
-					lock.Unlock()
 				},
 			},
 		}
@@ -103,49 +106,66 @@ func Test_HostObserver(t *testing.T) {
 		if err != nil {
 			panic("could not setup observer")
 		}
+		return obsLock.Unlock
 	}
 
 	t.Run("Omit PID", func(t *testing.T) {
 		config.OmitPIDDimension = true
 		defer func() { config.OmitPIDDimension = false }()
 		tcpConns := openTestTCPPorts(t)
-		startObserver()
-		lock.Lock()
-		require.True(t, len(endpoints) >= len(tcpConns))
+		defer startObserver()()
+
+		require.Eventually(t, func() bool {
+			endpointLock.Lock()
+			defer endpointLock.Unlock()
+			return len(endpoints) >= len(tcpConns)
+		}, 2*time.Second, time.Millisecond)
 
 		for _, e := range endpoints {
 			_, ok := e.Dimensions()["pid"]
 			require.False(t, ok)
 		}
 
-		lock.Unlock()
-		o.Shutdown()
 	})
 
 	t.Run("Basic connections", func(t *testing.T) {
 		tcpConns := openTestTCPPorts(t)
 		udpConns := openTestUDPPorts(t)
 
-		startObserver()
+		defer func() {
+			for _, conn := range tcpConns {
+				conn.Close()
+			}
+			for _, conn := range udpConns {
+				conn.Close()
+			}
+		}()
+		defer startObserver()()
 
-		lock.Lock()
-		require.True(t, len(endpoints) >= len(tcpConns)+len(udpConns))
+		require.Eventually(t, func() bool {
+			endpointLock.Lock()
+			defer endpointLock.Unlock()
+			return len(endpoints) >= len(tcpConns)+len(udpConns)
+		}, 2*time.Second, time.Millisecond)
 
 		t.Run("TCP ports", func(t *testing.T) {
 			for _, conn := range tcpConns {
 				host, port, _ := net.SplitHostPort(conn.Addr().String())
 				expectedID := fmt.Sprintf("%s-%s-TCP-%d", host, port, selfPid)
-				e := endpoints[services.ID(expectedID)].(*services.EndpointCore)
+				endpointLock.Lock()
+				e := endpoints[services.ID(expectedID)]
+				endpointLock.Unlock()
 				require.NotNil(t, e)
+				endpoint := e.(*services.EndpointCore)
 
 				portNum, _ := strconv.Atoi(port)
-				require.EqualValues(t, e.Port, portNum)
-				require.Equal(t, filepath.Base(exe), e.Name)
-				require.Equal(t, e.PortType, services.TCP)
+				require.EqualValues(t, endpoint.Port, portNum)
+				require.Equal(t, filepath.Base(exe), endpoint.Name)
+				require.Equal(t, endpoint.PortType, services.TCP)
 				if host[0] == ':' {
-					require.Equal(t, e.DerivedFields()["is_ipv6"], true)
+					require.Equal(t, endpoint.DerivedFields()["is_ipv6"], true)
 				} else {
-					require.Equal(t, e.DerivedFields()["is_ipv6"], false)
+					require.Equal(t, endpoint.DerivedFields()["is_ipv6"], false)
 				}
 
 				_, ok := e.Dimensions()["pid"]
@@ -160,24 +180,24 @@ func Test_HostObserver(t *testing.T) {
 			for _, conn := range udpConns {
 				host, port, _ := net.SplitHostPort(conn.LocalAddr().String())
 				expectedID := fmt.Sprintf("%s-%s-UDP-%d", host, port, selfPid)
-				e := endpoints[services.ID(expectedID)].(*services.EndpointCore)
+				endpointLock.Lock()
+				e := endpoints[services.ID(expectedID)]
+				endpointLock.Unlock()
 				require.NotNil(t, e)
+				endpoint := e.(*services.EndpointCore)
 				portNum, _ := strconv.Atoi(port)
-				require.EqualValues(t, e.Port, portNum)
-				require.Equal(t, filepath.Base(exe), e.Name)
-				require.Equal(t, services.UDP, e.PortType)
+				require.EqualValues(t, endpoint.Port, portNum)
+				require.Equal(t, filepath.Base(exe), endpoint.Name)
+				require.Equal(t, services.UDP, endpoint.PortType)
 				if host[0] == ':' {
-					require.Equal(t, e.DerivedFields()["is_ipv6"], true)
+					require.Equal(t, endpoint.DerivedFields()["is_ipv6"], true)
 				} else {
-					require.Equal(t, e.DerivedFields()["is_ipv6"], false)
+					require.Equal(t, endpoint.DerivedFields()["is_ipv6"], false)
 				}
 
 				_, ok := e.Dimensions()["pid"]
 				require.True(t, ok)
 			}
 		})
-
-		lock.Unlock()
-		o.Shutdown()
 	})
 }

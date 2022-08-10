@@ -6,11 +6,12 @@ package processes
 //go:generate ../../../../scripts/collectd-template-to-go processes.tmpl
 
 import (
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/collectd"
 	"github.com/signalfx/signalfx-agent/pkg/utils/hostfs"
-	log "github.com/sirupsen/logrus"
 )
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
@@ -19,6 +20,7 @@ func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			MonitorCore: *collectd.NewMonitorCore(CollectdTemplate),
+			logger:      logger,
 		}
 	}, &Config{})
 }
@@ -49,15 +51,17 @@ func (c *Config) Validate() error {
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	collectd.MonitorCore
+	logger log.FieldLogger
 }
 
 // Configure configures and runs the plugin in collectd
-func (am *Monitor) Configure(conf *Config) error {
+func (m *Monitor) Configure(conf *Config) error {
+	m.logger = m.logger.WithField("monitorID", conf.MonitorID)
 	if conf.ProcFSPath != "" {
-		logger.Warningf("Please set the `procPath` top level agent configuration instead of the monitor level configuration")
+		m.logger.Warningf("Please set the `procPath` top level agent configuration instead of the monitor level configuration")
 	} else {
 		// get top level configuration for /proc path
 		conf.ProcFSPath = hostfs.HostProc()
 	}
-	return am.SetConfigurationAndRun(conf)
+	return m.SetConfigurationAndRun(conf)
 }

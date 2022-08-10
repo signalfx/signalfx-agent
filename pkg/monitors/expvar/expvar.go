@@ -12,10 +12,11 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/datapoint"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -50,7 +51,7 @@ type metricVal struct {
 
 // Configure monitor
 func (m *Monitor) Configure(conf *Config) (err error) {
-	m.logger = log.WithFields(log.Fields{"monitorType": monitorType})
+	m.logger = log.WithFields(log.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
 	if m.Output.HasAnyExtraMetrics() {
 		conf.EnhancedMetrics = true
 	}

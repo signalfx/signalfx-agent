@@ -10,9 +10,8 @@ import (
 	"sync"
 
 	"github.com/davecgh/go-spew/spew"
-	log "github.com/sirupsen/logrus"
-
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

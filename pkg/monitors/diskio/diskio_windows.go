@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/influxdata/telegraf"
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/accumulator"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/monitors/winperfcounters"
@@ -23,6 +25,7 @@ type Monitor struct {
 	cancel func()
 	conf   *Config
 	filter *filter.OverridableStringFilter
+	logger logrus.FieldLogger
 }
 
 // maps telegraf metricnames to sfx metricnames
@@ -42,7 +45,7 @@ func (m *Monitor) filterMeasurements(ms telegraf.Metric) error {
 
 	// skip it if the disk doesn't match
 	if !ok || !m.filter.Matches(instance) {
-		logger.Debugf("skipping disk '%s'", instance)
+		m.logger.Debugf("skipping disk '%s'", instance)
 		// explicitly remove all fields to an empty map so no metrics are emitted
 		for field := range ms.Fields() {
 			ms.RemoveField(field)
@@ -67,12 +70,13 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	// save conf to monitor for convenience
 	m.conf = conf
+	m.logger = logger.WithField("monitorID", conf.MonitorID)
 
 	// configure filters
 	var err error
 	if len(conf.Disks) == 0 {
 		m.filter, err = filter.NewOverridableStringFilter([]string{"*"})
-		logger.Debugf("empty disk list defaulting to '*'")
+		m.logger.Debugf("empty disk list defaulting to '*'")
 	} else {
 		m.filter, err = filter.NewOverridableStringFilter(conf.Disks)
 	}
@@ -116,7 +120,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 
 	// create batch emitter
-	emitter := baseemitter.NewEmitter(m.Output, logger)
+	emitter := baseemitter.NewEmitter(m.Output, m.logger)
 
 	// add function to apply exhuastive filters to measurments
 	emitter.AddMeasurementTransformation(m.filterMeasurements)
@@ -141,7 +145,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	utils.RunOnInterval(ctx, func() {
 		// gather the perfcounters
 		if err := plugin.Gather(accumulator); err != nil {
-			logger.WithError(err).Errorf("unable to gather metrics from plugin")
+			m.logger.WithError(err).Errorf("unable to gather metrics from plugin")
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 

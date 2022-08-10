@@ -13,6 +13,8 @@ import (
 	dtypes "github.com/docker/docker/api/types"
 	docker "github.com/docker/docker/client"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
+
 	dockercommon "github.com/signalfx/signalfx-agent/pkg/core/common/docker"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
@@ -20,7 +22,6 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
 	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
-	"github.com/sirupsen/logrus"
 )
 
 const dockerAPIVersion = "v1.24"
@@ -88,7 +89,7 @@ type dockerContainer struct {
 
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
-	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
 
 	enhancedMetricsConfig := EnableExtraGroups(conf.EnhancedMetricsConfig, m.Output.EnabledMetrics())
 

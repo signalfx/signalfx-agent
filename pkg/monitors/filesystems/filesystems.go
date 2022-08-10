@@ -9,14 +9,13 @@ import (
 
 	gopsutil "github.com/shirou/gopsutil/disk"
 	"github.com/signalfx/golib/v3/datapoint"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
-
-	"github.com/sirupsen/logrus"
-	log "github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -61,7 +60,7 @@ type Monitor struct {
 	fsTypes           *filter.OverridableStringFilter
 	mountPoints       *filter.OverridableStringFilter
 	sendModeDimension bool
-	logger            logrus.FieldLogger
+	logger            log.FieldLogger
 }
 
 // returns common dimensions map for every filesystem
@@ -222,7 +221,7 @@ func (m *Monitor) emitDatapoints() {
 // Configure is the main function of the monitor, it will report host metadata
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
-	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
+	m.logger = log.WithFields(log.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
 
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())

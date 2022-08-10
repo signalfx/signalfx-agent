@@ -5,12 +5,12 @@ import (
 	"time"
 
 	"github.com/shirou/gopsutil/mem"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	"github.com/sirupsen/logrus"
-	log "github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -26,7 +26,7 @@ type Config struct {
 type Monitor struct {
 	Output types.Output
 	cancel func()
-	logger logrus.FieldLogger
+	logger log.FieldLogger
 }
 
 // EmitDatapoints emits a set of memory datapoints
@@ -51,7 +51,7 @@ func (m *Monitor) emitDatapoints() {
 // Configure is the main function of the monitor, it will report host metadata
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
-	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
+	m.logger = log.WithFields(log.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
 
 	// create contexts for managing the the plugin loop
 	var ctx context.Context

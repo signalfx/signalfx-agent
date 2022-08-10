@@ -12,9 +12,10 @@ import (
 	"github.com/antonmedv/expr/vm"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	"github.com/sirupsen/logrus"
 )
 
 type querier struct {
@@ -29,7 +30,7 @@ type querier struct {
 	logQueries                bool
 }
 
-func newQuerier(query *Query, logQueries bool) (*querier, error) {
+func newQuerier(query *Query, logQueries bool, logger logrus.FieldLogger) (*querier, error) {
 	valueColumnNamesToMetrics := map[string]*Metric{}
 	metricToIndex := map[*Metric]int{}
 

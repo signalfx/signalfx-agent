@@ -7,21 +7,20 @@ import (
 	"time"
 
 	"github.com/jaegertracing/jaeger/proto-gen/api_v2"
+	log "github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/peer"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/common/constants"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/jaegergrpc/jaegerprotobuf"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	log "github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/peer"
 )
 
 const gracefulShutdownTimeout = time.Second * 5
-
-var logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorType}), 30*time.Second)
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
@@ -62,6 +61,7 @@ type Monitor struct {
 	listenerLock sync.Mutex
 	cancel       context.CancelFunc
 	ln           net.Listener
+	logger       *utils.ThrottledLogger
 }
 
 var _ api_v2.CollectorServiceServer = (*Monitor)(nil)
@@ -119,7 +119,7 @@ func (m *Monitor) PostSpans(ctx context.Context, r *api_v2.PostSpansRequest) (*a
 	return &api_v2.PostSpansResponse{}, nil
 }
 
-func setupListener(ctx context.Context, conf *Config) (net.Listener, error) {
+func (m *Monitor) setupListener(ctx context.Context, conf *Config) (net.Listener, error) {
 	for ctx.Err() == nil {
 		// create a listener with the configured ListenAddress
 		ln, err := net.Listen("tcp", conf.ListenAddress)
@@ -129,7 +129,7 @@ func setupListener(ctx context.Context, conf *Config) (net.Listener, error) {
 			return ln, nil
 		}
 
-		logger.Errorf("could not start grpc listener %v", err)
+		m.logger.Errorf("could not start grpc listener %v", err)
 
 		// wait until the next interval to retry
 		select {
@@ -144,6 +144,7 @@ func setupListener(ctx context.Context, conf *Config) (net.Listener, error) {
 
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
+	m.logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID}), 30*time.Second)
 	ctx, cancel := context.WithCancel(context.Background())
 	m.cancel = cancel
 
@@ -166,7 +167,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		api_v2.RegisterCollectorServiceServer(m.grpc, m)
 
 		// setup the listener
-		ln, err := setupListener(ctx, conf)
+		ln, err := m.setupListener(ctx, conf)
 		if err != nil {
 			return
 		}
@@ -178,7 +179,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 		// start the server
 		if err := m.grpc.Serve(m.ln); err != nil {
-			logger.Errorf("failed to start server in %s monitor", monitorType)
+			m.logger.Errorf("failed to start server in %s monitor", monitorType)
 		}
 	}()
 

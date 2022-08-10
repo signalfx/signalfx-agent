@@ -9,19 +9,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
-
 	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/golib/v3/datapoint"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	"github.com/sirupsen/logrus"
-	log "github.com/sirupsen/logrus"
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 )
-
-var logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorType}), 30*time.Second)
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
@@ -63,10 +60,13 @@ type Monitor struct {
 	conf   *Config
 	ctx    context.Context
 	cancel context.CancelFunc
+	logger *utils.ThrottledLogger
 }
 
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
+	m.logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID}), 30*time.Second)
+
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 	m.conf = conf
 
@@ -91,7 +91,7 @@ OUTER:
 			Port: int(port),
 		})
 		if err != nil {
-			logger.WithFields(logrus.Fields{
+			m.logger.WithFields(log.Fields{
 				"err":  err,
 				"host": host,
 				"port": port,
@@ -100,12 +100,12 @@ OUTER:
 			continue
 		}
 
-		logger.Infof("Listening for Logstash events on %s", listener.Addr().String())
+		m.logger.Infof("Listening for Logstash events on %s", listener.Addr().String())
 
 		for {
 			conn, err := listener.Accept()
 			if err != nil {
-				logger.WithError(err).Error("Could not accept Logstash connections")
+				m.logger.WithError(err).Error("Could not accept Logstash connections")
 				listener.Close()
 				time.Sleep(m.conf.ReconnectDelay.AsDuration())
 				continue OUTER
@@ -116,7 +116,7 @@ OUTER:
 					if m.ctx.Err() == context.Canceled {
 						return
 					}
-					logger.WithError(err).Info("Logstash inbound connection terminated")
+					m.logger.WithError(err).Info("Logstash inbound connection terminated")
 				}
 			}()
 		}
@@ -131,7 +131,7 @@ func (m *Monitor) keepReadingFromServer(host string, port uint16) {
 
 		conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", host, port))
 		if err != nil {
-			logger.WithError(err).Error("Logstash TCP output connection failed")
+			m.logger.WithError(err).Error("Logstash TCP output connection failed")
 			time.Sleep(m.conf.ReconnectDelay.AsDuration())
 			continue
 		}
@@ -141,7 +141,7 @@ func (m *Monitor) keepReadingFromServer(host string, port uint16) {
 			if m.ctx.Err() == context.Canceled {
 				return
 			}
-			logger.WithError(err).Error("Logstash receive failed")
+			m.logger.WithError(err).Error("Logstash receive failed")
 			time.Sleep(m.conf.ReconnectDelay.AsDuration())
 			continue
 		}
@@ -151,7 +151,7 @@ func (m *Monitor) keepReadingFromServer(host string, port uint16) {
 func (m *Monitor) handleConnection(conn net.Conn) error {
 	go func() {
 		<-m.ctx.Done()
-		logger.Debug("Closing connection")
+		m.logger.Debug("Closing connection")
 		conn.Close()
 	}()
 
@@ -167,7 +167,7 @@ func (m *Monitor) handleConnection(conn net.Conn) error {
 
 		dps, err := m.convertEventToDatapoints(ev)
 		if err != nil {
-			logger.WithError(err).Errorf("Failed to convert event to datapoints: %v", ev)
+			m.logger.WithError(err).Errorf("Failed to convert event to datapoints: %v", ev)
 			continue
 		}
 
@@ -189,7 +189,7 @@ func (m *Monitor) convertEventToDatapoints(ev event) ([]*datapoint.Datapoint, er
 		var err error
 		timestamp, err = time.Parse(time.RFC3339, timestampStr)
 		if err != nil {
-			logger.WithField("timestamp", timestampStr).Warn("Could not parse timestamp with RFC3339 format")
+			m.logger.WithField("timestamp", timestampStr).Warn("Could not parse timestamp with RFC3339 format")
 		}
 	}
 
@@ -206,14 +206,14 @@ func (m *Monitor) convertEventToDatapoints(ev event) ([]*datapoint.Datapoint, er
 		// Both timers and meters have the count field.
 		_, ok = metricMap["count"].(float64)
 		if !ok {
-			logger.WithField("event", ev).Warnf("Saw event map without a 'count' field, is the Logstash event coming from the metrics filter?")
+			m.logger.WithField("event", ev).Warnf("Saw event map without a 'count' field, is the Logstash event coming from the metrics filter?")
 			continue
 		}
 
 		// The mean field indicates a timer value
 		_, ok = metricMap["mean"].(float64)
 		if ok {
-			dps = append(dps, parseMapAsTimer(k, metricMap, m.conf.DesiredTimerFieldSet())...)
+			dps = append(dps, m.parseMapAsTimer(k, metricMap, m.conf.DesiredTimerFieldSet())...)
 		} else {
 			dps = append(dps, parseMapAsMeter(k, metricMap))
 		}
@@ -235,12 +235,12 @@ func parseMapAsMeter(key string, metricMap map[string]interface{}) *datapoint.Da
 	return datapoint.New(key+".count", nil, val, datapoint.Counter, time.Time{})
 }
 
-func parseMapAsTimer(key string, metricMap map[string]interface{}, desiredFields map[string]bool) []*datapoint.Datapoint {
+func (m *Monitor) parseMapAsTimer(key string, metricMap map[string]interface{}, desiredFields map[string]bool) []*datapoint.Datapoint {
 	dps := make([]*datapoint.Datapoint, 0, len(desiredFields))
 	for fieldName := range desiredFields {
 		floatVal, ok := metricMap[fieldName].(float64)
 		if !ok {
-			logger.WithField("metric", metricMap).WithField("field", fieldName).Warn("Could not find desired field in map")
+			m.logger.WithField("metric", metricMap).WithField("field", fieldName).Warn("Could not find desired field in map")
 		}
 		val, _ := datapoint.CastFloatValue(floatVal)
 		typ := datapoint.Gauge

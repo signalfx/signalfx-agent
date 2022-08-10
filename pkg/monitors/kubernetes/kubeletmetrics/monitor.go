@@ -7,15 +7,16 @@ import (
 
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
+	log "github.com/sirupsen/logrus"
+	v1 "k8s.io/api/core/v1"
+	k8stypes "k8s.io/apimachinery/pkg/types"
+	stats "k8s.io/kubelet/pkg/apis/stats/v1alpha1"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/common/kubelet"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	log "github.com/sirupsen/logrus"
-	v1 "k8s.io/api/core/v1"
-	k8stypes "k8s.io/apimachinery/pkg/types"
-	stats "k8s.io/kubelet/pkg/apis/stats/v1alpha1"
 )
 
 func init() {
@@ -39,14 +40,15 @@ type Monitor struct {
 	Output        types.Output
 	cancel        func()
 	kubeletClient *kubelet.Client
+	logger        log.FieldLogger
 }
 
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
-	logger := log.WithFields(log.Fields{"monitorType": monitorType})
+	m.logger = log.WithFields(log.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
 
 	var err error
-	m.kubeletClient, err = kubelet.NewClient(&conf.KubeletAPI)
+	m.kubeletClient, err = kubelet.NewClient(&conf.KubeletAPI, m.logger)
 	if err != nil {
 		return err
 	}
@@ -54,13 +56,13 @@ func (m *Monitor) Configure(conf *Config) error {
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 	utils.RunOnInterval(ctx, func() {
-		logger.Debug("Collecting kubelet /stats/summary metrics")
+		m.logger.Debug("Collecting kubelet /stats/summary metrics")
 		dps, err := m.getSummaryMetrics(conf.UsePodsEndpoint)
 		if err != nil {
-			logger.WithError(err).Error("Could not get summary metrics")
+			m.logger.WithError(err).Error("Could not get summary metrics")
 			return
 		}
-		logger.Debugf("Sending kubelet metrics: %v", dps)
+		m.logger.Debugf("Sending kubelet metrics: %v", dps)
 
 		now := time.Now()
 		for i := range dps {

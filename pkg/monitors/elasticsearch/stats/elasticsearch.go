@@ -8,12 +8,13 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/datapoint"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 // Config for this monitor
@@ -140,7 +141,7 @@ func (sinfo *sharedInfo) getAllSharedInfo() (map[string]string, map[string]strin
 
 // Configure monitor
 func (m *Monitor) Configure(c *Config) error {
-	m.logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorType}), 20*time.Second)
+	m.logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorType, "monitorID": c.MonitorID}), 20*time.Second)
 
 	// conf is a config shallow copy that will be mutated and used to configure monitor
 	conf := &Config{}

@@ -16,12 +16,12 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
+	log "github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v2"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/tap"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	"github.com/sirupsen/logrus"
-	log "github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v2"
 )
 
 // VersionLine should be populated by the startup logic to contain version
@@ -211,13 +211,13 @@ func (a *Agent) datapointTapHandler(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(200)
 	dpTap := tap.New(filter, rw)
 
-	logrus.Infof("Datapoint tap started")
+	log.Infof("Datapoint tap started")
 	a.writer.SetTap(dpTap)
 
 	dpTap.Run(req.Context())
 
 	a.writer.SetTap(nil)
-	logrus.Infof("Datapoint tap cleared")
+	log.Infof("Datapoint tap cleared")
 }
 
 func streamDatapoints(host string, port uint16, metric string, dims string) (io.ReadCloser, error) {

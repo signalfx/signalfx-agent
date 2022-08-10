@@ -1,11 +1,12 @@
 package vmem
 
 import (
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
-	"github.com/sirupsen/logrus"
 )
 
 func init() {

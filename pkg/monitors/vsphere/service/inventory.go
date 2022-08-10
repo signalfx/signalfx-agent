@@ -1,20 +1,21 @@
 package service
 
 import (
-	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
 	"github.com/sirupsen/logrus"
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/types"
+
+	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
 )
 
 // Traverses the inventory tree and returns all of the hosts and VMs.
 type InventorySvc struct {
-	log     *logrus.Entry
+	log     logrus.FieldLogger
 	gateway IGateway
 	f       InvFilter
 }
 
-func NewInventorySvc(gateway IGateway, log *logrus.Entry, f InvFilter) *InventorySvc {
+func NewInventorySvc(gateway IGateway, log logrus.FieldLogger, f InvFilter) *InventorySvc {
 	return &InventorySvc{gateway: gateway, f: f, log: log}
 }
 

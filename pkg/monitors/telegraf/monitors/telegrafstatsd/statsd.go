@@ -8,13 +8,14 @@ import (
 
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
 	telegrafPlugin "github.com/influxdata/telegraf/plugins/inputs/statsd"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/accumulator"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
@@ -70,6 +71,7 @@ type Monitor struct {
 	Output types.Output
 	cancel func()
 	plugin *telegrafPlugin.Statsd
+	logger log.FieldLogger
 }
 
 // fetch the factory used to generate the perf counter plugin
@@ -77,16 +79,17 @@ var factory = telegrafInputs.Inputs["statsd"]
 
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) (err error) {
+	m.logger = logger.WithField("monitorID", conf.MonitorID)
 	m.plugin = factory().(*telegrafPlugin.Statsd)
 
 	// copy configurations to the plugin
 	if err = deepcopier.Copy(conf).To(m.plugin); err != nil {
-		logger.Error("unable to copy configurations to plugin")
+		m.logger.Error("unable to copy configurations to plugin")
 		return err
 	}
 
 	// create the accumulator
-	ac := accumulator.NewAccumulator(baseemitter.NewEmitter(m.Output, logger))
+	ac := accumulator.NewAccumulator(baseemitter.NewEmitter(m.Output, m.logger))
 
 	// create contexts for managing the the plugin loop
 	var ctx context.Context
@@ -100,7 +103,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
 		if err := m.plugin.Gather(ac); err != nil {
-			logger.WithError(err).Errorf("an error occurred while gathering metrics")
+			m.logger.WithError(err).Errorf("an error occurred while gathering metrics")
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 

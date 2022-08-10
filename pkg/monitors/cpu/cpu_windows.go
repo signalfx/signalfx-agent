@@ -8,7 +8,6 @@ import (
 	"unsafe"
 
 	"github.com/shirou/gopsutil/cpu"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/windows"
 )
 
@@ -27,11 +26,6 @@ const (
 // set gopsutil function to package variable for easier testing
 var (
 	gopsutilTimes = cpu.Times
-
-	// set getTimes function to a package variable to make it easier to test and
-	// wrap gopsutil on windows
-	times  = getTimes
-	logger = logrus.WithField("monitorType", monitorType)
 
 	// Windows API DLL
 	ntdll        = windows.NewLazySystemDLL("Ntdll.dll")
@@ -127,11 +121,11 @@ func ntQuerySystemInformation() ([]cpu.TimesStat, error) {
 	return coreInfo, nil
 }
 
-// getTimes has the same parameters and return values as gopsutil's cpu.Times() function
+// times has the same parameters and return values as gopsutil's cpu.Times() function
 // it actually relies on gopsutil's cpu.Times for non-per core information.
 // when percore is true it will attempt to use windows dll's to get the information
 // or fall back to gopsutil
-func getTimes(perCore bool) ([]cpu.TimesStat, error) {
+func (m *Monitor) times(perCore bool) ([]cpu.TimesStat, error) {
 	// non-percore utilization in gopsutil does not rely on wmi so it's fine to
 	// utilize it as is
 	if !perCore {
@@ -152,6 +146,6 @@ func getTimes(perCore bool) ([]cpu.TimesStat, error) {
 	}
 
 	// fall back to gopsutil if there was an error or the dll and proc weren't loaded/found
-	logger.WithField("debug", err).Debugf("falling back to gopsutil for per core cpu times")
+	m.logger.WithField("debug", err).Debugf("falling back to gopsutil for per core cpu times")
 	return gopsutilTimes(perCore)
 }

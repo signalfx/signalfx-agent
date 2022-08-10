@@ -4,24 +4,22 @@ import (
 	"context"
 	"fmt"
 
-	"k8s.io/api/autoscaling/v2beta1"
-
-	"k8s.io/client-go/rest"
-
-	"github.com/signalfx/signalfx-agent/pkg/monitors/kubernetes/cluster/metrics"
-	"github.com/signalfx/signalfx-agent/pkg/utils/k8sutil"
-	log "github.com/sirupsen/logrus"
-
 	quota "github.com/openshift/api/quota/v1"
 	quotav1 "github.com/openshift/client-go/quota/clientset/versioned/typed/quota/v1"
+	log "github.com/sirupsen/logrus"
 	appsv1 "k8s.io/api/apps/v1"
+	"k8s.io/api/autoscaling/v2beta1"
 	batchv1 "k8s.io/api/batch/v1"
 	batchv1beta1 "k8s.io/api/batch/v1beta1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
 	k8s "k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
+
+	"github.com/signalfx/signalfx-agent/pkg/monitors/kubernetes/cluster/metrics"
+	"github.com/signalfx/signalfx-agent/pkg/utils/k8sutil"
 )
 
 // State makes use of the K8s client's "reflector" helper to watch the API
@@ -32,18 +30,20 @@ type State struct {
 	reflectors  map[string]*cache.Reflector
 	namespace   string
 	cancel      func()
+	logger      log.FieldLogger
 
 	metricCache *metrics.DatapointCache
 	dimHandler  *metrics.DimensionHandler
 }
 
 func newState(flavor KubernetesDistribution, restConfig *rest.Config, metricCache *metrics.DatapointCache,
-	dimHandler *metrics.DimensionHandler, namespace string) (*State, error) {
+	dimHandler *metrics.DimensionHandler, namespace string, logger log.FieldLogger) (*State, error) {
 	state := &State{
 		reflectors:  make(map[string]*cache.Reflector),
 		metricCache: metricCache,
 		dimHandler:  dimHandler,
 		namespace:   namespace,
+		logger:      logger,
 	}
 
 	var err error
@@ -65,7 +65,7 @@ func newState(flavor KubernetesDistribution, restConfig *rest.Config, metricCach
 
 // Start starts syncing any resource that isn't already being synced
 func (cs *State) Start() {
-	log.Info("Starting K8s API resource sync")
+	cs.logger.Info("Starting K8s API resource sync")
 
 	var ctx context.Context
 	ctx, cs.cancel = context.WithCancel(context.Background())
@@ -172,7 +172,7 @@ func (cs *State) beginSyncForType(ctx context.Context, resType runtime.Object, r
 // channel properly.
 // See https://github.com/kubernetes/client-go/blob/release-8.0/tools/cache/controller.go#L144
 func (cs *State) Stop() {
-	log.Info("Stopping all K8s API resource sync")
+	cs.logger.Info("Stopping all K8s API resource sync")
 	if cs.cancel != nil {
 		cs.cancel()
 	}

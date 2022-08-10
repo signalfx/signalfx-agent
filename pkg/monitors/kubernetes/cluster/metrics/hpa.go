@@ -5,16 +5,17 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/sirupsen/logrus"
+	"k8s.io/api/autoscaling/v2beta1"
+	v1 "k8s.io/api/core/v1"
+
 	"github.com/signalfx/signalfx-agent/pkg/monitors/kubernetes/cluster/meta"
 	k8sutils "github.com/signalfx/signalfx-agent/pkg/monitors/kubernetes/utils"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	"github.com/sirupsen/logrus"
-	"k8s.io/api/autoscaling/v2beta1"
-	v1 "k8s.io/api/core/v1"
 )
 
-func datapointsForHpa(hpa *v2beta1.HorizontalPodAutoscaler) []*datapoint.Datapoint {
+func datapointsForHpa(hpa *v2beta1.HorizontalPodAutoscaler, logger logrus.FieldLogger) []*datapoint.Datapoint {
 	dimensions := map[string]string{
 		"metric_source":        "kubernetes",
 		"kubernetes_namespace": hpa.Namespace,
@@ -47,7 +48,7 @@ func datapointsForHpa(hpa *v2beta1.HorizontalPodAutoscaler) []*datapoint.Datapoi
 			datapoint.NewIntValue(int64(hpa.Status.DesiredReplicas)),
 			datapoint.Gauge,
 			time.Time{}),
-	}, newStatusDatapoints(hpa, dimensions)...)
+	}, newStatusDatapoints(hpa, dimensions, logger)...)
 }
 
 func dimensionForHpa(hpa *v2beta1.HorizontalPodAutoscaler) *types.Dimension {
@@ -67,12 +68,12 @@ func dimensionForHpa(hpa *v2beta1.HorizontalPodAutoscaler) *types.Dimension {
 	}
 }
 
-func newStatusDatapoints(hpa *v2beta1.HorizontalPodAutoscaler, dimensions map[string]string) []*datapoint.Datapoint {
+func newStatusDatapoints(hpa *v2beta1.HorizontalPodAutoscaler, dimensions map[string]string, logger logrus.FieldLogger) []*datapoint.Datapoint {
 	dps := make([]*datapoint.Datapoint, 0)
 	for _, condition := range hpa.Status.Conditions {
 		metric, value, err := newStatusMetricValue(condition)
 		if err != nil {
-			logrus.WithError(err).Errorf("Could not create hpa status datapoint")
+			logger.WithError(err).Errorf("Could not create hpa status datapoint")
 			continue
 		}
 		dps = append(dps, datapoint.New(metric, dimensions, value, datapoint.Gauge, time.Time{}))

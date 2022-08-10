@@ -6,10 +6,11 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
-	"github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -57,12 +58,13 @@ func (c *Config) Validate() error {
 type Monitor struct {
 	Output types.Output
 	cancel func()
+	logger logrus.FieldLogger
 }
 
 // Configure is the main function of the monitor, it will report host metadata
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
-	logger := logrus.WithFields(logrus.Fields{"monitorType": monitorType})
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
 
 	// create contexts for managing the the plugin loop
 	var ctx context.Context
@@ -72,18 +74,18 @@ func (m *Monitor) Configure(conf *Config) error {
 		for {
 			uaaToken, err := getUAAToken(conf.UAAURL, conf.UAAUser, conf.UAAPassword, conf.UAASkipVerify)
 			if err != nil {
-				logger.WithError(err).Errorf("Could not get UAA access token for user %s, retrying...", conf.UAAUser)
+				m.logger.WithError(err).Errorf("Could not get UAA access token for user %s, retrying...", conf.UAAUser)
 				time.Sleep(10 * time.Second)
 				continue
 			}
 
-			client := NewSignalFxGatewayClient(conf.RLPGatewayURL, uaaToken, conf.RLPGatewaySkipVerify, logger)
+			client := NewSignalFxGatewayClient(conf.RLPGatewayURL, uaaToken, conf.RLPGatewaySkipVerify, m.logger)
 			client.ShardID = conf.ShardID
 
-			logger.Info("Running RLP Gateway streamer")
+			m.logger.Info("Running RLP Gateway streamer")
 			err = client.Run(ctx, m.Output.SendDatapoints)
 			if err != nil && err != context.Canceled {
-				logger.WithError(err).Error("Gateway streamer shut down unexpectedly, retrying...")
+				m.logger.WithError(err).Error("Gateway streamer shut down unexpectedly, retrying...")
 				time.Sleep(10 * time.Second)
 				continue
 			}

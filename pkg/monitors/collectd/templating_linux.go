@@ -11,15 +11,15 @@ import (
 	"reflect"
 	"runtime"
 	"strconv"
+	"strings"
 	"text/template"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
-	"github.com/signalfx/signalfx-agent/pkg/core/services"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
 	log "github.com/sirupsen/logrus"
 
-	"strings"
+	"github.com/signalfx/signalfx-agent/pkg/core/services"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 // WriteConfFile writes a file to the given filePath, ensuring that the

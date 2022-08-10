@@ -97,7 +97,7 @@ func init() {
 // Configure is called by the plugin framework when configuration changes
 func (m *Monitor) Configure(config *Config) error {
 	var err error
-	m.logger = logrus.WithFields(logrus.Fields{"monitorType": distributionToMonitorType[m.distribution]})
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": distributionToMonitorType[m.distribution], "monitorID": config.MonitorID})
 
 	m.config = config
 
@@ -105,8 +105,8 @@ func (m *Monitor) Configure(config *Config) error {
 		return fmt.Errorf("could not create Kubernetes REST config: %s", err)
 	}
 
-	m.datapointCache = metrics.NewDatapointCache(m.config.NodeConditionTypesToReport)
-	m.dimHandler = metrics.NewDimensionHandler(m.Output.SendDimensionUpdate)
+	m.datapointCache = metrics.NewDatapointCache(m.config.NodeConditionTypesToReport, m.logger)
+	m.dimHandler = metrics.NewDimensionHandler(m.Output.SendDimensionUpdate, m.logger)
 	m.stop = make(chan struct{})
 
 	return m.Start()
@@ -118,7 +118,7 @@ func (m *Monitor) Start() error {
 
 	shouldReport := m.config.AlwaysClusterReporter
 
-	clusterState, err := newState(m.distribution, m.restConfig, m.datapointCache, m.dimHandler, m.config.Namespace)
+	clusterState, err := newState(m.distribution, m.restConfig, m.datapointCache, m.dimHandler, m.config.Namespace, m.logger)
 	if err != nil {
 		return err
 	}
@@ -130,7 +130,7 @@ func (m *Monitor) Start() error {
 		clusterState.Start()
 	} else {
 		var err error
-		leaderCh, unregister, err = leadership.RequestLeaderNotification(clusterState.clientset.CoreV1(), clusterState.clientset.CoordinationV1())
+		leaderCh, unregister, err = leadership.RequestLeaderNotification(clusterState.clientset.CoreV1(), clusterState.clientset.CoordinationV1(), m.logger)
 		if err != nil {
 			return err
 		}

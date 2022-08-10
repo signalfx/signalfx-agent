@@ -2,6 +2,8 @@ package statsd
 
 import (
 	"strings"
+
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 type fieldPattern struct {
@@ -14,22 +16,19 @@ type converter struct {
 	metric  *fieldPattern
 }
 
-func initConverter(input *ConverterInput) *converter {
-	pattern := parseFields(input.Pattern)
-	metric := parseFields(input.MetricName)
+func newConverter(input *ConverterInput, logger *utils.ThrottledLogger) *converter {
+	pattern := parseFields(input.Pattern, logger)
+	metric := parseFields(input.MetricName, logger)
 
 	if pattern == nil || metric == nil {
 		return nil
 	}
 
-	return &converter{
-		pattern: parseFields(input.Pattern),
-		metric:  parseFields(input.MetricName),
-	}
+	return &converter{pattern: pattern, metric: metric}
 }
 
 // parseDogstatsdTags extracts any dogstatd style tags from a metric.
-func parseDogstatsdTags(s string) (string, map[string]string) {
+func parseDogstatsdTags(s string, logger *utils.ThrottledLogger) (string, map[string]string) {
 	var dims map[string]string
 	tagsIdx := strings.LastIndex(s, "|#")
 	if tagsIdx >= 0 {
@@ -39,7 +38,9 @@ func parseDogstatsdTags(s string) (string, map[string]string) {
 		for _, t := range strings.Split(tagsRaw, ",") {
 			parts := strings.SplitN(t, ":", 2)
 			if len(parts) != 2 {
-				logger.Warnf("Invalid StatsD metric tag : %s", t)
+				if logger != nil {
+					logger.Warnf("Invalid StatsD metric tag : %s", t)
+				}
 				continue
 			}
 
@@ -52,7 +53,7 @@ func parseDogstatsdTags(s string) (string, map[string]string) {
 }
 
 // parsePattern takes a pattern string and convert it into parsed fieldPattern object
-func parseFields(p string) *fieldPattern {
+func parseFields(p string, logger *utils.ThrottledLogger) *fieldPattern {
 	var substrs []string
 
 	inBraces := false
@@ -61,20 +62,26 @@ func parseFields(p string) *fieldPattern {
 		switch c {
 		case '{':
 			if inBraces {
-				logger.Errorf("Invalid pattern, cannot nest opening braces '{' in pattern '%s'", p)
+				if logger != nil {
+					logger.Errorf("Invalid pattern, cannot nest opening braces '{' in pattern '%s'", p)
+				}
 				return nil
 			}
 			inBraces = true
 			if len(currentField) > 0 {
 				substrs = append(substrs, currentField)
 			} else if i != 0 {
-				logger.Errorf("Cannot have back to back match groups in pattern '%s'", p)
+				if logger != nil {
+					logger.Errorf("Cannot have back to back match groups in pattern '%s'", p)
+				}
 				return nil
 			}
 			currentField = ""
 		case '}':
 			if !inBraces {
-				logger.Errorf("Invalid pattern, no opening '{' found for pattern '%s'", p)
+				if logger != nil {
+					logger.Errorf("Invalid pattern, no opening '{' found for pattern '%s'", p)
+				}
 				return nil
 			}
 			inBraces = false
@@ -86,7 +93,9 @@ func parseFields(p string) *fieldPattern {
 	}
 
 	if inBraces {
-		logger.Errorf("Invalid pattern, no ending } found for pattern '%s'", p)
+		if logger != nil {
+			logger.Errorf("Invalid pattern, no ending } found for pattern '%s'", p)
+		}
 		return nil
 	}
 

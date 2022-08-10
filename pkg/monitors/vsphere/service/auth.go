@@ -5,19 +5,20 @@ import (
 	"crypto/tls"
 	"net/url"
 
-	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
 	"github.com/sirupsen/logrus"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/session"
 	"github.com/vmware/govmomi/vim25"
 	"github.com/vmware/govmomi/vim25/soap"
+
+	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
 )
 
 type AuthService struct {
-	log *logrus.Entry
+	log logrus.FieldLogger
 }
 
-func NewAuthService(log *logrus.Entry) *AuthService {
+func NewAuthService(log logrus.FieldLogger) *AuthService {
 	return &AuthService{log: log}
 }
 

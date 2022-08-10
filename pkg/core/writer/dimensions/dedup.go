@@ -4,8 +4,9 @@ import (
 	"reflect"
 
 	lru "github.com/hashicorp/golang-lru"
-	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 )
 
 type deduplicator struct {

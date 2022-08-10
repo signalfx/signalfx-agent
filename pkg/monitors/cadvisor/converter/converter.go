@@ -6,12 +6,12 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	info "github.com/google/cadvisor/info/v1"
 	"github.com/signalfx/golib/v3/datapoint"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
+	log "github.com/sirupsen/logrus"
 	stats "k8s.io/kubelet/pkg/apis/stats/v1alpha1"
+
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 // InfoProvider provides a swappable interface to actually get the cAdvisor
@@ -69,6 +69,7 @@ type CadvisorCollector struct {
 	podEphemeralStorageMetrics []podStatusMetric
 	sendDPs                    func(...*datapoint.Datapoint)
 	defaultDimensions          map[string]string
+	logger                     log.FieldLogger
 }
 
 // fsValues is a helper method for assembling per-filesystem stats.
@@ -675,7 +676,8 @@ func getPodEphemeralStorageMetrics() []podStatusMetric {
 func NewCadvisorCollector(
 	infoProvider InfoProvider,
 	sendDPs func(...*datapoint.Datapoint),
-	defaultDimensions map[string]string) *CadvisorCollector {
+	defaultDimensions map[string]string,
+	logger log.FieldLogger) *CadvisorCollector {
 
 	return &CadvisorCollector{
 		infoProvider:               infoProvider,
@@ -687,6 +689,7 @@ func NewCadvisorCollector(
 		podEphemeralStorageMetrics: getPodEphemeralStorageMetrics(),
 		sendDPs:                    sendDPs,
 		defaultDimensions:          defaultDimensions,
+		logger:                     logger,
 	}
 }
 
@@ -749,7 +752,7 @@ func (c *CadvisorCollector) collectContainersInfo() {
 	now := time.Now()
 	containers, err := c.infoProvider.SubcontainersInfo("/")
 	if err != nil {
-		log.WithError(err).Error("Couldn't get cAdvisor container stats")
+		c.logger.WithError(err).Error("Couldn't get cAdvisor container stats")
 		return
 	}
 	dpsOut := make([]*datapoint.Datapoint, 0)
@@ -847,7 +850,7 @@ func (c *CadvisorCollector) collectMachineInfo() {
 	machineInfo, err := c.infoProvider.GetMachineInfo()
 	if err != nil {
 		//c.errors.Set(1)
-		log.Errorf("Couldn't get machine info: %s", err)
+		c.logger.Errorf("Couldn't get machine info: %s", err)
 		return
 	}
 	if machineInfo == nil {
@@ -878,7 +881,7 @@ func (c *CadvisorCollector) collectEphemeralStorageStatsFromPod() {
 	podStats, err := c.infoProvider.GetEphemeralStatsFromPods()
 
 	if err != nil {
-		log.Errorf("Couldn't get Pod stats: %s", err)
+		c.logger.Errorf("Couldn't get Pod stats: %s", err)
 		return
 	}
 

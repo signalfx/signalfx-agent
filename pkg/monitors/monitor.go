@@ -5,11 +5,11 @@ import (
 	"reflect"
 
 	"github.com/signalfx/golib/v3/datapoint"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/core/services"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 // MonitorFactory is a niladic function that creates an unconfigured instance

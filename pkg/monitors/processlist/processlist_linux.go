@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/prometheus/procfs"
+	"github.com/sirupsen/logrus"
 )
 
 // A place to hold system info that is assumed not to change (or rarely change)
@@ -26,7 +27,7 @@ func initOSCache() *osCache {
 }
 
 // ProcessList takes a snapshot of running processes
-func ProcessList(conf *Config, cache *osCache) ([]*TopProcess, error) {
+func ProcessList(conf *Config, cache *osCache, logger logrus.FieldLogger) ([]*TopProcess, error) {
 	var fs procfs.FS
 	var err error
 	if conf.ProcPath == "" {
@@ -76,7 +77,7 @@ func ProcessList(conf *Config, cache *osCache) ([]*TopProcess, error) {
 				if err == nil {
 					cache.uidCache[uid] = user
 					username = user.Username
-				} else {
+				} else if logger != nil {
 					logger.WithError(err).Debugf("Could not lookup user id %s for process id %d", uid, p.PID)
 				}
 			}

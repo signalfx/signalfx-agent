@@ -7,5 +7,6 @@ import (
 	"github.com/shirou/gopsutil/cpu"
 )
 
-// setting cpu.Times to a package variable for testing purposes
-var times = cpu.Times
+func (m *Monitor) times(perCore bool) ([]cpu.TimesStat, error) {
+	return cpu.Times(perCore)
+}

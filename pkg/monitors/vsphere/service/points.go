@@ -13,7 +13,7 @@ import (
 )
 
 type PointsSvc struct {
-	log         *logrus.Entry
+	log         logrus.FieldLogger
 	gateway     IGateway
 	perfFetcher perfFetcher
 	ptConsumer  func(...*datapoint.Datapoint)
@@ -21,7 +21,7 @@ type PointsSvc struct {
 
 func NewPointsSvc(
 	gateway IGateway,
-	log *logrus.Entry,
+	log logrus.FieldLogger,
 	batchSize int,
 	ptConsumer func(...*datapoint.Datapoint),
 ) *PointsSvc {

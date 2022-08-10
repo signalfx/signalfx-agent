@@ -8,8 +8,9 @@ import (
 	dtypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	docker "github.com/docker/docker/client"
-	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
 )
 
 // ContainerChangeHandler is what gets called when a Docker container is

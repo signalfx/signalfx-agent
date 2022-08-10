@@ -8,11 +8,12 @@ package metadata
 import (
 	"errors"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/collectd"
 	"github.com/signalfx/signalfx-agent/pkg/utils/hostfs"
-	log "github.com/sirupsen/logrus"
 )
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
@@ -21,6 +22,7 @@ func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			MonitorCore: *collectd.NewMonitorCore(CollectdTemplate),
+			logger:      logger,
 		}
 	}, &Config{})
 }
@@ -97,19 +99,21 @@ var _ config.ExtraMetrics = &Config{}
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	collectd.MonitorCore
+	logger log.FieldLogger
 }
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
+	m.logger = m.logger.WithField("monitorID", conf.MonitorID)
 	conf.WriteServerURL = collectd.MainInstance().WriteServerURL()
 	if conf.ProcFSPath != "" {
-		logger.Warningf("please set the `procPath` top level agent configuration instead of the monitor level configuration")
+		m.logger.Warningf("please set the `procPath` top level agent configuration instead of the monitor level configuration")
 	} else {
 		// get top level configuration for /proc path
 		conf.ProcFSPath = hostfs.HostProc()
 	}
 	if conf.EtcPath != "" {
-		logger.Warningf("Please set the `etcPath` top level agent configuration instead of the monitor level configuration")
+		m.logger.Warningf("Please set the `etcPath` top level agent configuration instead of the monitor level configuration")
 	} else {
 		// get top level configuration for /etc path
 		conf.EtcPath = hostfs.HostEtc()

@@ -6,9 +6,9 @@ package cadvisor
 import (
 	"time"
 
+	"github.com/signalfx/golib/v3/datapoint"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/cadvisor/converter"
 )
@@ -17,6 +17,7 @@ import (
 type Monitor struct {
 	monConfig *config.MonitorConfig
 	stop      chan bool
+	logger    log.FieldLogger
 }
 
 // Configure and start/restart cadvisor plugin
@@ -27,16 +28,19 @@ func (m *Monitor) Configure(
 	hasPodEphemeralStorageStatsGroupEnabled bool) error {
 
 	m.monConfig = monConfig
+	if m.logger == nil {
+		m.logger = log.WithFields(log.Fields{"monitorType": monConfig.Type, "monitorID": monConfig.MonitorID})
+	}
 
-	collector := converter.NewCadvisorCollector(statProvider, sendDPs, monConfig.ExtraDimensions)
+	collector := converter.NewCadvisorCollector(statProvider, sendDPs, monConfig.ExtraDimensions, m.logger)
 
-	m.stop = monitorNode(monConfig.IntervalSeconds, collector, hasPodEphemeralStorageStatsGroupEnabled)
+	m.stop = m.monitorNode(collector, hasPodEphemeralStorageStatsGroupEnabled)
 
 	return nil
 }
 
-func monitorNode(intervalSeconds int, collector *converter.CadvisorCollector, hasPodEphemeralStorageStatsGroupEnabled bool) (stop chan bool) {
-	ticker := time.NewTicker(time.Duration(intervalSeconds) * time.Second)
+func (m *Monitor) monitorNode(collector *converter.CadvisorCollector, hasPodEphemeralStorageStatsGroupEnabled bool) (stop chan bool) {
+	ticker := time.NewTicker(time.Duration(m.monConfig.IntervalSeconds) * time.Second)
 	stop = make(chan bool, 1)
 
 	go func() {
@@ -44,7 +48,7 @@ func monitorNode(intervalSeconds int, collector *converter.CadvisorCollector, ha
 		for {
 			select {
 			case <-stop:
-				log.Info("Stopping cAdvisor collection")
+				m.logger.Info("Stopping cAdvisor collection")
 				ticker.Stop()
 				return
 			case <-ticker.C:

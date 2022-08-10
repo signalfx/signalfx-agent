@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -33,7 +34,7 @@ func TestDatapointsFromTerminalBucketAggregation(t *testing.T) {
 		"host": {
 			Type: "filters",
 		},
-	}, map[string]string{})
+	}, map[string]string{}, logrus.Fields{})
 
 	assert.ElementsMatch(t, dps, []*datapoint.Datapoint{
 		{
@@ -97,7 +98,7 @@ func TestMetricAggregationWithTermsAggregation(t *testing.T) {
 		"metric_agg_1": {
 			Type: "avg",
 		},
-	}, map[string]string{})
+	}, map[string]string{}, logrus.Fields{})
 
 	assert.ElementsMatch(t, dps, []*datapoint.Datapoint{
 		{
@@ -185,7 +186,7 @@ func TestExtendedStatsAggregationsFromFiltersAggregation(t *testing.T) {
 		"metric_agg_1": {
 			Type: "extended_stats",
 		},
-	}, map[string]string{})
+	}, map[string]string{}, logrus.Fields{})
 
 	dims := map[string]map[string]string{
 		"madrid": {
@@ -370,7 +371,7 @@ func TestPercentilesAggregationsFromFiltersAggregation(t *testing.T) {
 		"metric_agg_1": {
 			Type: "percentiles",
 		},
-	}, map[string]string{})
+	}, map[string]string{}, logrus.Fields{})
 
 	dims := map[string]map[string]string{
 		"madrid": {
@@ -484,7 +485,7 @@ func TestMultipleMetricAggregationWithTermsAggregation(t *testing.T) {
 		"metric_agg_3": {
 			Type: "extended_stats",
 		},
-	}, map[string]string{})
+	}, map[string]string{}, logrus.Fields{})
 
 	dims := map[string]map[string]string{
 		"metric_agg_1": {

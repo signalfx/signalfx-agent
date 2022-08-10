@@ -19,7 +19,7 @@ type Process struct {
 }
 
 // nextPage gets the next page for pagination request.
-func nextPage(resp *mongodbatlas.Response) (bool, int) {
+func nextPage(resp *mongodbatlas.Response, logger log.FieldLogger) (bool, int) {
 	if resp == nil || len(resp.Links) == 0 || resp.IsLastPage() {
 		return false, -1
 	}
@@ -27,7 +27,7 @@ func nextPage(resp *mongodbatlas.Response) (bool, int) {
 	currentPage, err := resp.CurrentPage()
 
 	if err != nil {
-		log.WithError(err).Error("failed to get the next page")
+		logger.WithError(err).Error("failed to get the next page")
 		return false, -1
 	}
 

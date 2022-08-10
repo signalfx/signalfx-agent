@@ -9,8 +9,9 @@ import (
 	"github.com/influxdata/telegraf/metric"
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/event"
-	"github.com/signalfx/signalfx-agent/pkg/neotest"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/signalfx/signalfx-agent/pkg/neotest"
 )
 
 func TestImmediateEmitter_Emit(t *testing.T) {

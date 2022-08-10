@@ -7,17 +7,16 @@ import (
 	"sync"
 	"time"
 
-	"github.com/signalfx/signalfx-agent/pkg/monitors/mongodb/atlas/measurements"
-
-	"github.com/signalfx/signalfx-agent/pkg/utils"
-
 	"github.com/Sectorbob/mlab-ns2/gae/ns/digest"
 	"github.com/mongodb/go-client-mongodb-atlas/mongodbatlas"
 	"github.com/signalfx/golib/v3/datapoint"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/mongodb/atlas/measurements"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
-
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 )
 
@@ -53,10 +52,12 @@ type Monitor struct {
 	cancel        context.CancelFunc
 	processGetter measurements.ProcessesGetter
 	diskGetter    measurements.DisksGetter
+	logger        log.FieldLogger
 }
 
 // Configure monitor
 func (m *Monitor) Configure(conf *Config) (err error) {
+	m.logger = log.WithFields(log.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
 	var client *mongodbatlas.Client
 	var processMeasurements measurements.ProcessesMeasurements
 	var diskMeasurements measurements.DisksMeasurements
@@ -70,8 +71,8 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		return fmt.Errorf("error making HTTP digest client: %+v", err)
 	}
 
-	m.processGetter = measurements.NewProcessesGetter(conf.ProjectID, conf.Granularity, conf.Period, client, conf.EnableCache)
-	m.diskGetter = measurements.NewDisksGetter(conf.ProjectID, conf.Granularity, conf.Period, client, conf.EnableCache)
+	m.processGetter = measurements.NewProcessesGetter(conf.ProjectID, conf.Granularity, conf.Period, client, conf.EnableCache, m.logger)
+	m.diskGetter = measurements.NewDisksGetter(conf.ProjectID, conf.Granularity, conf.Period, client, conf.EnableCache, m.logger)
 
 	utils.RunOnInterval(ctx, func() {
 		processes := m.processGetter.GetProcesses(ctx, timeout)

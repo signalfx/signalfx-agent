@@ -4,9 +4,10 @@ import (
 	"sync"
 
 	"github.com/influxdata/telegraf"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
-	log "github.com/sirupsen/logrus"
 )
 
 // BatchEmitter gathers a batch of telegraf measurements that can be modified

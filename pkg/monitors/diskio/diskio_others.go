@@ -11,6 +11,8 @@ import (
 	"github.com/shirou/gopsutil/disk"
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
@@ -25,6 +27,7 @@ type Monitor struct {
 	conf        *Config
 	filter      *filter.OverridableStringFilter
 	lastOpCount int64
+	logger      logrus.FieldLogger
 }
 
 func (m *Monitor) makeLinuxDatapoints(disk disk.IOCountersStat, dimensions map[string]string) []*datapoint.Datapoint {
@@ -45,7 +48,7 @@ func (m *Monitor) makeLinuxDatapoints(disk disk.IOCountersStat, dimensions map[s
 func (m *Monitor) emitDatapoints() {
 	iocounts, err := iOCounters()
 	if err != nil {
-		logger.WithError(err).Errorf("Failed to load disk io counters")
+		m.logger.WithError(err).Errorf("Failed to load disk io counters")
 		return
 	}
 
@@ -55,7 +58,7 @@ func (m *Monitor) emitDatapoints() {
 	for key, disk := range iocounts {
 		// skip it if the disk doesn't match
 		if !m.filter.Matches(disk.Name) {
-			logger.Debugf("skipping disk '%s'", disk.Name)
+			m.logger.Debugf("skipping disk '%s'", disk.Name)
 			continue
 		}
 
@@ -81,12 +84,13 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	// save conf to monitor for convenience
 	m.conf = conf
+	m.logger = logger.WithField("monitorID", conf.MonitorID)
 
 	// configure filters
 	var err error
 	if len(conf.Disks) == 0 {
 		m.filter, err = filter.NewOverridableStringFilter([]string{"*"})
-		logger.Debugf("empty disk list defaulting to '*'")
+		m.logger.Debugf("empty disk list defaulting to '*'")
 	} else {
 		m.filter, err = filter.NewOverridableStringFilter(conf.Disks)
 	}
