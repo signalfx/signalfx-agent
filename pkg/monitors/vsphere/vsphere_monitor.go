@@ -75,7 +75,7 @@ func (vsm *vSphereMonitor) wireUpServices(ctx context.Context, client *govmomi.C
 		vsm.log.WithError(err).Error("Failed to create filter")
 		// can keep going, f == nopFilter
 	}
-	vsm.invSvc = service.NewInventorySvc(gateway, vsm.log, f)
+	vsm.invSvc = service.NewInventorySvc(gateway, vsm.log, f, vsm.conf.VMHostDimension)
 	vsm.metricSvc = service.NewMetricsService(gateway, vsm.log)
 	vsm.timeSvc = service.NewTimeSvc(gateway)
 	vsm.vsInfoSvc = service.NewVSphereInfoService(vsm.invSvc, vsm.metricSvc)

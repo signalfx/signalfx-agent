@@ -6,13 +6,15 @@ import (
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
+
+	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
 )
 
 var testLog = logrus.WithField("monitorType", "vsphere-test")
 
 func TestRetrievePoints(t *testing.T) {
 	gateway := newFakeGateway(1)
-	inventorySvc := NewInventorySvc(gateway, testLog, nopFilter{})
+	inventorySvc := NewInventorySvc(gateway, testLog, nopFilter{}, model.GuestIP)
 	metricsSvc := NewMetricsService(gateway, testLog)
 	infoSvc := NewVSphereInfoService(inventorySvc, metricsSvc)
 	vsphereInfo, _ := infoSvc.RetrieveVSphereInfo()

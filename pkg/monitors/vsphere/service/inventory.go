@@ -13,10 +13,11 @@ type InventorySvc struct {
 	log     logrus.FieldLogger
 	gateway IGateway
 	f       InvFilter
+	hostDim model.VMHostDim
 }
 
-func NewInventorySvc(gateway IGateway, log logrus.FieldLogger, f InvFilter) *InventorySvc {
-	return &InventorySvc{gateway: gateway, f: f, log: log}
+func NewInventorySvc(gateway IGateway, log logrus.FieldLogger, f InvFilter, hostDim model.VMHostDim) *InventorySvc {
+	return &InventorySvc{gateway: gateway, f: f, log: log, hostDim: hostDim}
 }
 
 // use slice semantics to build parent dimensions while traversing the inv tree
@@ -205,10 +206,16 @@ func (svc *InventorySvc) followVM(
 		dimVM:            vm.Name,           // e.g. "MyDebian10Host"
 		dimGuestID:       vm.Config.GuestId, // e.g. "debian10_64Guest"
 		dimVMip:          vm.Guest.IpAddress,
-		dimHost:          vm.Guest.IpAddress,
 		dimGuestFamily:   vm.Guest.GuestFamily,   // e.g. "linuxGuest"
 		dimGuestFullname: vm.Guest.GuestFullName, // e.g. "Other 4.x or later Linux (64-bit)"
 	}
+
+	if svc.hostDim == model.GuestIP {
+		vmDims[dimHost] = vm.Guest.IpAddress
+	} else if svc.hostDim == model.GuestHostName {
+		vmDims[dimHost] = vm.Guest.HostName
+	}
+
 	amendDims(vmDims, dims)
 	vmInvObj := model.NewInventoryObject(vm.Self, vmDims)
 	inv.AddObject(vmInvObj)

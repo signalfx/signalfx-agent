@@ -1,6 +1,8 @@
 package model
 
 import (
+	"fmt"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 	"github.com/vmware/govmomi/vim25/types"
@@ -16,6 +18,14 @@ const (
 	VMType             = "VirtualMachine"
 	HostType           = "HostSystem"
 	FolderType         = "Folder"
+)
+
+type VMHostDim string
+
+const (
+	GuestIP       VMHostDim = "ip"
+	GuestHostName VMHostDim = "hostname"
+	Disable       VMHostDim = "disable"
 )
 
 // Config for the vSphere monitor
@@ -46,6 +56,13 @@ type Config struct {
 	// See https://github.com/antonmedv/expr for more advanced syntax.
 	Filter string `yaml:"filter"`
 
+	// The host dimension value set for monitored VMs.
+	// The options are: `ip`, `hostname` and `disable`. Default is `ip`.
+	// `ip`       : the VM IP if available
+	// `hostname` : the VM Hostname if available
+	// `disable`  : the vsphere monitor does not set the host dimension on the VM metrics
+	VMHostDimension VMHostDim `yaml:"vmHostDimension" default:"ip"`
+
 	// Path to the ca file
 	TLSCACertPath string `yaml:"tlsCACertPath"`
 
@@ -68,6 +85,16 @@ type InventoryObject struct {
 type Inventory struct {
 	Objects      []*InventoryObject
 	DimensionMap map[string]Dimensions
+}
+
+// Validate that VMHostDimension is one of the supported options
+func (c *Config) Validate() error {
+	switch c.VMHostDimension {
+	case GuestIP, GuestHostName, Disable:
+		return nil
+	default:
+		return fmt.Errorf("hostDimensionValue '%s' is invalid, it can only be '%s', '%s' or '%s'", c.VMHostDimension, GuestIP, GuestHostName, Disable)
+	}
 }
 
 func NewInventoryObject(ref types.ManagedObjectReference, extraDimensions map[string]string) *InventoryObject {

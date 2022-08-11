@@ -4,12 +4,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
 )
 
 func TestPopulateInvMetrics(t *testing.T) {
 	gateway := newFakeGateway(1)
 	metricsSvc := NewMetricsService(gateway, testLog)
-	inventorySvc := NewInventorySvc(gateway, testLog, nopFilter{})
+	inventorySvc := NewInventorySvc(gateway, testLog, nopFilter{}, model.GuestIP)
 	inv, _ := inventorySvc.RetrieveInventory()
 	metricsSvc.PopulateInvMetrics(inv)
 	invObj := inv.Objects[0]

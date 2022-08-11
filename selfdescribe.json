@@ -55033,6 +55033,9 @@
         "guest_id": {
           "description": "For virtual machine metrics, the guest identifier of the virtual machine to which the metric pertains."
         },
+        "host": {
+          "description": "For virtual machine metrics, the host dimension will be set to the VM IP instead of the running agent hostname. This behavior is configurable; check the `vmHostDimension` option for details."
+        },
         "object": {
           "description": "For some metrics, the source of the metric. For example, the identifier of a NIC for a network metric, or the processor number for a CPU metric."
         },
@@ -56569,6 +56572,14 @@
             "yamlName": "filter",
             "doc": "An 'expr' expression to limit the inventory traversed by the monitor. Leave blank or omit to traverse and get metrics for the entire vSphere inventory. Otherwise, this expression is evaluated per cluster. If the expression evaluates to true, metrics are collected for the objects in the cluster, otherwise it is skipped. Made available to the expr expression environment are the variables: `Datacenter` and `Cluster`. For example: filter: \"Datacenter == 'MyDatacenter' \u0026\u0026 Cluster == 'MyCluster'\" The above expr value will cause metrics collection for only the given datacenter + cluster. See https://github.com/antonmedv/expr for more advanced syntax.",
             "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "vmHostDimension",
+            "doc": "The host dimension value set for monitored VMs. The options are: `ip`, `hostname` and `disable`. Default is `ip`. `ip`       : the VM IP if available `hostname` : the VM Hostname if available `disable`  : the vsphere monitor does not set the host dimension on the VM metrics",
+            "default": "ip",
             "required": false,
             "type": "string",
             "elementKind": ""
