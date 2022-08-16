@@ -88,6 +88,7 @@ func (g *fakeGateway) retrieveRefProperties(mor types.ManagedObjectReference, ds
 		}
 		t.Guest = &types.GuestInfo{
 			IpAddress:     "1.2.3.4",
+			HostName:      "foo.host.name",
 			GuestFamily:   "fooFam",
 			GuestFullName: "fooFullName",
 		}
@@ -101,7 +102,7 @@ func (g *fakeGateway) retrieveRefProperties(mor types.ManagedObjectReference, ds
 	return nil
 }
 
-//noinspection GoUnusedParameter
+// noinspection GoUnusedParameter
 func (g *fakeGateway) queryAvailablePerfMetric(ref types.ManagedObjectReference) (*types.QueryAvailablePerfMetricResponse, error) {
 	counterID := g.metricIDCounter
 	g.metricIDCounter++
@@ -112,12 +113,12 @@ func (g *fakeGateway) queryAvailablePerfMetric(ref types.ManagedObjectReference)
 	}, nil
 }
 
-//noinspection GoUnusedParameter
+// noinspection GoUnusedParameter
 func (g *fakeGateway) queryPerfProviderSummary(mor types.ManagedObjectReference) (*types.QueryPerfProviderSummaryResponse, error) {
 	panic("implement me")
 }
 
-//noinspection GoUnusedParameter
+// noinspection GoUnusedParameter
 func (g *fakeGateway) queryPerf(inv []*model.InventoryObject, maxSample int32) (*types.QueryPerfResponse, error) {
 	var ret []types.BasePerfEntityMetricBase
 	counter := 0

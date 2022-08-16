@@ -116,9 +116,11 @@ func (svc *PointsSvc) FetchPoints(vsInfo *model.VsphereInfo, numSamplesReqd int3
 						sfxMetricType,
 						perfEntityMetric.SampleInfo[i].Timestamp,
 					)
-					// make sure the agent doesn't overwrite the `host` dimension with the hostname
-					// the agent is running on
-					dp.Meta[dpmeta.NotHostSpecificMeta] = true
+					// If the host dimension is set, the make sure the agent doesn't overwrite
+					// the `host` dimension with the hostname the agent is running on
+					if _, ok := dims["host"]; ok {
+						dp.Meta[dpmeta.NotHostSpecificMeta] = true
+					}
 					svc.ptConsumer(dp)
 				}
 			}
