@@ -325,7 +325,7 @@ build_and_push_package() {
   local staging_username=$7
   local staging_token=$8
 
-  PUSH_TO_REPO=$push \
+  PUSH_TO_REPO="no" \
   ARTIFACTORY_USERNAME=$artifactory_username \
   ARTIFACTORY_TOKEN=$artifactory_token \
   CHAPERONE_TOKEN=$chaperone_token \
