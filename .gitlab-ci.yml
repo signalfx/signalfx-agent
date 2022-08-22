@@ -3,6 +3,7 @@ default:
 
 stages:
   - update-stage-cache
+  - sast-oss-scan
   - win-bundle-build
   - win-bundle-sign
   - win-msi-build
@@ -15,6 +16,9 @@ stages:
 include:
   - project: 'core-ee/signing/api-integration'
     file: '/templates/.sign-client.yml'
+  - project: 'ci-cd/templates'
+    ref: master
+    file: '/prodsec/.oss-scan.yml'
 
 .sign-release-cache:
   variables:
@@ -40,6 +44,15 @@ update-stage-cache:
     - docker login -u $CIRCLECI_QUAY_USERNAME -p $CIRCLECI_QUAY_PASSWORD quay.io
   script:
     - make stage-cache
+
+fossa:
+  extends: .oss-scan
+  stage: sast-oss-scan
+  needs: []
+  only:
+    - main
+    - schedules
+  # allow_failure: false
 
 win-bundle-build:
   stage: win-bundle-build

@@ -1,0 +1,16 @@
+version: 3
+
+targets:
+  only:
+    - type: gomod
+    - type: maven
+      path: java/jmx
+    - type: maven
+      path: java/runner
+    - type: setuptools
+      path: python
+
+paths:
+  exclude:
+    - test-services
+    - tests
