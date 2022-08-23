@@ -128,24 +128,8 @@ def add_rpms_to_repo(paths, args):
 
         orig_metadata_md5 = get_md5_from_artifactory(metadata_api_url, args.artifactory_user, args.artifactory_token)
 
-        if args.chaperone_token and args.staging_user and args.staging_token:
-            with tempfile.TemporaryDirectory() as tmpdir:
-                signed_rpm_path = os.path.join(tmpdir, base)
-                print(f"Signing {path} (may take 10+ minutes):")
-                sign_file(
-                    path,
-                    signed_rpm_path,
-                    "RPM",
-                    args.chaperone_token,
-                    args.staging_user,
-                    args.staging_token,
-                    args.timeout,
-                )
-                upload_file_to_artifactory(signed_rpm_path, dest_url, args.artifactory_user, args.artifactory_token)
-                upload_file_to_artifactory(signed_rpm_path, staging_url, args.staging_user, args.staging_token)
-        else:
-            upload_file_to_artifactory(path, dest_url, args.artifactory_user, args.artifactory_token)
-            upload_file_to_artifactory(path, staging_url, args.staging_user, args.staging_token)
+        upload_file_to_artifactory(path, dest_url, args.artifactory_user, args.artifactory_token)
+        upload_file_to_artifactory(path, staging_url, args.staging_user, args.staging_token)
 
         wait_for_artifactory_metadata(
             metadata_api_url, orig_metadata_md5, args.artifactory_user, args.artifactory_token, args.timeout
