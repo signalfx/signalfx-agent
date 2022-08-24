@@ -2169,8 +2169,8 @@ github.com/smartystreets/goconvey v1.6.4/go.mod h1:syvi0/a8iFYH4r/RixwvyeAJjdLS9
 github.com/smartystreets/goconvey v1.7.2 h1:9RBaZCeXEQ3UselpuwUQHltGVXvdwm6cv1hgR6gDIPg=
 github.com/smartystreets/goconvey v1.7.2/go.mod h1:Vw0tHAZW6lzCRk3xgdin6fKYcG+G3Pg9vgXWeJpQFMM=
 github.com/snowflakedb/gosnowflake v1.6.3/go.mod h1:6hLajn6yxuJ4xUHZegMekpq9rnQbGJ7TMwXjgTmA6lg=
-github.com/snowflakedb/gosnowflake v1.6.12 h1:6K0IB+f7vTf/IWYLsKRHkRWqXXQxHsaZshOICOncUhc=
-github.com/snowflakedb/gosnowflake v1.6.12/go.mod h1:BoZ0gnLERaUEiziH4Dumim10LN8cvoaCKovsAfhxzrE=
+github.com/snowflakedb/gosnowflake v1.6.13 h1:r8iozak/p3P2jYfjF3EbeteqMMzPWjwmVrdENJDW6EI=
+github.com/snowflakedb/gosnowflake v1.6.13/go.mod h1:BoZ0gnLERaUEiziH4Dumim10LN8cvoaCKovsAfhxzrE=
 github.com/softlayer/softlayer-go v0.0.0-20180806151055-260589d94c7d h1:bVQRCxQvfjNUeRqaY/uT0tFuvuFY0ulgnczuR684Xic=
 github.com/softlayer/softlayer-go v0.0.0-20180806151055-260589d94c7d/go.mod h1:Cw4GTlQccdRGSEf6KiMju767x0NEHE0YIVPJSaXjlsw=
 github.com/soheilhy/cmux v0.1.5-0.20210205191134-5ec6847320e5/go.mod h1:T7TcVDs9LWfQgPlPsdngu6I6QIoyIFZDDC6sNE1GqG0=
