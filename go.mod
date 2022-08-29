@@ -55,7 +55,7 @@ require (
 	github.com/hashicorp/vault/api v1.7.2
 	github.com/iancoleman/strcase v0.0.0-20171129010253-3de563c3dc08
 	github.com/influxdata/telegraf v0.0.0-00010101000000-000000000000
-	github.com/jackc/pgx/v4 v4.17.0
+	github.com/jackc/pgx/v4 v4.17.1
 	github.com/jaegertracing/jaeger v1.37.0
 	github.com/kardianos/service v1.2.1
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
