@@ -70,6 +70,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `tlsCACertPath` | no | `string` | Path to the ca file |
 | `tlsClientCertificatePath` | no | `string` | Configure client certs. Both tlsClientKeyPath and tlsClientCertificatePath must be present. The files must contain PEM encoded data. Path to the client certificate |
 | `tlsClientKeyPath` | no | `string` | Path to the keyfile |
+| `soapClientDebug` | no | `bool` | When set to true, all the SOAP requests and responses will be logged. This generates lots of data, only use it for debugging. For this setting to take effect, make sure to restart the agent (**default:** `false`) |
 
 
 ## Metrics

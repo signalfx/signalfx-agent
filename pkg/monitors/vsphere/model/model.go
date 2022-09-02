@@ -72,6 +72,10 @@ type Config struct {
 	TLSClientCertificatePath string `yaml:"tlsClientCertificatePath"`
 	// Path to the keyfile
 	TLSClientKeyPath string `yaml:"tlsClientKeyPath"`
+	// When set to true, all the SOAP requests and responses will be logged.
+	// This generates lots of data, only use it for debugging.
+	// For this setting to take effect, make sure to restart the agent
+	SOAPClientDebug bool `yaml:"soapClientDebug"`
 }
 
 type Dimensions map[string]string
