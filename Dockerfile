@@ -77,7 +77,8 @@ RUN cd /usr/src/agent-java/jmx &&\
 
 
 ###### Collectd builder image ######
-FROM ubuntu:18.04 as collectd
+# revert to ubuntu:18.04 post https://bugs.launchpad.net/cloud-images/+bug/1988498/comments/2
+FROM ubuntu:bionic-20220801 as collectd
 
 ARG TARGET_ARCH
 ARG PYTHON_VERSION=3.8.10

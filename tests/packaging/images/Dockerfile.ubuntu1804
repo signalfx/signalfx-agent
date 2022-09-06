@@ -1,4 +1,5 @@
-FROM ubuntu:18.04
+# revert to ubuntu:18.04 post https://bugs.launchpad.net/cloud-images/+bug/1988498/comments/2
+FROM ubuntu:bionic-20220801
 
 RUN apt-get update &&\
     apt-get install -yq ca-certificates procps systemd wget
