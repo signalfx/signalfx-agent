@@ -9,6 +9,7 @@ import (
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/session"
 	"github.com/vmware/govmomi/vim25"
+	"github.com/vmware/govmomi/vim25/debug"
 	"github.com/vmware/govmomi/vim25/soap"
 
 	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
@@ -60,6 +61,9 @@ func (svc *AuthService) newGovmomiClient(ctx context.Context, myURL *url.URL, co
 }
 
 func (svc *AuthService) newVimClient(ctx context.Context, myURL *url.URL, conf *model.Config) (*vim25.Client, error) {
+	if conf.SOAPClientDebug {
+		debug.SetProvider(&LogProvider{log: svc.log})
+	}
 	soapClient := soap.NewClient(myURL, conf.InsecureSkipVerify)
 	if conf.TLSCACertPath != "" {
 		svc.log.Info("Attempting to load TLSCACertPath from ", conf.TLSCACertPath)
