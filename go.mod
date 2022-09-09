@@ -37,7 +37,7 @@ require (
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf
 	github.com/davecgh/go-spew v1.1.1
 	github.com/denisenkom/go-mssqldb v0.12.2
-	github.com/docker/docker v20.10.17+incompatible
+	github.com/docker/docker v20.10.18+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/go-errors/errors v1.4.2
 	github.com/go-playground/locales v0.14.0
