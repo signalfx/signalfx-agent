@@ -33,6 +33,11 @@ point but for now the process is manual.
    https://redhat-connect.gitbook.io/partner-guide-for-red-hat-openshift-and-container/appendix/connect-portal-api/project-creation#api-key)
    for details on how to create a personal API key.
 
+1. Clone the [integrations repository](https://github.com/signalfx/integrations)
+   for documentation updates.
+
+1. Clone the product docs repository from GitLab (`observability/docs/product-docs`).
+
 ## Release Process
 
 1. Make sure everything that go out in the release is in the `main` branch.
@@ -74,7 +79,8 @@ point but for now the process is manual.
 
 1. If the Helm assets have changed bump the chart version number in
    [Chart.yaml](deployments/k8s/helm/signalfx-agent/Chart.yaml) and commit/push
-   the changes.
+   the changes. This can be determined by checking to see if any changes have
+   been made in the [Helm directory](deployments/k8s/helm).
 
 1. If there are relevant changes in the [python](./python) directory, bump the
    version in [setup.py](./python/setup.py) and commit/push the changes.
@@ -108,9 +114,11 @@ point but for now the process is manual.
    Then push that tag with `git push --tags`.
 
 1. Wait for the `o11y-gdi/signalfx-agent-releaser` gitlab repo to be synced
-   with the new tag (may take up to 30 minutes; if you have permissions, you
-   can trigger the sync immediately from the repo settings in gitlab).  The
-   CI/CD pipeline will then trigger automatically for the new tag.
+   with the new tag (may take up to 30 minutes). The CI/CD pipeline will then
+   trigger automatically for the new tag.
+   - If you have `Maintainer` permissions or above, you can trigger the sync
+     immediately. Go to `Settings` -> `Repository` -> `Mirroring repositories` ->
+     `Click button to update existing mirrored repository`
 
 1. Ensure that the build and release jobs in gitlab for the tag are successful
    (may take over 30 minutes to complete).
@@ -123,12 +131,19 @@ point but for now the process is manual.
    1. Ensure that the `quay.io/signalfx/signalfx-agent:<version>-windows`
       image was built and pushed.
    1. Ensure that the choco package was pushed to [chocolatey](
-      https://community.chocolatey.org/packages/signalfx-agent).
+      https://community.chocolatey.org/packages/signalfx-agent). Some jobs may take
+      a day or two to be started.
 
 1. Create the `./build/signed` directory in your local repo root.
 
 1. Download the windows zip bundle and MSI from the Github Release to
    `./build/signed`.
+
+1. Get `us0` realm credentials through Okta.
+   ```
+   $ okta-aws-setup us0
+   ```
+   Select the `signalfx/splunkcloud_account_power` role.
 
 1. Run the release script to push the msi and bundle to S3:
 
@@ -162,13 +177,18 @@ point but for now the process is manual.
 1. Test out the new release by deploying it to a test environment and ensuring
    it works.
 
-1. If the docs have changed since the last release, update the product docs
-   repository by running the script `scripts/docs/to-product-docs`.  If the
-   README has been updated, you will also need to run the script
-   `scripts/docs/to-integrations-repo` to update the agent tile contents,
-   which is based on the README.
+1. Update documentation
+   - Integration docs:
+      - Run the script to update the agent tile contents, which is based on the README.
+      ```
+      $ scripts/docs/to-integrations-repo
+      ```
+      - Submit a PR to the repository with the changes, if any exist.
 
-   To release product docs, first ensure that you have pandoc installed (on
-   Mac you can do `brew install pandoc`).  Next checkout the git repo
-   github.com/signalfx/product-docs to your local workstation and run
-   `PRODUCT_DOCS_REPO=<path to product docs> scripts/docs/to-product-docs`.
+   - Product docs:
+      - Ensure that you have pandoc installed (on Mac you can do `brew install pandoc`).
+      - Run
+      ```
+      $ PRODUCT_DOCS_REPO=<path to product docs repo> scripts/docs/to-product-docs
+      ```
+      - Submit a PR to the repository with the changes, if any exist.
