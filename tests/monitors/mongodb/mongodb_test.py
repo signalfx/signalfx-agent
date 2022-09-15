@@ -6,7 +6,7 @@ import pytest
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import tcp_socket_open
 from tests.helpers.metadata import Metadata
-from tests.helpers.util import container_ip, run_container, wait_for
+from tests.helpers.util import container_ip, run_service, wait_for
 from tests.helpers.verify import verify
 
 pytestmark = [pytest.mark.collectd, pytest.mark.mongodb, pytest.mark.monitor_with_endpoints]
@@ -30,7 +30,7 @@ EXPECTED_DEFAULTS = METADATA.default_metrics - {
 
 
 def test_mongo_basic():
-    with run_container("mongo:3.6") as mongo_cont:
+    with run_service("mongodb") as mongo_cont:
         host = container_ip(mongo_cont)
         config = dedent(
             f"""
@@ -38,6 +38,8 @@ def test_mongo_basic():
               - type: collectd/mongodb
                 host: {host}
                 port: 27017
+                username: test123
+                password: test123
                 databases: [admin]
             """
         )
@@ -48,7 +50,7 @@ def test_mongo_basic():
 
 
 def test_mongo_enhanced_metrics():
-    with run_container("mongo:3.6") as mongo_cont:
+    with run_service("mongodb") as mongo_cont:
         host = container_ip(mongo_cont)
         config = dedent(
             f"""
@@ -56,6 +58,8 @@ def test_mongo_enhanced_metrics():
               - type: collectd/mongodb
                 host: {host}
                 port: 27017
+                username: test123
+                password: test123
                 databases: [admin]
                 sendCollectionMetrics: true
                 sendCollectionTopMetrics: true
