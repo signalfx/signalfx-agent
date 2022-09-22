@@ -98,6 +98,9 @@ spec:
         - /bin/signalfx-agent
         {{- end }}
         volumeMounts:
+        {{- if not .Values.enableCSI }}
+        {{- include "pod.csi.secrets-store.volumeMounts" $ | indent 8 }}
+        {{- end }}
         - mountPath: {{ .Values.isWindows | ternary "C:\\ProgramData\\SignalFxAgent" "/etc/signalfx" }}
           name: config
         - mountPath: {{ .Values.hostFSPath }}
@@ -124,11 +127,13 @@ spec:
         resources:
           {{- toYaml .Values.resources | trim | nindent 10 }}
         env:
+        {{- if not .Values.csiSecrets.enabled }}
         - name: SFX_ACCESS_TOKEN
           valueFrom:
             secretKeyRef:
               name: {{ template "signalfx-agent.secretName" . }}
               key: access-token
+        {{- end }}
         {{- if .Values.splunkUrl }}
         - name: SPLUNK_TOKEN
           valueFrom:
@@ -165,6 +170,9 @@ spec:
         {{- end }}
       {{- end }}
       volumes:
+      {{- if .Values.csiSecrets.enabled }}
+      {{- include "pod.csi.secrets-store.volumes" $ | indent 6 }}
+      {{- end }}
       - name: config
         configMap:
           name: {{ include "configmap-name" . }}

@@ -356,3 +356,13 @@ hostAliases: []
 # optionally configure hostNetwork
 # defaults to true for daemonset
 # hostNetwork: true
+
+# CSI Secrets config for csiDriver
+csiSecrets:
+  enabled: false
+  mountPath: /etc/sfx-creds
+  secrets:
+    - fileName:
+      nameTpl:
+        aws:
+        gcp:
