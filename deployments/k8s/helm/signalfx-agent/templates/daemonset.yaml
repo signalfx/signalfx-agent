@@ -98,7 +98,7 @@ spec:
         - /bin/signalfx-agent
         {{- end }}
         volumeMounts:
-        {{- if not .Values.enableCSI }}
+        {{- if .Values.csiSecrets.enabled }}
         {{- include "pod.csi.secrets-store.volumeMounts" $ | indent 8 }}
         {{- end }}
         - mountPath: {{ .Values.isWindows | ternary "C:\\ProgramData\\SignalFxAgent" "/etc/signalfx" }}
