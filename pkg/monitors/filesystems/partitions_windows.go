@@ -196,3 +196,7 @@ func getPartitionStats(
 
 	return stats, lastError
 }
+
+func getUsage(hostFSPath string, path string) (*gopsutil.UsageStat, error) {
+	return gopsutil.Usage(path)
+}

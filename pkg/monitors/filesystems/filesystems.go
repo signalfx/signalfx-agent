@@ -175,9 +175,9 @@ func (m *Monitor) emitDatapoints() {
 		}
 
 		// if we can't collect usage stats about the mountpoint then skip it
-		disk, err := gopsutil.Usage(partition.Mountpoint)
+		disk, err := getUsage(m.hostFSPath, partition.Mountpoint)
 		if err != nil {
-			m.logger.WithError(err).WithField("mountpoint", partition.Mountpoint).Error("failed to collect usage for mountpoint")
+			m.logger.WithError(err).WithField("mountpoint", partition.Mountpoint).Debug("failed to collect usage for mountpoint")
 			continue
 		}
 
