@@ -125,7 +125,7 @@ Metrics that are categorized as
  - `postgres_pct_connections` (*gauge*)<br>    The number of connections to this database as a fraction of the maximum number of allowed connections.
  - ***`postgres_query_count`*** (*cumulative*)<br>    Total number of queries executed on the `database`, broken down by `user`.  Note that the accuracy of this metric depends on the PostgreSQL [pg_stat_statements.max config option](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631) being large enough to hold all queries.
 
- - ***`postgres_query_time`*** (*cumulative*)<br>    Total time taken to execute queries on the `database`, broken down by `user`.
+ - ***`postgres_query_time`*** (*cumulative*)<br>    Total time taken to execute queries on the `database`, broken down by `user`. Measured in ms unless otherwise indicated.
  - ***`postgres_rows_deleted`*** (*cumulative*)<br>    Number of rows deleted from the `table`.
  - ***`postgres_rows_inserted`*** (*cumulative*)<br>    Number of rows inserted into the `table`.
  - ***`postgres_rows_updated`*** (*cumulative*)<br>    Number of rows updated in the `table`.

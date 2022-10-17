@@ -44500,7 +44500,7 @@
         },
         "postgres_query_time": {
           "type": "cumulative",
-          "description": "Total time taken to execute queries on the `database`, broken down by `user`.",
+          "description": "Total time taken to execute queries on the `database`, broken down by `user`. Measured in ms unless otherwise indicated.",
           "group": null,
           "default": true
         },
