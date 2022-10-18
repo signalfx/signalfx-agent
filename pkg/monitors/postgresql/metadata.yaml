@@ -127,7 +127,7 @@ monitors:
       type: cumulative
     postgres_query_time:
       description: Total time taken to execute queries on the `database`, broken down
-        by `user`.
+        by `user`. Measured in ms unless otherwise indicated.
       default: true
       type: cumulative
     postgres_rows_inserted:
