@@ -209,9 +209,10 @@ win-msi-build:
 win-msi-sign:
   extends:
     - .trigger-filter
+    - .submit-request
   stage: sign-packages
   needs:
-    - build-msi
+    - win-msi-build
   variables:
     ARTIFACT: build/packages.tar.gz
     SIGN_TYPE: WIN
