@@ -171,12 +171,25 @@ sign-rpm:
 win-bundle-sign:
   extends:
     - .trigger-filter
-    - .sign-release-cache
+    - .submit-request
   stage: sign-packages
   needs:
     - win-bundle-build
-  script:
-    - scripts/signing/sign_win_agent.py $( ls build/SignalFxAgent-*.zip )
+variables:
+  ARTIFACT: build/packages.tar.gz
+  SIGN_TYPE: WIN
+  OPTIONS: archive
+  DOWNLOAD_DIR: build/signed
+  before_script:
+    - apt-get update && apt-get install -y unzip zip
+    - unzip -q build/SignalFxAgent-*.zip -d build/ || true
+    - pushd build/SignalFxAgent/bin && tar -czvf packages.tar.gz signalfx-agent.exe && mv packages.tar.gz ../../ && popd
+  after_script:
+    - tar -xzvf build/signed/packages.tar.gz -C build/signed/
+    - rm build/signed/packages.tar.gz
+    - mv build/signed/signalfx-agent.exe build/SignalFxAgent/bin/signalfx-agent.exe
+    - pushd build && ZIPFILE=$(ls SignalFxAgent-*.zip) && rm $ZIPFILE && zip -q -r $ZIPFILE SignalFxAgent && mv $ZIPFILE signed/ && popd
+    - rm -Rf build/SignalFxAgent
   artifacts:
     paths:
       - build/signed/SignalFxAgent-*.zip
@@ -201,12 +214,20 @@ win-msi-build:
 win-msi-sign:
   extends:
     - .trigger-filter
-    - .sign-release-cache
+    - .submit-request
   stage: sign-packages
   needs:
     - win-msi-build
-  script:
-    - scripts/signing/sign_win_agent.py $( ls build/SignalFxAgent-*.msi )
+  variables:
+    ARTIFACT: build/packages.tar.gz
+    SIGN_TYPE: WIN
+    OPTIONS: archive
+    DOWNLOAD_DIR: build/signed
+  before_script:
+    - pushd build && tar -czvf packages.tar.gz *.msi && popd
+  after_script:
+    - tar -xzvf build/signed/packages.tar.gz -C build/signed/
+    - rm build/signed/packages.tar.gz
   artifacts:
     paths:
       - build/signed/SignalFxAgent-*.msi
