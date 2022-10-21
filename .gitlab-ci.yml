@@ -175,11 +175,11 @@ win-bundle-sign:
   stage: sign-packages
   needs:
     - win-bundle-build
-variables:
-  ARTIFACT: build/packages.tar.gz
-  SIGN_TYPE: WIN
-  OPTIONS: archive
-  DOWNLOAD_DIR: build/signed
+  variables:
+    ARTIFACT: build/packages.tar.gz
+    SIGN_TYPE: WIN
+    OPTIONS: archive
+    DOWNLOAD_DIR: build/signed
   before_script:
     - apt-get update && apt-get install -y unzip zip
     - unzip -q build/SignalFxAgent-*.zip -d build/ || true
