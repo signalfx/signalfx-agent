@@ -18,7 +18,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-//ID uniquely identifies a service instance
+// ID uniquely identifies a service instance
 type ID string
 
 // Endpoint is the generic interface that all types of service instances should

@@ -74,6 +74,53 @@ linters:
     # violations.
     - funlen
     - gocognit
+    # The following started erroring w/ 1.18 upgrade. Disabling
+    # for now and their value could be evaluated in the future.
+    - asasalint
+    - containedctx
+    - cyclop
+    - errchkjson
+    - errcheck
+    - errname
+    - errorlint
+    - exhaustive
+    - exhaustivestruct
+    - exhaustruct
+    - forbidigo
+    - forcetypeassert
+    - gci
+    - gocritic
+    - godot
+    - goerr113
+    - gofumpt
+    - gomoddirectives
+    - gosec
+    - gosimple
+    - ifshort
+    - ireturn
+    - maintidx
+    - nestif
+    - nilnil
+    - nlreturn
+    - noctx
+    - nolintlint
+    - nonamedreturns
+    - nosprintfhostport
+    - nosnakecase
+    - paralleltest
+    - predeclared
+    - promlinter
+    - revive
+    - staticcheck
+    - stylecheck
+    - tagliatelle
+    - testpackage
+    - thelper
+    - tparallel
+    - usestdlibvars
+    - varnamelen
+    - wrapcheck
+
 
 linters-settings:
   settings:

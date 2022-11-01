@@ -179,20 +179,22 @@ func (dpC *dpCollector) collectDatapointsFromMetricAggregation() []*datapoint.Da
 
 // Collect datapoints from "stats" or "extended_stats" metric aggregation
 // Extended stats aggregations look like:
-// {
-//		"count" : 36370,
-//		"min" : 0.0,
-//		"max" : 100.0,
-//		"avg" : 49.98350288699478,
-//		"sum" : 1817900.0,
-//		"sum_of_squares" : 1.21849642E8,
-//		"variance" : 851.9282953459498,
-//		"std_deviation" : 29.187810732323687,
-//		"std_deviation_bounds" : {
-//			"upper" : 108.35912435164215,
-//			"lower" : -8.392118577652596
-//  	}
-// }
+//
+//	{
+//			"count" : 36370,
+//			"min" : 0.0,
+//			"max" : 100.0,
+//			"avg" : 49.98350288699478,
+//			"sum" : 1817900.0,
+//			"sum_of_squares" : 1.21849642E8,
+//			"variance" : 851.9282953459498,
+//			"std_deviation" : 29.187810732323687,
+//			"std_deviation_bounds" : {
+//				"upper" : 108.35912435164215,
+//				"lower" : -8.392118577652596
+//	 	}
+//	}
+//
 // Metric names from this integration will look like "extended_stats.count",
 // "extended_stats.min", "extended_stats.std_deviation_bounds.lower" and so on
 func (dpC *dpCollector) getDatapointsFromStats(aggName string, aggRes *aggregationResponse, dims map[string]string) []*datapoint.Datapoint {

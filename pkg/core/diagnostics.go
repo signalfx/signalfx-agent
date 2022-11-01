@@ -26,7 +26,7 @@ import (
 
 // VersionLine should be populated by the startup logic to contain version
 // information that can be reported in diagnostics.
-//nolint: gochecknoglobals
+// nolint: gochecknoglobals
 var VersionLine string
 
 // Serves the diagnostic status on the specified path

@@ -1,6 +1,6 @@
 package stats
 
-//IndexStatsOutput contains all the index level stats of
+// IndexStatsOutput contains all the index level stats of
 // the following types and will be used to retrieve node
 // level metrics
 type IndexStatsOutput struct {

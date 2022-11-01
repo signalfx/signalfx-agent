@@ -15,10 +15,10 @@ import (
 )
 
 // Used to make unique service ids
-//nolint: gochecknoglobals
+// nolint: gochecknoglobals
 var serviceID = 0
 
-//nolint: unparam
+// nolint: unparam
 func newService(imageName string, publicPort int) services.Endpoint {
 	serviceID++
 
