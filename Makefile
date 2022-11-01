@@ -80,7 +80,8 @@ lint:
 
 .PHONY: gofmt
 gofmt:
-	CGO_ENABLED=0 go fmt ./...
+	go generate ./...
+	CGO_ENABLED=0 gofmt -w -l .
 
 .PHONY: image
 image:
@@ -91,8 +92,7 @@ tidy:
 	go mod tidy -go=1.17 && go mod tidy -go=1.18
 
 .PHONY: signalfx-agent
-signalfx-agent:
-	go generate ./...
+signalfx-agent: gofmt
 	echo "building SignalFx agent for operating system: $(GOOS)"
 	CGO_ENABLED=0 go build \
 		-o signalfx-agent \

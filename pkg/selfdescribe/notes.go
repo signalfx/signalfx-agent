@@ -18,7 +18,6 @@ var (
 )
 
 // readNote collects a single note from a sequence of comments.
-//
 func readNote(list []*ast.Comment, notes map[string][]*doc.Note) {
 	text := (&ast.CommentGroup{List: list}).Text()
 	if m := noteMarkerRx.FindStringSubmatchIndex(text); m != nil {
@@ -44,7 +43,6 @@ func readNote(list []*ast.Comment, notes map[string][]*doc.Note) {
 // and is followed by the note body (e.g., "// BUG(gri): fix this").
 // The note ends at the end of the comment group or at the start of
 // another note in the same comment group, whichever comes first.
-//
 func readNotes(comments []*ast.CommentGroup) map[string][]*doc.Note {
 	notes := make(map[string][]*doc.Note)
 	for _, group := range comments {

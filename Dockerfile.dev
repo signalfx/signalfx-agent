@@ -34,6 +34,7 @@ ENV SIGNALFX_BUNDLE_DIR=/bundle \
     GOOS=linux \
     LC_ALL=C.UTF-8 \
     LANG=C.UTF-8
+ENV GOFLAGS="-buildvcs=false"
 
 RUN rm -f /usr/bin/python3 && \
     ln -s /usr/bin/python3.8 /usr/bin/python && \
@@ -84,7 +85,7 @@ COPY --from=signalfx-agent-dev-cache:stage-agent-builder /go $GOPATH
 RUN go install golang.org/x/lint/golint@latest
 RUN if [ `uname -m` != "aarch64" ]; then go install github.com/go-delve/delve/cmd/dlv@latest; fi
 RUN go install github.com/tebeka/go2xunit@latest
-RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.45.2
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.48.0
 
 COPY ./ ./
 

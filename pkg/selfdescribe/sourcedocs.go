@@ -17,7 +17,7 @@ type astCacheEntry struct {
 	pkgs map[string]*ast.Package
 }
 
-//nolint: gochecknoglobals
+// nolint: gochecknoglobals
 // Used to cache the asts parsed from package files
 var astCache = map[string]astCacheEntry{}
 
@@ -124,7 +124,7 @@ func structFieldDocs(packageDir, structName string) map[string]string {
 	return fieldDocs
 }
 
-//nolint: gochecknoglobals
+// nolint: gochecknoglobals
 var textRE = regexp.MustCompile(`([^\n])\n([^\s])`)
 
 func commentTextToParagraphs(t string) string {

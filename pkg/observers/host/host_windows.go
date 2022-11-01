@@ -4,6 +4,7 @@
 package host
 
 import (
+	"errors"
 	"fmt"
 	"unsafe"
 
@@ -38,8 +39,11 @@ func (p *processName) setPidNameMap() error {
 		p.pidNameMap[int32(pe32.ProcessID)] = windows.UTF16ToString(pe32.ExeFile[:])
 		if err = windows.Process32Next(snapshot, &pe32); err != nil {
 			// ERROR_NO_MORE_FILES we reached the end of the snapshot
+			if errors.Is(err, windows.ERROR_NO_MORE_FILES) {
+				return nil
+			}
 			break
 		}
 	}
-	return nil
+	return err
 }

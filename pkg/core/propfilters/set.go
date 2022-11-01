@@ -12,7 +12,7 @@ type FilterSet struct {
 
 // FilterDimension sends a *types.Dimension through each of the filters in the set
 // and filters properties. All original properties will be returned if no filter matches
-//, or a subset of the original if some are filtered, or nil if all are filtered.
+// , or a subset of the original if some are filtered, or nil if all are filtered.
 func (fs *FilterSet) FilterDimension(dim *types.Dimension) *types.Dimension {
 	filteredDim := &(*dim)
 	for _, f := range fs.Filters {
