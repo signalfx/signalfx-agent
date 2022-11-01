@@ -57,7 +57,7 @@ RUN ENCODED_VER=$(echo $JDK_VERSION | sed 's/_/%2B/g') && \
 
 RUN mkdir -p /opt/root && \
     tar -C /opt/root -xzf /tmp/openjdk.tar.gz && \
-    mv /opt/root/openjdk* /opt/root/jdk && \
+    mv /opt/root/jdk* /opt/root/jdk && \
     rm -f /tmp/openjdk.tar.gz
 
 ENV JAVA_HOME=/opt/root/jdk
