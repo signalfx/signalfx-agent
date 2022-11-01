@@ -76,7 +76,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.13.0
-	github.com/prometheus/client_model v0.2.0
+	github.com/prometheus/client_model v0.3.0
 	github.com/prometheus/common v0.37.0
 	github.com/prometheus/procfs v0.8.0
 	github.com/samuel/go-zookeeper v0.0.0-20200724154423-2164a8ac840e
