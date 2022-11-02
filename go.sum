@@ -1571,10 +1571,11 @@ github.com/signalfx/golib/v3 v3.0.0/go.mod h1:p+krygP/cDlWvCBEgdkQp3H16rbP4NW7YQ
 github.com/signalfx/golib/v3 v3.3.46 h1:eiR2kQA5eVTB7nqETfn8raeem8HZhOUNcuMRVzZnOOk=
 github.com/signalfx/golib/v3 v3.3.46/go.mod h1:N7bdXqA6fGQQn03WHZRDXvyN/GUFI+BXjoJgidfncZU=
 github.com/signalfx/gomemcache v0.0.0-20180823214636-4f7ef64c72a9/go.mod h1:Ytb8KfCSyuwy/VILnROdgCvbQLA5ch0nkbG7lKT0BXw=
-github.com/signalfx/ingest-protocols v0.1.13 h1:j9igxGrNX4Om9AE47p5dZKuLGCwFReDBN1b/fEWedqU=
-github.com/signalfx/ingest-protocols v0.1.13/go.mod h1:d3EVp1m7SbIpS+8QPNOLkH3fKE2jC13nBs1OvU/Gg28=
-github.com/signalfx/sapm-proto v0.7.2 h1:iM/y3gezQm1/j7JBS0gXhEJ8ROeneb6DY7n0OcnvLks=
+github.com/signalfx/ingest-protocols v0.1.14 h1:rsTZppsoTXmEfE1RY5u+h4PePKUzqhfEdxq1pNGY2pA=
+github.com/signalfx/ingest-protocols v0.1.14/go.mod h1:CYKWPtxFWF9RCUGfN0Hh6javdTTqediTCbXFbW0BF60=
 github.com/signalfx/sapm-proto v0.7.2/go.mod h1:HLufOh6Gd2altGxbeve+s6hh0EWCWoOM7MmuYuvs5PI=
+github.com/signalfx/sapm-proto v0.12.0 h1:OtOe+Jm8L61Ml8K6X8a89zc8/RlaaMRElCImeGKR/Ew=
+github.com/signalfx/sapm-proto v0.12.0/go.mod h1:wQEki8RNCYjkv19jw5aWDcmDMTQru0ckfUbgHI69U2E=
 github.com/signalfx/signalfx-go v1.6.38-0.20200518153434-ceee8d2570d5 h1:+tu30Q5SkbYMBmI3sgDJTB9M1/Ga8z0V0LGDVY1D99g=
 github.com/signalfx/signalfx-go v1.6.38-0.20200518153434-ceee8d2570d5/go.mod h1:CeCGXKT2wqqky0Nz8eV0NH/CpMPE7tzYUcV8eQS1U1s=
 github.com/signalfx/signalfx-go-tracing v1.12.0 h1:1f0oDkj/xAY2UOdeHVSFda8DA9Lacuc2qGzeAgAy/CM=
@@ -1595,8 +1596,9 @@ github.com/sirupsen/logrus v1.9.0/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVs
 github.com/smartystreets/assertions v0.0.0-20180927180507-b2de0cb4f26d/go.mod h1:OnSkiWE9lh6wB0YB77sQom3nweQdgAjqCqsofrRNTgc=
 github.com/smartystreets/assertions v0.0.0-20190215210624-980c5ac6f3ac/go.mod h1:OnSkiWE9lh6wB0YB77sQom3nweQdgAjqCqsofrRNTgc=
 github.com/smartystreets/assertions v1.0.1/go.mod h1:kHHU4qYBaI3q23Pp3VPrmWhuIUrLW/7eUrw0BU5VaoM=
-github.com/smartystreets/assertions v1.2.0 h1:42S6lae5dvLc7BrLu/0ugRtcFVjoJNMC/N3yZFZkDFs=
 github.com/smartystreets/assertions v1.2.0/go.mod h1:tcbTF8ujkAEcZ8TElKY+i30BzYlVhC/LOxJk7iOWnoo=
+github.com/smartystreets/assertions v1.13.0 h1:Dx1kYM01xsSqKPno3aqLnrwac2LetPvN23diwyr69Qs=
+github.com/smartystreets/assertions v1.13.0/go.mod h1:wDmR7qL282YbGsPy6H/yAsesrxfxaaSlJazyFLYVFx8=
 github.com/smartystreets/goconvey v1.6.4-0.20190306220146-200a235640ff/go.mod h1:KSQcGKpxUMHk3nbYzs/tIBAM2iDooCn0BmttHOJEbLs=
 github.com/smartystreets/goconvey v1.6.4/go.mod h1:syvi0/a8iFYH4r/RixwvyeAJjdLS9QV7WQ/tjFTllLA=
 github.com/smartystreets/goconvey v1.7.2 h1:9RBaZCeXEQ3UselpuwUQHltGVXvdwm6cv1hgR6gDIPg=
