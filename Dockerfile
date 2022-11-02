@@ -1,4 +1,4 @@
-ARG GO_VERSION=1.18.7
+ARG GO_VERSION=1.18.8
 ARG PIP_VERSION=21.0.1
 
 ###### Agent Build Image ########
@@ -12,7 +12,7 @@ ARG TARGET_ARCH
 
 ENV PATH=$PATH:/usr/local/go/bin
 RUN cd /tmp &&\
-    wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-${TARGET_ARCH}.tar.gz &&\
+    wget https://go.dev/dl/go${GO_VERSION}.linux-${TARGET_ARCH}.tar.gz &&\
 	tar -C /usr/local -xf go*.tar.gz
 
 ENV GOPATH=/go
@@ -43,7 +43,7 @@ RUN apt update &&\
     apt install -y wget maven
 
 ARG TARGET_ARCH
-ARG JDK_VERSION=11.0.16.1_1
+ARG JDK_VERSION=11.0.17_8
 
 ENV OPENJDK_BASE_URL="https://github.com/adoptium/temurin11-binaries/releases/download"
 
