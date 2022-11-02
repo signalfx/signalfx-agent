@@ -85,7 +85,7 @@ require (
 	github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
 	github.com/signalfx/gateway v1.2.23
 	github.com/signalfx/golib/v3 v3.3.46
-	github.com/signalfx/ingest-protocols v0.1.13
+	github.com/signalfx/ingest-protocols v0.1.14
 	github.com/signalfx/signalfx-agent/pkg/apm v0.0.0-00010101000000-000000000000
 	github.com/signalfx/signalfx-go v1.6.38-0.20200518153434-ceee8d2570d5
 	github.com/signalfx/signalfx-go-tracing v1.12.0
@@ -258,8 +258,8 @@ require (
 	github.com/shirou/gopsutil/v3 v3.22.6 // indirect
 	github.com/signalfx/gohistogram v0.0.0-20160107210732-1ccfd2ff5083 // indirect
 	github.com/signalfx/golib v2.5.1+incompatible // indirect
-	github.com/signalfx/sapm-proto v0.7.2 // indirect
-	github.com/smartystreets/assertions v1.2.0 // indirect
+	github.com/signalfx/sapm-proto v0.12.0 // indirect
+	github.com/smartystreets/assertions v1.13.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
