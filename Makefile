@@ -89,7 +89,7 @@ image:
 
 .PHONY: tidy
 tidy:
-	go mod tidy -go=1.17 && go mod tidy -go=1.18
+	go mod tidy -compat=1.17
 
 .PHONY: signalfx-agent
 signalfx-agent: gofmt
