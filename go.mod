@@ -12,11 +12,13 @@ replace (
 
 // security updates
 replace (
+	github.com/Azure/go-autorest/autorest/adal => github.com/Azure/go-autorest/autorest/adal v0.9.18
 	github.com/containerd/containerd => github.com/containerd/containerd v1.5.13
 	github.com/go-kit/kit => github.com/go-kit/kit v0.12.0
 	github.com/nats-io/jwt/v2 => github.com/nats-io/jwt/v2 v2.2.0
 	github.com/opencontainers/image-spec => github.com/opencontainers/image-spec v1.0.2
 	github.com/opencontainers/runc => github.com/opencontainers/runc v1.0.3
+	github.com/signalfx/sapm-proto => github.com/signalfx/sapm-proto v0.12.0
 	github.com/spf13/viper => github.com/spf13/viper v1.11.0 // required to drop dependency on deprecated github.com/coreos/etcd and github.com/coreos/go-etcd
 	go.mongodb.org/mongo-driver => go.mongodb.org/mongo-driver v1.5.1
 	gopkg.in/yaml.v3 => gopkg.in/yaml.v3 v3.0.0
@@ -137,7 +139,7 @@ require (
 	github.com/Azure/azure-pipeline-go v0.2.3 // indirect
 	github.com/Azure/azure-storage-blob-go v0.14.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
-	github.com/alecthomas/units v0.0.0-20210208195552-ff826a37aa15 // indirect
+	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137 // indirect
 	github.com/apache/arrow/go/arrow v0.0.0-20211112161151-bc219186db40 // indirect
 	github.com/apache/thrift v0.17.0 // indirect
 	github.com/armon/go-metrics v0.3.10 // indirect
@@ -255,7 +257,7 @@ require (
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
-	github.com/shirou/gopsutil/v3 v3.22.6 // indirect
+	github.com/shirou/gopsutil/v3 v3.22.8 // indirect
 	github.com/signalfx/gohistogram v0.0.0-20160107210732-1ccfd2ff5083 // indirect
 	github.com/signalfx/golib v2.5.1+incompatible // indirect
 	github.com/signalfx/sapm-proto v0.12.0 // indirect
