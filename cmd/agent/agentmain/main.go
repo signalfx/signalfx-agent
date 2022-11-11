@@ -273,6 +273,10 @@ func Run() {
 			fmt.Printf(core.VersionLine)
 			os.Exit(0)
 		}
+		// display deprecation notice:
+		log.Info(`The SignalFx Smart Agent is deprecated and will reach End of Support on June 30th, 2023.
+We strongly recommend you to use the Splunk Distribution of OpenTelemetry Collector instead: https://docs.splunk.com/Observability/gdi/opentelemetry/opentelemetry.html#nav-Install-and-configure-the-Splunk-Distribution-of-OpenTelemetry-Collector.
+To migrate from the Smart Agent to the Collector, see our instructions at https://docs.splunk.com/Observability/gdi/opentelemetry/smart-agent-migration-to-otel-collector.html#migrate-from-sa-to-otel.`)
 
 		// set up interrupt channel
 		interruptCh := make(chan os.Signal, 1)
