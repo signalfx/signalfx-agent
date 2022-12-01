@@ -19,7 +19,6 @@ galaxy_info:
   - name: Debian
     versions:
       - stretch
-      - jessie
   - name: Amazon
   - name: Windows
   galaxy_tags:

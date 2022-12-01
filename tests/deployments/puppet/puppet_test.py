@@ -39,7 +39,6 @@ STDLIB_MODULE_VERSION = "4.24.0"
 APT_MODULE_VERSION = "7.0.0"
 
 DEB_DISTROS = [
-    ("debian-8-jessie", INIT_SYSTEMD),
     ("debian-9-stretch", INIT_SYSTEMD),
     ("ubuntu1404", INIT_UPSTART),
     ("ubuntu1604", INIT_SYSTEMD),

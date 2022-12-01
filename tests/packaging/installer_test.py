@@ -32,7 +32,6 @@ from tests.packaging.common import (
 pytestmark = pytest.mark.installer
 
 DEB_DISTROS = [
-    ("debian-8-jessie", INIT_SYSTEMD),
     ("debian-9-stretch", INIT_SYSTEMD),
     ("ubuntu1404", INIT_UPSTART),
     ("ubuntu1604", INIT_SYSTEMD),
