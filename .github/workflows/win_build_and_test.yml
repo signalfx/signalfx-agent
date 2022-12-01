@@ -26,7 +26,7 @@ jobs:
         OS: ["windows-2019", "windows-2022"]
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Go
         uses: actions/setup-go@v2
@@ -34,7 +34,7 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
 
       - name: Caching dependency
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             %LocalAppData%\go-build
@@ -51,7 +51,7 @@ jobs:
           & ./scripts/windows/make.ps1 unit_test
 
       - name: Upload test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.OS }}-go-test-results
           path: unit_results.xml
@@ -61,7 +61,7 @@ jobs:
     runs-on: "windows-2019"
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -71,7 +71,7 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
 
       - name: Caching dependency
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             %LocalAppData%\go-build
@@ -92,25 +92,25 @@ jobs:
           & ./build/SignalFxAgent/bin/signalfx-agent.exe --version
 
       - name: Archive exe
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: exe
           path: build/SignalFxAgent/bin/signalfx-agent.exe
 
       - name: Archive msi
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: msi
           path: build/SignalFxAgent-*.msi
 
       - name: Archive zip
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: zip
           path: build/SignalFxAgent-*.zip
 
       - name: Archive nupkg
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: nupkg
           path: build/signalfx-agent.*.nupkg
@@ -122,10 +122,10 @@ jobs:
       - build
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Download exe
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: exe
           path: dist
@@ -145,10 +145,10 @@ jobs:
       SANIC_NO_UVLOOP: "true"
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Download zip
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: zip
           path: build
@@ -177,7 +177,7 @@ jobs:
           pytest -m "(windows or windows_only) and not deployment and not installer" --verbose --junitxml=${{ env.RESULT_PATH }}/test_results.xml --html=${{ env.RESULT_PATH }}/test_results.html --self-contained-html tests
 
       - name: Uploading pytest result artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }}-integration-pytest-result
           path: ${{ env.RESULT_PATH }}
@@ -193,16 +193,16 @@ jobs:
       SANIC_NO_UVLOOP: "true"
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Download msi
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: msi
           path: build
 
       - name: Download nupkg
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: nupkg
           path: build
@@ -224,7 +224,7 @@ jobs:
           pytest -m "installer and windows_only" --test-msi-path="$msi_path" --test-nupkg-path="$nupkg_path" --verbose --junitxml=${{ env.RESULT_PATH }}/test_results.xml --html=${{ env.RESULT_PATH }}/test_results.html --self-contained-html tests
 
       - name: Uploading pytest result artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }}-installer-pytest-result
           path: ${{ env.RESULT_PATH }}

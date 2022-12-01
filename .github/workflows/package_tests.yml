@@ -33,7 +33,7 @@ jobs:
         SYS_PACKAGE: [ "deb", "rpm" ]
     steps:      
       - name: Check out the codebase.
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -44,7 +44,7 @@ jobs:
           make ${{ matrix.SYS_PACKAGE }}-test-package
 
       - name: Uploading ${{ matrix.SYS_PACKAGE }} test package artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.SYS_PACKAGE }}-test-package
           path: ./packaging/${{ matrix.SYS_PACKAGE }}/output
@@ -59,12 +59,12 @@ jobs:
         UPGRADE: [ "yes", "no" ]
     steps:      
       - name: Check out the codebase.
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Downloading bundle
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: ${{ matrix.SYS_PACKAGE }}-test-package
           path: ./packaging/${{ matrix.SYS_PACKAGE }}/output
@@ -75,7 +75,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Caching dependency
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cache/pip
@@ -98,7 +98,7 @@ jobs:
         run: .github/scripts/run-pytest.sh
 
       - name: Uploading pytest result artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.SYS_PACKAGE }}-package-pytest-result-with-upgrade-${{ matrix.UPGRADE }}
           path: |
