@@ -27,7 +27,6 @@ pytestmark = [pytest.mark.ansible, pytest.mark.deployment]
 DOCKERFILES_DIR = Path(__file__).parent.joinpath("images").resolve()
 
 DEB_DISTROS = [
-    ("debian-8-jessie", INIT_SYSTEMD),
     ("debian-9-stretch", INIT_SYSTEMD),
     ("ubuntu1604", INIT_SYSTEMD),
     ("ubuntu1804", INIT_SYSTEMD),

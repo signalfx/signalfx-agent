@@ -59,7 +59,6 @@ SCRIPT_DIR = Path(__file__).parent.resolve()
 DOCKERFILES_DIR = SCRIPT_DIR / "images"
 
 DEB_DISTROS = [
-    ("debian-8-jessie", INIT_SYSTEMD),
     ("debian-9-stretch", INIT_SYSTEMD),
     ("ubuntu1404", INIT_UPSTART),
     ("ubuntu1604", INIT_SYSTEMD),
@@ -158,7 +157,7 @@ def test_chef(base_image, init_system, chef_version):
                 ), "Datapoints didn't come through"
 
                 # downgrade agent for distros that support package downgrades
-                if base_image not in ("debian-7-wheezy", "debian-8-jessie", "ubuntu1404"):
+                if base_image not in ("debian-7-wheezy", "ubuntu1404"):
                     agent_version = INITIAL_VERSION
                     run_chef_client(cont, init_system, chef_version, agent_version, STAGE, monitors)
                     backend.reset_datapoints()
