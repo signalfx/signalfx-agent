@@ -70,7 +70,7 @@ jobs:
           path: ./packaging/${{ matrix.SYS_PACKAGE }}/output
 
       - name: Setup python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 

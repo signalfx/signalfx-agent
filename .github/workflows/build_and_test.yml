@@ -107,7 +107,7 @@ jobs:
           path: ./dist
 
       - name: Setup python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -246,7 +246,7 @@ jobs:
           path: ./
 
       - name: Setup python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -495,7 +495,7 @@ jobs:
 
       - name: Setup python
         if: ${{ env.SKIP != 'true' }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
