@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Build image and bundle
         env:
@@ -40,13 +40,13 @@ jobs:
           mv signalfx-agent-latest.tar.gz ./dist/
 
       - name: Uploading image artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: image
           path: ./dist/image.tar
 
       - name: Uploading bundle artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: bundle
           path: ./dist/signalfx-agent-latest.tar.gz
@@ -61,7 +61,7 @@ jobs:
         run: apk add --no-cache curl make git bash coreutils
 
       - name: Check out the codebase.
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -98,21 +98,21 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Downloading bundle
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: bundle
           path: ./dist
 
       - name: Setup python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Caching dependency
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cache/pip
@@ -130,7 +130,7 @@ jobs:
         run: .github/scripts/run-pytest.sh
 
       - name: Uploading pytest result artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: bundle-package-pytest-result
           path: |
@@ -146,10 +146,10 @@ jobs:
       options: --user root
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Downloading bundle
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: bundle
           path: ./dist
@@ -167,7 +167,7 @@ jobs:
           echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
 
       - name: Caching dependency
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             /usr/share/dependency-check/data
@@ -187,7 +187,7 @@ jobs:
             (echo -e "\nOne or more critical vulnerabilities were found in the agent bundle.\nCheck the report artifact, fix the issues, run 'make bundle && make dependency-check', and commit the changes when the issues are resolved." && exit 1)
       
       - name: Uploading test result artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: dependency-check-result
           path: reports
@@ -205,12 +205,12 @@ jobs:
           apt-get install -y git
       
       - name: Check out the codebase.
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Downloading bundle
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: bundle
           path: ./dist
@@ -220,7 +220,7 @@ jobs:
           AGENT_VERSION=$(./scripts/current-version) AGENT_BUNDLE=$(pwd)/dist/signalfx-agent-latest.tar.gz deployments/cloudfoundry/tile/make-latest-tile
       
       - name: Uploading PCF tile build result artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pcf-tile-build-result
           path: deployments/cloudfoundry/tile/product/signalfx-monitoring-*.pivotal
@@ -237,21 +237,21 @@ jobs:
       fail-fast: false
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Downloading bundle
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: bundle
           path: ./
 
       - name: Setup python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Caching dependency
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cache/pip
@@ -312,7 +312,7 @@ jobs:
         run: .github/scripts/run-pytest.sh
 
       - name: Uploading pytest result artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: integration-test-result-${{ matrix.group }}
           path: |
@@ -330,7 +330,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - uses: dorny/paths-filter@v2
         id: filter
@@ -382,7 +382,7 @@ jobs:
 
       - name: Downloading image
         if: ${{ env.SKIP != 'true' }}
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: image
           path: ./dist
@@ -395,7 +395,7 @@ jobs:
       - name: Caching cni
         id: cache-cni
         if: ${{ env.WITH_CRIO == '1' && env.SKIP != 'true' }}
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/cni.tgz
           key: v2-cni-binaries-${{ env.CNI_VERSION }}
@@ -413,7 +413,7 @@ jobs:
       - name: Caching cni plugins
         id: cache-cni-plugins
         if: ${{ env.WITH_CRIO == '1' && env.SKIP != 'true' }}
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with: 
           path: /tmp/cni-plugins.tgz
           key: v2-cni-plugins-${{ env.CNI_PLUGINS_VERSION }}
@@ -435,7 +435,7 @@ jobs:
       - name: Caching crictl
         if: ${{ env.SKIP != 'true' }}
         id: cache-crictl
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/crictl.tar.gz
           key: v2-crictl-binary-${{ env.CRICTL_VERSION }}
@@ -452,7 +452,7 @@ jobs:
       - name: Caching kubectl
         if: ${{ env.SKIP != 'true' }}
         id: cache-kubectl
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/kubectl
           key: v5-kubectl-binary-${{ env.K8S_VERSION }}
@@ -469,7 +469,7 @@ jobs:
       - name: Caching minikube
         if: ${{ env.SKIP != 'true' }}
         id: cache-minikube
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/minikube
           key: v2-minikube-binary-${{ env.MINIKUBE_VERSION }}
@@ -495,13 +495,13 @@ jobs:
 
       - name: Setup python
         if: ${{ env.SKIP != 'true' }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Caching dependency
         if: ${{ env.SKIP != 'true' }}
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cache/pip
@@ -526,7 +526,7 @@ jobs:
 
       - name: Uploading pytest result artifacts
         if: ${{ env.SKIP != 'true' }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: k8s-${{ matrix.K8S_VERSION }}-integration-test-result
           path: |

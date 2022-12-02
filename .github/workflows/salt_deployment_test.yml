@@ -31,7 +31,7 @@ jobs:
         SYS_PACKAGE: [ "deb", "rpm" ]
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Test salt deployment
         env:
@@ -40,18 +40,18 @@ jobs:
         run: .github/scripts/run-deployment-tests.sh
 
       - name: Uploading test result artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.SYS_PACKAGE }}-salt-deployment-test-result
           path: ~/${{ env.RESULT_PATH }}
 
       - name: Setup python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Caching dependency
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cache/pip
@@ -68,7 +68,7 @@ jobs:
         run: .github/scripts/run-pytest.sh
 
       - name: Uploading pytest result artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.SYS_PACKAGE }}-salt-pytest-result
           path: |
