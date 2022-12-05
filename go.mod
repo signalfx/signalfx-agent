@@ -50,7 +50,7 @@ require (
 	github.com/gogo/protobuf v1.3.2
 	github.com/google/cadvisor v0.45.0
 	github.com/gorilla/mux v1.8.0
-	github.com/hashicorp/consul/api v1.15.2
+	github.com/hashicorp/consul/api v1.18.0
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/hashicorp/vault v1.12.1 // required for newer google.golang.org/api compatibility
 	github.com/hashicorp/vault-plugin-auth-gcp v0.14.0
@@ -208,7 +208,7 @@ require (
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/hashicorp/hcl v1.0.1-vault-5 // indirect
-	github.com/hashicorp/serf v0.9.7 // indirect
+	github.com/hashicorp/serf v0.10.1 // indirect
 	github.com/hashicorp/vault/sdk v0.6.1-0.20221012172514-e12bdc5ce648 // indirect
 	github.com/hashicorp/yamux v0.0.0-20211028200310-0bc27b27de87 // indirect
 	github.com/hpcloud/tail v1.0.0 // indirect
