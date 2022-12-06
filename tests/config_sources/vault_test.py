@@ -211,7 +211,7 @@ def test_vault_token_renewal():
     Test the token renewal feature
     """
     with run_vault() as [vault_client, get_audit_events]:
-        new_token = vault_client.create_token(policies=["root"], renewable=True, ttl="12s")
+        new_token = vault_client.auth.token.create(policies=["root"], renewable=True, ttl="12s")
 
         vault_client.write("secret/data/appinfo", data={"env": "prod"})
         with Agent.run(
