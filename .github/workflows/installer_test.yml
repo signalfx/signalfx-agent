@@ -20,7 +20,7 @@ concurrency:
 
 env:
   RESULT_PATH: testresults
-  PYTHON_VERSION: 3.8.10
+  PYTHON_VERSION: "3.9"
   REQUIREMENTS_PATH: "tests/requirements.txt"
 
 jobs:
