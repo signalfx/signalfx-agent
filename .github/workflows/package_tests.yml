@@ -27,7 +27,7 @@ env:
 jobs:
   package_build:
     name: package_build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         SYS_PACKAGE: [ "deb", "rpm" ]
@@ -51,7 +51,7 @@ jobs:
 
   package_test:
     name: package_test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: [package_build]
     strategy:
       matrix:

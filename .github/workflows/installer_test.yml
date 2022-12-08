@@ -26,7 +26,7 @@ env:
 jobs:
   installer_test:
     name: installer_test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:      
       - name: Check out the codebase.
         uses: actions/checkout@v3
