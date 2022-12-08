@@ -25,7 +25,7 @@ env:
 jobs:
   puppet_deployment_test:
     name: puppet_deployment_test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         SYS_PACKAGE: [ "deb", "rpm" ]
