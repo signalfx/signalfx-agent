@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/creasty/defaults"
 	"github.com/pkg/errors"
-	"github.com/signalfx/defaults"
 
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/core/meta"

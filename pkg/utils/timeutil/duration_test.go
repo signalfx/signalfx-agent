@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/signalfx/defaults"
+	"github.com/creasty/defaults"
 
 	"gopkg.in/yaml.v2"
 )

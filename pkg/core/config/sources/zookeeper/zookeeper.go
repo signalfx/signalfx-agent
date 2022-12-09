@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/creasty/defaults"
 	"github.com/samuel/go-zookeeper/zk"
-	"github.com/signalfx/defaults"
 	"github.com/signalfx/signalfx-agent/pkg/core/config/types"
 	log "github.com/sirupsen/logrus"
 )

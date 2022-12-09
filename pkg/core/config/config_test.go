@@ -3,7 +3,7 @@ package config
 import (
 	"testing"
 
-	"github.com/signalfx/defaults"
+	"github.com/creasty/defaults"
 	"github.com/signalfx/golib/v3/pointer"
 	"github.com/stretchr/testify/require"
 )

@@ -37,6 +37,7 @@ require (
 	github.com/beevik/ntp v0.3.0
 	github.com/cloudfoundry-incubator/uaago v0.0.0-20190307164349-8136b7bbe76e
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf
+	github.com/creasty/defaults v1.6.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/denisenkom/go-mssqldb v0.12.3
 	github.com/docker/docker v20.10.18+incompatible
@@ -84,7 +85,6 @@ require (
 	github.com/samuel/go-zookeeper v0.0.0-20200724154423-2164a8ac840e
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.3
-	github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
 	github.com/signalfx/gateway v1.2.23
 	github.com/signalfx/golib/v3 v3.3.47
 	github.com/signalfx/ingest-protocols v0.1.14
@@ -117,7 +117,6 @@ require (
 
 require (
 	collectd.org v0.5.0 // indirect
-	github.com/creasty/defaults v1.5.1 // indirect
 	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/influxdata/tail v1.0.0 // indirect
 	github.com/influxdata/toml v0.0.0-20180607005434-2a2e3012f7cf // indirect

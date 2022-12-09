@@ -9,8 +9,8 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
+	"github.com/creasty/defaults"
 	"github.com/pkg/errors"
-	"github.com/signalfx/defaults"
 	"github.com/signalfx/signalfx-agent/pkg/core/config/sources"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/structtags"

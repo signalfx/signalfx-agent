@@ -9,9 +9,9 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/creasty/defaults"
 	"github.com/mitchellh/hashstructure"
 	"github.com/pkg/errors"
-	"github.com/signalfx/defaults"
 	"github.com/signalfx/signalfx-agent/pkg/core/config/sources/consul"
 	"github.com/signalfx/signalfx-agent/pkg/core/config/sources/env"
 	"github.com/signalfx/signalfx-agent/pkg/core/config/sources/etcd2"

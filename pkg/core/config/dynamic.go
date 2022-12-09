@@ -6,9 +6,9 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
+	"github.com/creasty/defaults"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
-	"github.com/signalfx/defaults"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	log "github.com/sirupsen/logrus"
 )
