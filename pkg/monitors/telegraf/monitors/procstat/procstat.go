@@ -94,7 +94,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	// and containerizing pgrep is likely difficult
 	plugin.PidFinder = "native"
 
-	// create contexts for managing the the plugin loop
+	// create contexts for managing the plugin loop
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 

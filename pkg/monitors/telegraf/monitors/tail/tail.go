@@ -79,7 +79,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	// set the parser on the plugin
 	m.plugin.SetParserFunc(conf.TelegrafParser.GetTelegrafParser)
 
-	// create contexts for managing the the plugin loop
+	// create contexts for managing the plugin loop
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 

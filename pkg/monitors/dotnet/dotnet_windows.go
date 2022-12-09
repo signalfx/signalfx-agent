@@ -93,7 +93,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	// create the accumulator
 	ac := accumulator.NewAccumulator(emitter)
 
-	// create contexts for managing the the plugin loop
+	// create contexts for managing the plugin loop
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 

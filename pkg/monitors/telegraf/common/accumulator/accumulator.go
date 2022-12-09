@@ -111,7 +111,7 @@ type TrackingAccumulator struct {
 	done chan telegraf.DeliveryInfo
 }
 
-// AddTrackingMetric - Adds a metric to track on the the tracking accumulator
+// AddTrackingMetric - Adds a metric to track on the tracking accumulator
 func (ta *TrackingAccumulator) AddTrackingMetric(m telegraf.Metric) telegraf.TrackingID {
 	// TODO: maybe we'll care about these at some point,
 	// but for now dont worry about tracking metrics

@@ -80,7 +80,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 
 	m.plugin.GrokConfig = grokConf
 
-	// create contexts for managing the the plugin loop
+	// create contexts for managing the plugin loop
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 

@@ -46,7 +46,7 @@ func (d *Dimension) Key() DimensionKey {
 	}
 }
 
-// Copy creates a copy of the the given Dimension object
+// Copy creates a copy of the given Dimension object
 func (d *Dimension) Copy() *Dimension {
 	clonedProperties := make(map[string]string)
 	for k, v := range d.Properties {
