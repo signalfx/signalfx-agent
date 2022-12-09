@@ -69,7 +69,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		time.Duration(rand.Int63n(600)+86400) * time.Second,
 	}
 
-	// create contexts for managing the the plugin loop
+	// create contexts for managing the plugin loop
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 

@@ -64,7 +64,7 @@ func (m *Monitor) filterMeasurements(ms telegraf.Metric) error {
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
 
-	// create contexts for managing the the plugin loop
+	// create contexts for managing the plugin loop
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 

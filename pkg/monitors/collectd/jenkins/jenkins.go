@@ -36,7 +36,7 @@ type Config struct {
 	MetricsKey string `yaml:"metricsKey" validate:"required"`
 	// Whether to enable enhanced metrics
 	EnhancedMetrics *bool `yaml:"enhancedMetrics"`
-	// Set to *true* to to exclude job metrics retrieved from `/api/json` endpoint
+	// Set to *true* to exclude job metrics retrieved from `/api/json` endpoint
 	ExcludeJobMetrics *bool `yaml:"excludeJobMetrics"`
 	// Used to enable individual enhanced metrics when `enhancedMetrics` is
 	// false

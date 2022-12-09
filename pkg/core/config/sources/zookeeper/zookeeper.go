@@ -99,7 +99,7 @@ func (z *zkConfigSource) Get(path string) (map[string][]byte, uint64, error) {
 // ConfigSource since it doesn't have any concept of a global index counter
 // that can be used to ensure updates aren't missed, and it also doesn't have
 // the ability to watch child nodes recursively.  Therefore, for now we just
-// limit globbing to to asterisks at the very end of a node.  If we need more
+// limit globbing to asterisks at the very end of a node.  If we need more
 // complex globbing, consider something like
 // https://github.com/kelseyhightower/confd/blob/master/backends/zookeeper/client.go
 func (z *zkConfigSource) getNodes(path string, watch bool) (map[string][]byte, uint64, []<-chan zk.Event, error) {

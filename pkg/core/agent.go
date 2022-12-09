@@ -27,7 +27,7 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
-//go:generate sh -c "test -e `go env GOPATH`/bin/genny > /dev/null || (cd ../.. && go install github.com/mauricelam/genny@latest)"
+//go:generate sh -c "test -e `go env GOPATH`/bin/genny > /dev/null || (cd ../.. && go install github.com/mauricelam/genny)"
 
 const (
 	// Items should stay in these channels only very briefly as there should be

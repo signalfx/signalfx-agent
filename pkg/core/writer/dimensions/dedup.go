@@ -81,7 +81,7 @@ func (dd *deduplicator) Add(dim *types.Dimension) {
 	}
 
 	// If we are merging dimension props/tags, then just keep all the updates
-	// in the the cached copy so we will know if an update is going to change
+	// in the cached copy so we will know if an update is going to change
 	// anything or not.
 	if cachedDim.Properties == nil {
 		cachedDim.Properties = map[string]string{}

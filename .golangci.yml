@@ -120,6 +120,9 @@ linters:
     - usestdlibvars
     - varnamelen
     - wrapcheck
+    # We disable those new linters as we are looking to minimize code changes.
+    - interfacebloat
+    - contextcheck
 
 
 linters-settings:
