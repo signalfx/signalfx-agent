@@ -100,9 +100,9 @@ require (
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.etcd.io/etcd/client/v2 v2.305.6
-	golang.org/x/net v0.2.0
+	golang.org/x/net v0.4.0
 	golang.org/x/sync v0.1.0
-	golang.org/x/sys v0.2.0
+	golang.org/x/sys v0.3.0
 	golang.org/x/tools v0.3.0
 	google.golang.org/grpc v1.50.1
 	gopkg.in/fatih/set.v0 v0.1.0
@@ -281,8 +281,8 @@ require (
 	golang.org/x/exp v0.0.0-20221114191408-850992195362 // indirect
 	golang.org/x/mod v0.7.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20220722155238-128564f6959c // indirect
-	golang.org/x/term v0.2.0 // indirect
-	golang.org/x/text v0.4.0 // indirect
+	golang.org/x/term v0.3.0 // indirect
+	golang.org/x/text v0.5.0 // indirect
 	golang.org/x/time v0.0.0-20220411224347-583f2d630306 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
 	google.golang.org/api v0.84.0 // indirect
