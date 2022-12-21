@@ -14,7 +14,6 @@ files_to_update=(
   Dockerfile.rhel
   deployments/cloudfoundry/buildpack/bin/supply
   deployments/splunk/docker-compose.yml
-  scripts/current-version
 )
 
 new_version=$1
