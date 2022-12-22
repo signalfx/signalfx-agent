@@ -11,14 +11,13 @@ strip_pkg() {
   sed -Ee 's/-(deb|rpm)[0-9]+//' <<< $1
 }
 
-SCRIPTS_DIR="$( cd "$( dirname ${BASH_SOURCE[0]} )" && pwd )"
-REPO_DIR="$( cd "$SCRIPTS_DIR/.." && pwd )"
+latest_tag="git describe --abbrev=0 --match v[0-9]*"
 
-tag="$( git -C "$REPO_DIR" describe --abbrev=0 --tags --exact-match --match 'v[0-9]*' 2>/dev/null || true )"
+tag=$($latest_tag --exact-match 2>/dev/null)
 
 if test -z $tag || [[ $tag =~ (deb|rpm) ]]
 then
-	tag="$( git ls-remote --refs --tags -q | tail -n 1 | awk -F/ '{ print $3 }' )-post"
+	tag=$($latest_tag)-post
 fi
 
 if test -z $tag
