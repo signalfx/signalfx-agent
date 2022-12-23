@@ -32,7 +32,7 @@ type Config struct {
 	HostFSPath string `yaml:"hostFSPath"`
 
 	// The filesystem types to include/exclude.  This is an [overridable
-	// set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).
+	// set](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent).
 	// If this is not set, the default value is the set of all
 	// **non-logical/virtual filesystems** on the system.  On Linux this list
 	// is determined by reading the `/proc/filesystems` file and choosing the
@@ -40,7 +40,7 @@ type Config struct {
 	FSTypes []string `yaml:"fsTypes"`
 
 	// The mount paths to include/exclude. This is an [overridable
-	// set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).
+	// set](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent).
 	// NOTE: If you are using the hostFSPath option you should not include the
 	// `/hostfs/` mount in the filter.  If both this and `fsTypes` is
 	// specified, the two filters combine in an AND relationship.

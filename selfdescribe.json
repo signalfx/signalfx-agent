@@ -46,7 +46,7 @@
       },
       {
         "yamlName": "extraSpanTagsFromEndpoint",
-        "doc": "A mapping of extra span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`. This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior.",
+        "doc": "A mapping of extra span tag names to a [discovery rule expression](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#service-discovery-using-the-smart-agent) that is used to derive the value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`. This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior.",
         "default": null,
         "required": false,
         "type": "map",
@@ -62,7 +62,7 @@
       },
       {
         "yamlName": "defaultSpanTagsFromEndpoint",
-        "doc": "A mapping of default span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the default value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `defaultSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}` This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior.",
+        "doc": "A mapping of default span tag names to a [discovery rule expression](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#service-discovery-using-the-smart-agent) that is used to derive the default value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `defaultSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}` This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior.",
         "default": null,
         "required": false,
         "type": "map",
@@ -70,7 +70,7 @@
       },
       {
         "yamlName": "extraDimensionsFromEndpoint",
-        "doc": "A mapping of extra dimension names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the dimension.  For example, to use a certain container label as a dimension, you could use something like this in your monitor config block: `extraDimensionsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`. This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior.",
+        "doc": "A mapping of extra dimension names to a [discovery rule expression](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#service-discovery-using-the-smart-agent) that is used to derive the value of the dimension.  For example, to use a certain container label as a dimension, you could use something like this in your monitor config block: `extraDimensionsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`. This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior.",
         "default": null,
         "required": false,
         "type": "map",
@@ -189,7 +189,7 @@
       },
       {
         "yamlName": "extraMetrics",
-        "doc": "Extra metrics to enable besides the default included ones.  This is an [overridable filter](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filtering).",
+        "doc": "Extra metrics to enable besides the default included ones.  This is an [overridable filter](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent).",
         "default": null,
         "required": false,
         "type": "slice",
@@ -1685,7 +1685,7 @@
         "fields": [
           {
             "yamlName": "cgroups",
-            "doc": "The cgroup names to include/exclude, based on the full hierarchy path. This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). If not provided, this defaults to all cgroups. E.g. to monitor all Docker container cgroups, you could use a value of `[\"/docker/*\"]`.",
+            "doc": "The cgroup names to include/exclude, based on the full hierarchy path. This is an [overridable set](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent). If not provided, this defaults to all cgroups. E.g. to monitor all Docker container cgroups, you could use a value of `[\"/docker/*\"]`.",
             "default": null,
             "required": false,
             "type": "slice",
@@ -4275,7 +4275,7 @@
       "sendUnknown": true,
       "noneIncluded": false,
       "dimensions": null,
-      "doc": "SignalFx's integration with ActiveMQ wraps the [Collectd GenericJMX\nmonitor](https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-genericjmx.html)\nto monitor ActiveMQ.\n\nUse this monitor to gather the following types of information from ActiveMQ:\n\n* Broker (Totals per broker)\n* Queue (Queue status)\n* Topic (Topic status)\n\nTo monitor the age of messages inside ActiveMQ queues, see [ActiveMQ\nmessage age listener](https://docs.signalfx.com/en/latest/integrations/integrations-reference/integrations.activemq.message.age.listener.html)[](sfx_link:amq-message-age).\n\n\u003c!--- SETUP ---\u003e\n## Example config\n\n```yaml\nmonitors:\n - type: collectd/activemq\n   host: localhost\n   # This is the remote JMX port for ActiveMQ\n   port: 1099\n```\n",
+      "doc": "SignalFx's integration with ActiveMQ wraps the [Collectd GenericJMX\nmonitor](https://docs.splunk.com/Observability/gdi/genericjmx/genericjmx.html)\nto monitor ActiveMQ.\n\nUse this monitor to gather the following types of information from ActiveMQ:\n\n* Broker (Totals per broker)\n* Queue (Queue status)\n* Topic (Topic status)\n\nTo monitor the age of messages inside ActiveMQ queues, see [ActiveMQ\nmessage age listener](https://docs.splunk.com/Observability/gdi/activemq/activemq.html)[](sfx_link:amq-message-age).\n\n\u003c!--- SETUP ---\u003e\n## Example config\n\n```yaml\nmonitors:\n - type: collectd/activemq\n   host: localhost\n   # This is the remote JMX port for ActiveMQ\n   port: 1099\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -12783,7 +12783,7 @@
       "sendUnknown": true,
       "noneIncluded": false,
       "dimensions": null,
-      "doc": "Monitors a Kafka instance using collectd's\nGenericJMX plugin. See the [collectd/genericjmx\nmonitor](./collectd-genericjmx.md)[](sfx_link:java) for more information on\nhow to configure custom MBeans, as well as information on troubleshooting\nJMX setup.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/main/pkg/monitors/collectd/kafka/mbeans.go)\nfor which it pulls metrics from Kafka's JMX endpoint.\n\nNote that this monitor supports Kafka v0.8.2.x and above. For Kafka v1.x.x and above,\napart from the list of default metrics, kafka.server:type=ZooKeeperClientMetrics,name=ZooKeeperRequestLatencyMs\nis a good metric to monitor since it gives an understanding of how long brokers wait for\nrequests to Zookeeper to be completed. Since Zookeeper is an integral part of a Kafka cluster,\nmonitoring it using the [Zookeeper\nmonitor](https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-zookeeper.html)[](sfx_link:zookeeper)\nis recommended. It is also a good idea to monitor disk utilization and network metrics of\nthe underlying host.\n",
+      "doc": "Monitors a Kafka instance using collectd's\nGenericJMX plugin. See the [collectd/genericjmx\nmonitor](./collectd-genericjmx.md)[](sfx_link:java) for more information on\nhow to configure custom MBeans, as well as information on troubleshooting\nJMX setup.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/main/pkg/monitors/collectd/kafka/mbeans.go)\nfor which it pulls metrics from Kafka's JMX endpoint.\n\nNote that this monitor supports Kafka v0.8.2.x and above. For Kafka v1.x.x and above,\napart from the list of default metrics, kafka.server:type=ZooKeeperClientMetrics,name=ZooKeeperRequestLatencyMs\nis a good metric to monitor since it gives an understanding of how long brokers wait for\nrequests to Zookeeper to be completed. Since Zookeeper is an integral part of a Kafka cluster,\nmonitoring it using the [Zookeeper\nmonitor](https://docs.splunk.com/Observability/gdi/zookeeper/zookeeper.html)[](sfx_link:zookeeper)\nis recommended. It is also a good idea to monitor disk utilization and network metrics of\nthe underlying host.\n",
       "groups": {
         "": {
           "description": "",
@@ -14412,7 +14412,7 @@
       "sendUnknown": false,
       "noneIncluded": false,
       "dimensions": null,
-      "doc": "Monitors a Mesos Marathon instance using the\n[collectd Marathon Python plugin](https://github.com/signalfx/collectd-marathon).\n\nSee the [integrations\ndoc](https://docs.signalfx.com/en/latest/integrations/integrations-reference/integrations.marathon.html)\nfor more information on configuration.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n  - type: collectd/marathon\n    host: 127.0.0.1\n    port: 8080\n    scheme: http\n```\n\nSample YAML configuration for DC/OS:\n\n```yaml\nmonitors:\n  - type: collectd/marathon\n    host: 127.0.0.1\n    port: 8080\n    scheme: https\n    dcosAuthURL: https://leader.mesos/acs/api/v1/auth/login\n```\n",
+      "doc": "Monitors a Mesos Marathon instance using the\n[collectd Marathon Python plugin](https://github.com/signalfx/collectd-marathon).\n\nSee the [integrations\ndoc](https://docs.splunk.com/Observability/gdi/marathon/marathon.html)\nfor more information on configuration.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n  - type: collectd/marathon\n    host: 127.0.0.1\n    port: 8080\n    scheme: http\n```\n\nSample YAML configuration for DC/OS:\n\n```yaml\nmonitors:\n  - type: collectd/marathon\n    host: 127.0.0.1\n    port: 8080\n    scheme: https\n    dcosAuthURL: https://leader.mesos/acs/api/v1/auth/login\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -21596,7 +21596,7 @@
       "sendUnknown": false,
       "noneIncluded": false,
       "dimensions": null,
-      "doc": "The StatsD plugin for collectd listens for StatsD\nevents, aggregates them and transmits them according to collectd's\nconfiguration. Use this plugin to send data from StatsD to SignalFx [statsd\nplugin](https://collectd.org/wiki/index.php/Plugin:StatsD).\n\nSignalFx supports `Counter`, `Timer` and `Gauge` types which are dispatched\nas the collectd types - `derive`, `latency` and `gauge` respectively.\nIn SignalFx, for a statsd metric, its collectd type is attached as a\nprefix to the metric name. As an example, if you send in the gauge -\n\n```\n$ echo \"statsd.test:1|g\" | nc -w 1 -u 127.0.0.1 8125\n```\n\nThis will be reported to SignalFx as \"gauge.statsd.test\"\n\n### USAGE\n\n#### Adding dimensions to StatsD metrics\n\nAdd dimensions to your metrics by adding key-value pairs to your StatsD\nmetric names as follows:\n\n```\n$ echo \"statsd.[foo=bar,dim=val]test:1|g\" | nc -w 1 -u 127.0.0.1 8125\n```\n\nThis creates a metric called `statsd.test` of type gauge, with dimensions\n`foo=bar` and `dim=val`.\n\n#### Delete[Type]s boolean setting\n\nThese options control what happens if metrics are not updated in an\ninterval. If set to False, the default, metrics are dispatched unchanged,\ni.e. the rate of counters and size of sets will be zero, timers report NaN\nand gauges are unchanged. If set to True, the such metrics are not\ndispatched and removed from the internal cache.\n\nSignalFx's default configuration for this plugin sets all `Delete[Type]s`\nconfiguration options to `True`. We strongly recommend this in order to\nensure that metrics that have stopped reporting are not reported as 0 in\nperpetuity. Setting these parameters to `False` results in collectd's memory\nusage increasing over time, as the set of metrics reported from StatsD grows\nindefinitely. This is especially important in environments that are\nlong-running or whose metrics change frequently.\n\n#### CounterSum boolean setting\n\nWhen enabled, creates a count metric which reports the change since the last\nread. This option primarily exists for compatibility with the statsd\nimplementation by Etsy.\n\nIf you are only looking at the counts generated by each reporting interval,\nequivalent to\n[Counters](https://docs.signalfx.com/en/latest/metrics-metadata/metric-types.html?highlight=Counters)\nin SignalFx then we'd recommend that you set CounterSum to `True`. It will\nsend in an additional counter metric with a prefix of `count`.\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: collectd/statsd\n   listenAddress: \"0.0.0.0\"\n   listenPort: 8125\n   deleteSets: true\n   timerPercentile: 90.0\n```\n",
+      "doc": "The StatsD plugin for collectd listens for StatsD\nevents, aggregates them and transmits them according to collectd's\nconfiguration. Use this plugin to send data from StatsD to SignalFx [statsd\nplugin](https://collectd.org/wiki/index.php/Plugin:StatsD).\n\nSignalFx supports `Counter`, `Timer` and `Gauge` types which are dispatched\nas the collectd types - `derive`, `latency` and `gauge` respectively.\nIn SignalFx, for a statsd metric, its collectd type is attached as a\nprefix to the metric name. As an example, if you send in the gauge -\n\n```\n$ echo \"statsd.test:1|g\" | nc -w 1 -u 127.0.0.1 8125\n```\n\nThis will be reported to SignalFx as \"gauge.statsd.test\"\n\n### USAGE\n\n#### Adding dimensions to StatsD metrics\n\nAdd dimensions to your metrics by adding key-value pairs to your StatsD\nmetric names as follows:\n\n```\n$ echo \"statsd.[foo=bar,dim=val]test:1|g\" | nc -w 1 -u 127.0.0.1 8125\n```\n\nThis creates a metric called `statsd.test` of type gauge, with dimensions\n`foo=bar` and `dim=val`.\n\n#### Delete[Type]s boolean setting\n\nThese options control what happens if metrics are not updated in an\ninterval. If set to False, the default, metrics are dispatched unchanged,\ni.e. the rate of counters and size of sets will be zero, timers report NaN\nand gauges are unchanged. If set to True, the such metrics are not\ndispatched and removed from the internal cache.\n\nSignalFx's default configuration for this plugin sets all `Delete[Type]s`\nconfiguration options to `True`. We strongly recommend this in order to\nensure that metrics that have stopped reporting are not reported as 0 in\nperpetuity. Setting these parameters to `False` results in collectd's memory\nusage increasing over time, as the set of metrics reported from StatsD grows\nindefinitely. This is especially important in environments that are\nlong-running or whose metrics change frequently.\n\n#### CounterSum boolean setting\n\nWhen enabled, creates a count metric which reports the change since the last\nread. This option primarily exists for compatibility with the statsd\nimplementation by Etsy.\n\nIf you are only looking at the counts generated by each reporting interval,\nequivalent to\n[Counters](https://docs.splunk.com/Observability/metrics-and-metadata/metric-types.html?highlight=Counters#nav-Identify-metric-types)\nin SignalFx then we'd recommend that you set CounterSum to `True`. It will\nsend in an additional counter metric with a prefix of `count`.\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: collectd/statsd\n   listenAddress: \"0.0.0.0\"\n   listenPort: 8125\n   deleteSets: true\n   timerPercentile: 90.0\n```\n",
       "groups": {},
       "metrics": null,
       "properties": null,
@@ -23928,7 +23928,7 @@
         "fields": [
           {
             "yamlName": "disks",
-            "doc": "The devices to include/exclude. This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).",
+            "doc": "The devices to include/exclude. This is an [overridable set](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent).",
             "default": [
               "*",
               "!/^loop[0-9]+$/",
@@ -28995,7 +28995,7 @@
           },
           {
             "yamlName": "fsTypes",
-            "doc": "The filesystem types to include/exclude.  This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). If this is not set, the default value is the set of all **non-logical/virtual filesystems** on the system.  On Linux this list is determined by reading the `/proc/filesystems` file and choosing the filesystems that do not have the `nodev` modifier.",
+            "doc": "The filesystem types to include/exclude.  This is an [overridable set](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent). If this is not set, the default value is the set of all **non-logical/virtual filesystems** on the system.  On Linux this list is determined by reading the `/proc/filesystems` file and choosing the filesystems that do not have the `nodev` modifier.",
             "default": null,
             "required": false,
             "type": "slice",
@@ -29003,7 +29003,7 @@
           },
           {
             "yamlName": "mountPoints",
-            "doc": "The mount paths to include/exclude. This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). NOTE: If you are using the hostFSPath option you should not include the `/hostfs/` mount in the filter.  If both this and `fsTypes` is specified, the two filters combine in an AND relationship.",
+            "doc": "The mount paths to include/exclude. This is an [overridable set](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent). NOTE: If you are using the hostFSPath option you should not include the `/hostfs/` mount in the filter.  If both this and `fsTypes` is specified, the two filters combine in an AND relationship.",
             "default": null,
             "required": false,
             "type": "slice",
@@ -32989,7 +32989,7 @@
           },
           {
             "yamlName": "groovyScript",
-            "doc": "A literal Groovy script that generates datapoints from JMX MBeans. See the top-level `jmx` monitor doc for more information on how to write this script. You can put the Groovy script in a separate file and refer to it here with the [remote config reference](https://docs.signalfx.com/en/latest/integrations/agent/remote-config.html) `{\"#from\": \"/path/to/file.groovy\", raw: true}`, or you can put it straight in YAML by using the `|` heredoc syntax.",
+            "doc": "A literal Groovy script that generates datapoints from JMX MBeans. See the top-level `jmx` monitor doc for more information on how to write this script. You can put the Groovy script in a separate file and refer to it here with the [remote config reference](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#configure-the-smart-agent) `{\"#from\": \"/path/to/file.groovy\", raw: true}`, or you can put it straight in YAML by using the `|` heredoc syntax.",
             "default": null,
             "required": true,
             "type": "string",
@@ -43395,7 +43395,7 @@
           "description": "The configured `service` for this monitor."
         }
       },
-      "doc": "Wrapper to run existing nagios status check scripts through SignalFx agent which will play the \nrole of NRPE or SNMP exec.\n\nIt will run the script set in `command` parameter and send the \n[state](https://nagios-plugins.org/doc/guidelines.html#AEN78) of the check depending on the \nexit code of the command.\n\nIt is very similar to [telegraf/exec](https://docs.signalfx.com/en/latest/integrations/agent/monitors/telegraf-exec.html) \nmonitor configured with `dataFormat: nagios` but:\n  - it does not retrieve perfdata metrics, only the state of the script for alerting purpose.\n  - it will override the state if exit code == 0 but output string starts with `warn`, `crit` or `unkn` \n  (not case sensitive).\n\nAlso the main advantage and purpose of this monitor is to add more context to this status check state \nthougth SignalFx [events](https://docs.signalfx.com/en/latest/detect-alert/events-intro.html).\nIndeed, in addition to the state metric, it will send an event which includes the output and the error \ncaught from the command execution.\n\nThis should make the troubleshooting more efficient and allow the user to remain in SignalFx without \nto have to connect to the machine in case of anormal state to understand what is happening.\nIt will also give the ability to create a dashboard similar to what nagios user are accustomed to.\n\n__Note__: the last sent event is cached into memory to avoid sending the same event for each collection \ninterval over and over but already sent event will be send again when you restart the agent erasing its \ncache. If your check always \"normally\" produces a different output for each run like the uptime check \ndoes so you can use the `FilterStdOut: true` parameter to ignore it in comparison.\n",
+      "doc": "Wrapper to run existing nagios status check scripts through SignalFx agent which will play the \nrole of NRPE or SNMP exec.\n\nIt will run the script set in `command` parameter and send the \n[state](https://nagios-plugins.org/doc/guidelines.html#AEN78) of the check depending on the \nexit code of the command.\n\nIt is very similar to [telegraf/exec](https://docs.splunk.com/Observability/gdi/exec/telegraf-exec.html) \nmonitor configured with `dataFormat: nagios` but:\n  - it does not retrieve perfdata metrics, only the state of the script for alerting purpose.\n  - it will override the state if exit code == 0 but output string starts with `warn`, `crit` or `unkn` \n  (not case sensitive).\n\nAlso the main advantage and purpose of this monitor is to add more context to this status check state \nthougth SignalFx [events](https://docs.splunk.com/Observability/metrics-and-metadata/view-data-events.html).\nIndeed, in addition to the state metric, it will send an event which includes the output and the error \ncaught from the command execution.\n\nThis should make the troubleshooting more efficient and allow the user to remain in SignalFx without \nto have to connect to the machine in case of anormal state to understand what is happening.\nIt will also give the ability to create a dashboard similar to what nagios user are accustomed to.\n\n__Note__: the last sent event is cached into memory to avoid sending the same event for each collection \ninterval over and over but already sent event will be send again when you restart the agent erasing its \ncache. If your check always \"normally\" produces a different output for each run like the uptime check \ndoes so you can use the `FilterStdOut: true` parameter to ignore it in comparison.\n",
       "groups": {
         "": {
           "description": "",
@@ -43554,7 +43554,7 @@
         "fields": [
           {
             "yamlName": "interfaces",
-            "doc": "The network interfaces to send metrics about. This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).",
+            "doc": "The network interfaces to send metrics about. This is an [overridable set](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent).",
             "default": [
               "*",
               "!/^lo\\d*$/",
@@ -44613,7 +44613,7 @@
           },
           {
             "yamlName": "databases",
-            "doc": "List of databases to send database-specific metrics about.  If omitted, metrics about all databases will be sent.  This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).",
+            "doc": "List of databases to send database-specific metrics about.  If omitted, metrics about all databases will be sent.  This is an [overridable set](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent).",
             "default": [
               "*"
             ],
@@ -44688,7 +44688,7 @@
         "fields": [
           {
             "yamlName": "processes",
-            "doc": "A list of process command names to match and send metrics about.  This is the name contained in /proc/\u003cpid\u003e/comm and is limited to just 15 characters on Linux.  Only one of `processes` or `executables` must match a process for it to have metrics generated about it. This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters) that supports regexp and glob values.",
+            "doc": "A list of process command names to match and send metrics about.  This is the name contained in /proc/\u003cpid\u003e/comm and is limited to just 15 characters on Linux.  Only one of `processes` or `executables` must match a process for it to have metrics generated about it. This is an [overridable set](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent) that supports regexp and glob values.",
             "default": null,
             "required": false,
             "type": "slice",
@@ -44696,7 +44696,7 @@
           },
           {
             "yamlName": "executables",
-            "doc": "A list of process executable paths to match against and send metrics about.  This is the binary executable that is symlinked in the /proc/\u003cpid\u003e/exe file on Linux.  This must match the full path.  Only one of `processes` or `executables` must match a process for it to have metrics generated about it. This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters) that supports regexp and glob values.",
+            "doc": "A list of process executable paths to match against and send metrics about.  This is the binary executable that is symlinked in the /proc/\u003cpid\u003e/exe file on Linux.  This must match the full path.  Only one of `processes` or `executables` must match a process for it to have metrics generated about it. This is an [overridable set](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent) that supports regexp and glob values.",
             "default": null,
             "required": false,
             "type": "slice",
@@ -58645,7 +58645,7 @@
             },
             {
               "yamlName": "extraSpanTagsFromEndpoint",
-              "doc": "A mapping of extra span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`. This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior.",
+              "doc": "A mapping of extra span tag names to a [discovery rule expression](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#service-discovery-using-the-smart-agent) that is used to derive the value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`. This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior.",
               "default": null,
               "required": false,
               "type": "map",
@@ -58661,7 +58661,7 @@
             },
             {
               "yamlName": "defaultSpanTagsFromEndpoint",
-              "doc": "A mapping of default span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the default value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `defaultSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}` This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior.",
+              "doc": "A mapping of default span tag names to a [discovery rule expression](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#service-discovery-using-the-smart-agent) that is used to derive the default value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `defaultSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}` This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior.",
               "default": null,
               "required": false,
               "type": "map",
@@ -58669,7 +58669,7 @@
             },
             {
               "yamlName": "extraDimensionsFromEndpoint",
-              "doc": "A mapping of extra dimension names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the dimension.  For example, to use a certain container label as a dimension, you could use something like this in your monitor config block: `extraDimensionsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`. This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior.",
+              "doc": "A mapping of extra dimension names to a [discovery rule expression](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#service-discovery-using-the-smart-agent) that is used to derive the value of the dimension.  For example, to use a certain container label as a dimension, you could use something like this in your monitor config block: `extraDimensionsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`. This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior.",
               "default": null,
               "required": false,
               "type": "map",
@@ -58788,7 +58788,7 @@
             },
             {
               "yamlName": "extraMetrics",
-              "doc": "Extra metrics to enable besides the default included ones.  This is an [overridable filter](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filtering).",
+              "doc": "Extra metrics to enable besides the default included ones.  This is an [overridable filter](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent).",
               "default": null,
               "required": false,
               "type": "slice",

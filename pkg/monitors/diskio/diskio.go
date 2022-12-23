@@ -17,7 +17,7 @@ func init() {
 type Config struct {
 	config.MonitorConfig `yaml:",inline" singleInstance:"false" acceptsEndpoints:"false"`
 	// The devices to include/exclude. This is an [overridable
-	// set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).
+	// set](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent).
 	Disks []string `yaml:"disks" default:"[\"*\", \"!/^loop[0-9]+$/\", \"!/^dm-[0-9]+$/\"]"`
 	// (Windows Only) The frequency that wildcards in counter paths should
 	// be expanded and how often to refresh counters from configuration.
