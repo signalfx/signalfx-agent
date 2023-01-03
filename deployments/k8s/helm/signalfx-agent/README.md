@@ -9,7 +9,7 @@ This chart will deploy the SignalFx agent as a DaemonSet to all nodes in your
 cluster.  It is designed to be run in only one release at a time.
 
 See [the agent
-docs](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html)
+docs](https://docs.splunk.com/observability/infrastructure/monitor/k8s.html)
 for more information on how the agent works.  The installation steps will be
 different since you are using Helm but the agent otherwise behaves identically.
 

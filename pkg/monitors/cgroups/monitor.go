@@ -24,7 +24,7 @@ type Config struct {
 
 	// The cgroup names to include/exclude, based on the full hierarchy path.
 	// This is an [overridable
-	// set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).
+	// set](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent).
 	// If not provided, this defaults to all cgroups.
 	// E.g. to monitor all Docker container cgroups, you could use a value of
 	// `["/docker/*"]`.

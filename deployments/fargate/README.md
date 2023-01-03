@@ -30,7 +30,7 @@ to know about these port via the autodiscovery process.
 
 The label `agent.signalfx.com.monitorType.<port>: "<monitor type>"` specifies
 the [monitor
-type](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html#monitor-list)
+type](https://github.com/signalfx/signalfx-agent/blob/main/docs/monitor-config.md#monitor-list)
 to use to monitor this endpoint.  You can specify other config for that monitor
 using labels similar to the `"agent.signalfx.com.config.6379.intervalSeconds":
 "1"` one shown in the example above.  The format is

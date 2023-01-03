@@ -5,7 +5,7 @@ monitors:
     [collectd Marathon Python plugin](https://github.com/signalfx/collectd-marathon).
 
     See the [integrations
-    doc](https://docs.signalfx.com/en/latest/integrations/integrations-reference/integrations.marathon.html)
+    doc](https://docs.splunk.com/Observability/gdi/marathon/marathon.html)
     for more information on configuration.
 
     Sample YAML configuration:

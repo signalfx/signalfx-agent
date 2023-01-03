@@ -64,16 +64,16 @@ These are the metrics available for this monitor.
 {{ if not $sendAll -}}
 {{ if $noneIncluded -}}
 **All of the metrics emitted from this monitor are categorized as
-[custom](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)**
+[custom](https://docs.splunk.com/Observability/admin/subscription-usage/monitor-imm-billing-usage.html#about-custom-bundled-and-high-resolution-metrics)**
 but the ones that are emitted by default from the monitor are ***in bold and italics*** in the list below.
 {{ else -}}
 Metrics that are categorized as
-[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+[container/host](https://docs.splunk.com/Observability/admin/subscription-usage/monitor-imm-billing-usage.html#about-custom-bundled-and-high-resolution-metrics)
 (*default*) are ***in bold and italics*** in the list below.
 {{- end}}
 {{- else -}}
 This monitor emits all metrics by default; however, **none are categorized as
-[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+[container/host](https://docs.splunk.com/Observability/admin/subscription-usage/monitor-imm-billing-usage.html#about-custom-bundled-and-high-resolution-metrics)
 -- they are all custom**.
 {{- end}}
 {{- if $sendUnknown}}
@@ -140,7 +140,7 @@ dimensions may be specific to certain metrics.
 ## Properties
 
 The following
-[properties](https://docs.signalfx.com/en/latest/metrics-metadata/metrics-metadata.html#properties)
+[properties](https://docs.splunk.com/Observability/metrics-and-metadata/metrics-dimensions-mts.html#properties)
 are set on the dimension values of the dimension specified.
 
 | Name | Dimension | Description |

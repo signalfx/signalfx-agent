@@ -31,7 +31,7 @@ type Config struct {
 	// characters on Linux.  Only one of `processes` or `executables` must
 	// match a process for it to have metrics generated about it.
 	// This is an [overridable
-	// set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters)
+	// set](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent)
 	// that supports regexp and glob values.
 	Processes []string `yaml:"processes"`
 
@@ -41,7 +41,7 @@ type Config struct {
 	// of `processes` or `executables` must match a process for it to have
 	// metrics generated about it.
 	// This is an [overridable
-	// set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters)
+	// set](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent)
 	// that supports regexp and glob values.
 	Executables []string `yaml:"executables"`
 }
