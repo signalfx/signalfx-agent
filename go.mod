@@ -5,6 +5,8 @@ go 1.18
 replace (
 	code.cloudfoundry.org/go-loggregator => github.com/signalfx/go-loggregator v1.0.1-0.20200205155641-5ba5ca92118d
 	github.com/dancannon/gorethink => gopkg.in/gorethink/gorethink.v4 v4.0.0
+	github.com/dgrijalva/jwt-go => github.com/form3tech-oss/jwt-go v3.2.5+incompatible
+	github.com/form3tech-oss/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/influxdata/telegraf => github.com/signalfx/telegraf v0.10.2-0.20211029142026-90d18852ba43
 	github.com/signalfx/signalfx-agent/pkg/apm => ./pkg/apm
 	github.com/soheilhy/cmux => github.com/soheilhy/cmux v0.1.5-0.20210205191134-5ec6847320e5 // required to drop google.golang.org/grpc/examples/helloworld/helloworld test dep
