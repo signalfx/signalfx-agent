@@ -1,1 +1,2 @@
 PyYAML~=5.0
+setuptools==65.6.3
