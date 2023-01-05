@@ -24,5 +24,6 @@
         {
             "pattern": ".*/_sidebars-and-includes/.*"
         }
-    ]
+    ],
+    "timeout": "30s"
 }
