@@ -31,7 +31,7 @@ type Config struct {
 	ServiceURL string `yaml:"serviceURL" json:"serviceURL"`
 	// A literal Groovy script that generates datapoints from JMX MBeans. See the top-level `jmx` monitor doc for more
 	// information on how to write this script. You can put the Groovy script in a separate file and refer to it here
-	// with the [remote config reference](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#configure-the-smart-agent)
+	// with the [remote config reference](https://docs.splunk.com/observability/gdi/smart-agent/smart-agent-resources.html#configure-the-smart-agent)
 	// `{"#from": "/path/to/file.groovy", raw: true}`, or you can put it straight in YAML by using the `|` heredoc
 	// syntax.
 	GroovyScript string `yaml:"groovyScript" json:"groovyScript" validate:"required"`

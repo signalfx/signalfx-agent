@@ -29,7 +29,7 @@ To have choco remember parameters on upgrade, be sure to set `choco feature enab
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <projectSourceUrl>https://github.com/signalfx/signalfx-agent</projectSourceUrl>
     <packageSourceUrl>https://github.com/signalfx/signalfx-agent</packageSourceUrl>
-    <docsUrl>https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#nav-Install-and-configure-the-SignalFx-Smart-Agent</docsUrl>
+    <docsUrl>https://docs.splunk.com/observability/gdi/smart-agent/smart-agent-resources.html#nav-Install-and-configure-the-SignalFx-Smart-Agent</docsUrl>
     <tags>signalfx-agent</tags>
     <releaseNotes>https://github.com/signalfx/signalfx-agent/releases</releaseNotes>
     <dependencies>
