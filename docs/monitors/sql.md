@@ -78,8 +78,7 @@ in your SQL query result, there will be a variable called `name` that you
 can use in the expression.  Note that literal string values used in your
 expressions must be surrounded by `"`.
 
-For example, the MySQL [SHOW REPLICA STATUS
-query](https://dev.mysql.com/doc/refman/8.0/en/show-replica-status.html)
+For example, the MySQL `SHOW REPLICA STATUS` query
 does not let you pre-process columns using SQL but let us say
 you wanted to convert the `Slave_IO_Running` column, which is a
 string `Yes`/`No` value, to a gauge datapoint that has a value
