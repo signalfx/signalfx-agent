@@ -42,7 +42,7 @@ type MonitorConfig struct {
 	// monitor(s) created from this configuration.
 	ExtraSpanTags map[string]string `yaml:"extraSpanTags" json:"extraSpanTags"`
 	// A mapping of extra span tag names to a [discovery rule
-	// expression](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#service-discovery-using-the-smart-agent)
+	// expression](https://docs.splunk.com/observability/gdi/smart-agent/smart-agent-resources.html#service-discovery-using-the-smart-agent)
 	// that is used to derive the value of the span tag.  For example, to use
 	// a certain container label as a span tag, you could use something like this
 	// in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}`.
@@ -54,7 +54,7 @@ type MonitorConfig struct {
 	// monitor(s) created from this configuration.
 	DefaultSpanTags map[string]string `yaml:"defaultSpanTags" json:"defaultSpanTags"`
 	// A mapping of default span tag names to a [discovery rule
-	// expression](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#service-discovery-using-the-smart-agent)
+	// expression](https://docs.splunk.com/observability/gdi/smart-agent/smart-agent-resources.html#service-discovery-using-the-smart-agent)
 	// that is used to derive the default value of the span tag.  For example, to use
 	// a certain container label as a span tag, you could use something like this
 	// in your monitor config block: `defaultSpanTagsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}`
@@ -63,7 +63,7 @@ type MonitorConfig struct {
 	// in the `signalfx-forwarder` montior.
 	DefaultSpanTagsFromEndpoint map[string]string `yaml:"defaultSpanTagsFromEndpoint" json:"defaultSpanTagsFromEndpoint"`
 	// A mapping of extra dimension names to a [discovery rule
-	// expression](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#service-discovery-using-the-smart-agent)
+	// expression](https://docs.splunk.com/observability/gdi/smart-agent/smart-agent-resources.html#service-discovery-using-the-smart-agent)
 	// that is used to derive the value of the dimension.  For example, to use
 	// a certain container label as a dimension, you could use something like this
 	// in your monitor config block: `extraDimensionsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}`.
@@ -126,7 +126,7 @@ type MonitorConfig struct {
 	// making the desired dimension name an empty string.
 	DimensionTransformations map[string]string `yaml:"dimensionTransformations" json:"dimensionTransformations"`
 	// Extra metrics to enable besides the default included ones.  This is an
-	// [overridable filter](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent).
+	// [overridable filter](https://docs.splunk.com/observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent).
 	ExtraMetrics []string `yaml:"extraMetrics" json:"extraMetrics"`
 	// Extra metric groups to enable in addition to the metrics that are
 	// emitted by default.  A metric group is simply a collection of metrics,

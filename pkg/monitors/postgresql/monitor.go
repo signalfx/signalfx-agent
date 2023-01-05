@@ -44,7 +44,7 @@ type Config struct {
 	// connection string with the syntax `{{.key}}`.
 	Params map[string]string `yaml:"params"`
 
-	// List of databases to send database-specific metrics about.  If omitted, metrics about all databases will be sent.  This is an [overridable set](https://docs.splunk.com/Observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent).
+	// List of databases to send database-specific metrics about.  If omitted, metrics about all databases will be sent.  This is an [overridable set](https://docs.splunk.com/observability/gdi/smart-agent/smart-agent-resources.html#filtering-data-using-the-smart-agent).
 	Databases []string `yaml:"databases" default:"[\"*\"]"`
 
 	// How frequently to poll for new/deleted databases in the DB server.

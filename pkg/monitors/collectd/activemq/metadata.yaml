@@ -2,7 +2,7 @@ monitors:
 - dimensions:
   doc: |
     SignalFx's integration with ActiveMQ wraps the [Collectd GenericJMX
-    monitor](https://docs.splunk.com/Observability/gdi/genericjmx/genericjmx.html)
+    monitor](https://docs.splunk.com/observability/gdi/genericjmx/genericjmx.html)
     to monitor ActiveMQ.
 
     Use this monitor to gather the following types of information from ActiveMQ:
@@ -12,7 +12,7 @@ monitors:
     * Topic (Topic status)
 
     To monitor the age of messages inside ActiveMQ queues, see [ActiveMQ
-    message age listener](https://docs.splunk.com/Observability/gdi/activemq/activemq.html)[](sfx_link:amq-message-age).
+    message age listener](https://docs.splunk.com/observability/gdi/activemq/activemq.html)[](sfx_link:amq-message-age).
 
     <!--- SETUP --->
     ## Example config
