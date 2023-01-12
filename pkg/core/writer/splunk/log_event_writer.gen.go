@@ -225,7 +225,7 @@ func (w *LogEntryWriter) handleRequestDone(ctx context.Context, count int64) {
 // run waits for LogEntrys to come in on the provided channel and gives them to
 // sendFunc in batches.  This function blocks until the provided context is
 // canceled.
-//nolint: dupl
+// nolint: dupl
 func (w *LogEntryWriter) run(ctx context.Context) {
 	if w.MaxBuffered == 0 {
 		w.MaxBuffered = DefaultLogEntryMaxBuffered
