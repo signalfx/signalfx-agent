@@ -13,6 +13,7 @@ import (
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	k8sTransport "k8s.io/client-go/transport"
 
 	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
 )
@@ -91,8 +92,8 @@ func NewClient(kubeletAPI *APIConfig, logger log.FieldLogger) (*Client, error) {
 		if err != nil {
 			return nil, err
 		}
-
-		token, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
+		tokenPath := "/var/run/secrets/kubernetes.io/serviceaccount/token"
+		token, err := ioutil.ReadFile(tokenPath)
 		if err != nil {
 			return nil, errors.Wrap(err, "Could not read service account token at default location, are "+
 				"you sure service account tokens are mounted into your containers by default?")
@@ -106,12 +107,10 @@ func NewClient(kubeletAPI *APIConfig, logger log.FieldLogger) (*Client, error) {
 		tlsConfig.RootCAs = certs
 		t := transport.(*http.Transport)
 		t.TLSClientConfig = tlsConfig
-
-		transport = &auth.TransportWithToken{
-			RoundTripper: t,
-			Token:        string(token),
+		transport, err = k8sTransport.NewBearerAuthWithRefreshRoundTripper(string(token), tokenPath, t)
+		if err != nil {
+			return nil, errors.Wrap(err, "Could not set up refreshable context for kubernetes AuthTypeService")
 		}
-
 		logger.Debug("Using service account authentication for Kubelet")
 	default:
 		transport.(*http.Transport).TLSClientConfig = tlsConfig
