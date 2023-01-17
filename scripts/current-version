@@ -17,7 +17,7 @@ tag=$($latest_tag --exact-match 2>/dev/null)
 # Clone didn't clone tags
 if test -z $tag
 then
-  tag="v5.27.1" # Updated by scripts/update-deployments-version
+  tag="v5.27.2" # Updated by scripts/update-deployments-version
 fi
 
 if test -z $tag || [[ $tag =~ (deb|rpm) ]]
