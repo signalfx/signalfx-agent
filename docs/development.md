@@ -203,6 +203,7 @@ to be merged into the mainline `main` branch.  Our CircleCI configuration
 will automatically run them when a pull request is made, but you can run them
 manually as follows:
 
+
 ### Go Unit Tests
 Simply run `make tests`.  You should add new unit tests for any new modules
 that have relatively self-contained functionality that is easy to isolate and
@@ -212,6 +213,15 @@ test.
 These are all written using Python's pytest and are located in the [tests
 directory](https://github.com/signalfx/signalfx-agent/tree/main/tests).  See
 there for more information.
+
+To run integration tests, run
+
+```bash
+make run-dev-image
+# once inside the dev-image, run
+make signalfx-agent
+make run-integration-tests
+```
 
 ### Lint
 We require 100% passing rate for the standard [golint

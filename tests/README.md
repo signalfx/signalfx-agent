@@ -31,7 +31,8 @@ markers and options):
 $ cd <root_of_cloned_repo>
 $ make dev-image  # build the dev-image (signalfx-agent-dev:latest)
 $ make run-dev-image  # start the dev-image container with interactive shell
-$$ make run-integration-tests
+$$ make signalfx-agent
+$$ make run-integration-tests 
 $$ make run-k8s-tests
 ```
 
