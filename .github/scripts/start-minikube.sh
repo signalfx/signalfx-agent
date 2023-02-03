@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -euo pipefail
+
+export MINIKUBE_IN_STYLE="false"
+export MINIKUBE_WANTUPDATENOTIFICATION="false"
+export MINIKUBE_WANTREPORTERRORPROMPT="false"
+export CHANGE_MINIKUBE_NONE_USER="true"
+export K8S_VERSION=${K8S_VERSION:-}
+export OPTIONS=${OPTIONS:-}
+
+sudo apt-get update
+sudo apt-get -y install conntrack
+sudo apt-get -y install socat
+
+# enable kubelet port 10255 for cadvisor and stats
+OPTIONS="$OPTIONS --extra-config=kubelet.read-only-port=10255"
+
+if [ -f test-services/minikube/config.json ]; then
+    mkdir -p $HOME/.minikube/config
+    cp test-services/minikube/config.json $HOME/.minikube/config/config.json
+fi
+
+if [ -n "$K8S_VERSION" ]; then
+    sudo -E minikube start --vm-driver=none --wait=true --kubernetes-version=$K8S_VERSION $OPTIONS
+else
+    sudo -E minikube start --vm-driver=none --wait=true $OPTIONS
+fi

@@ -217,7 +217,7 @@ def run_helm_image(k8s_cluster, helm_version):
         yield cont
 
 
-@pytest.mark.parametrize("helm_version", ["2.15.0", "3.0.0"])
+@pytest.mark.parametrize("helm_version", ["2.17.0", "3.0.0"])
 def test_helm(k8s_cluster, helm_version):
     helm_major_version = int(helm_version.split(".")[0])
     with run_helm_image(k8s_cluster, helm_version) as cont:
