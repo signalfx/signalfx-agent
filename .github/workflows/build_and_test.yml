@@ -145,7 +145,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        K8S_VERSION: ["v1.15.0", "v1.16.0", "v1.17.0", "v1.18.0", "v1.19.0", "crio"]
+        K8S_VERSION: ["v1.15.0", "v1.16.0", "v1.17.0", "v1.18.0", "v1.19.0", "v1.20.0", "v1.21.0", "v1.22.0", "crio"]
       fail-fast: false
     steps:
       - name: Check out the codebase.
