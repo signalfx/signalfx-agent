@@ -8,8 +8,10 @@ netifaces==0.10.8
 protobuf==3.5.1
 psutil==5.6.1
 pylint==2.3.0
+pytest-cov==4.0.0
 pytest-html==1.22
 pytest-rerunfailures==4.1
+pytest-split==0.8.0
 pytest-xdist==1.30.0
 pytest==5.3.1
 redis==2.10.6

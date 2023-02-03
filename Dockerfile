@@ -349,10 +349,10 @@ RUN patch-rpath /opt/root
 # below this are special-purpose.
 FROM scratch as final-image
 
-CMD ["/bin/signalfx-agent"]
-
 COPY --from=collectd /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 ENV SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt
+
+CMD ["/bin/signalfx-agent"]
 
 COPY --from=collectd /etc/nsswitch.conf /etc/nsswitch.conf
 COPY --from=collectd /usr/local/bin/patchelf /bin/
