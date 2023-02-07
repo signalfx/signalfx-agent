@@ -1,0 +1,351 @@
+name: build_and_test
+
+on: 
+  push:
+    branches:
+      - v4
+  pull_request:
+
+concurrency:
+  group: build_and_test-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  RESULT_PATH: testresults
+  PYTHON_VERSION: 3.8.10
+  REQUIREMENTS_PATH: "tests/requirements.txt"
+  CNI_VERSION: v0.6.0
+  CNI_PLUGINS_VERSION: v0.8.2
+  CRIO_VERSION: 1.18
+  CRICTL_VERSION: v1.16.0
+  MINIKUBE_VERSION: v1.13.0
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v3
+
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+
+      - name: Build image and bundle
+        env:
+          AGENT_VERSION: latest
+        run: |
+          make bundle
+          mkdir -p ./dist
+          docker save -o ./dist/image.tar quay.io/signalfx/signalfx-agent-dev:latest
+          mv signalfx-agent-latest.tar.gz ./dist/
+
+      - name: Uploading image artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: image
+          path: ./dist/image.tar
+
+      - name: Uploading bundle artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: bundle
+          path: ./dist/signalfx-agent-latest.tar.gz
+  
+  integration_test:
+    name: integration_test
+    runs-on: ubuntu-20.04
+    needs: [build]
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        group: [1, 2, 3, 4, 5, 6, 7, 8]
+      fail-fast: false
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v3
+
+      - name: Downloading bundle
+        uses: actions/download-artifact@v3
+        with:
+          name: bundle
+          path: ./
+
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: ${{ env.REQUIREMENTS_PATH }}
+
+      - name: Install pytest
+        run: pip install -r "${{ env.REQUIREMENTS_PATH }}"
+
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            openstack:
+              - '**/openstack/**'
+              - '**/make-devstack-image'
+              - '**/run-devstack-image'
+              - '**/devstack/**'
+            conviva:
+              - '**/conviva/**'
+            jenkins:
+              - '**/jenkins/**'
+      - name: Setup integration test
+        run: |
+          export BUNDLE_DIR="$(pwd)/bundle"
+          export TEST_SERVICES_DIR="$(pwd)/test-services"
+          export AGENT_BIN="$BUNDLE_DIR/bin/signalfx-agent"
+          
+          tar -xf signalfx-agent-latest.tar.gz
+          mv signalfx-agent $BUNDLE_DIR
+          $BUNDLE_DIR/bin/patch-interpreter $BUNDLE_DIR
+          [ -f "$AGENT_BIN" ] || (echo "$AGENT_BIN not found!" && exit 1)
+          MARKERS="integration";
+          if [ ${GITHUB_EVENT_NAME} != 'push' ] || [ ${GITHUB_REF##*/} != 'main' ]; then
+            if [ ${{ steps.filter.outputs.openstack }} = 'false' ]; then
+              MARKERS="$MARKERS and not openstack"
+            fi
+            if [ ${{ steps.filter.outputs.conviva }} = 'false' ]; then
+              MARKERS="$MARKERS and not conviva"
+            fi
+            if [ ${{ steps.filter.outputs.jenkins }} = 'false' ]; then
+              MARKERS="$MARKERS and not jenkins"
+            fi
+          fi
+          echo "BUNDLE_DIR=$BUNDLE_DIR" >> $GITHUB_ENV
+          echo "AGENT_BIN=$AGENT_BIN" >> $GITHUB_ENV
+          echo "TEST_SERVICES_DIR=$TEST_SERVICES_DIR" >> $GITHUB_ENV
+          echo "MARKERS=$MARKERS" >> $GITHUB_ENV
+          echo "DEFAULT_TIMEOUT=120" >> $GITHUB_ENV
+          sudo apt-get update
+          sudo apt-get install -y --only-upgrade ca-certificates
+      - name: Run pytest
+        env:
+          WORKERS: 2
+          PYTEST_OPTIONS: --reruns 2
+          TESTS_DIR: ./tests
+          GITHUB_NODE_TOTAL: 8
+          GITHUB_NODE_GROUP: ${{ matrix.group }}
+        run: .github/scripts/run-pytest.sh
+
+      - name: Uploading pytest result artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: integration-test-result-${{ matrix.group }}
+          path: |
+            ~/${{ env.RESULT_PATH }}/results.html
+            ~/${{ env.RESULT_PATH }}/results.xml
+
+  k8s_integration_tests:
+    name: k8s_integration_tests
+    runs-on: ubuntu-20.04
+    needs: [build]
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        # Skip crio tests until the agent code and tests are backported
+        # K8S_VERSION: ["v1.15.0", "v1.16.0", "v1.17.0", "v1.18.0", "v1.19.0", "crio"]
+        K8S_VERSION: ["v1.15.0", "v1.16.0", "v1.17.0", "v1.18.0", "v1.19.0"]
+      fail-fast: false
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v3
+
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            k8s:
+              - '.github/scripts/run-pytest.sh'
+              - '.github/workflows/build_and_test.yml'
+              - 'Dockerfile'
+              - 'go.mod'
+              - 'go.sum'
+              - '**/*crio*'
+              - '**/*crio*/**'
+              - '**/*helm*'
+              - '**/*helm*/**'
+              - '**/*k8s*'
+              - '**/*k8s*/**'
+              - '**/*kube*'
+              - '**/*kube*/**'
+
+      - name: Get K8s version and check crio value
+        run: |
+          if [ ${{ matrix.K8S_VERSION }} != 'crio' ]; then
+            echo "K8S_VERSION=${{ matrix.K8S_VERSION }}" >> "$GITHUB_ENV"
+            echo "WITH_CRIO=0" >> "$GITHUB_ENV"
+          else
+            echo "K8S_VERSION=v1.19.0" >> "$GITHUB_ENV"
+            echo "WITH_CRIO=1" >> "$GITHUB_ENV"
+          fi
+
+      - name: Check file changes
+        run: |
+          export K8S_VERSION=${{ env.K8S_VERSION }}
+          export K8S_MIN_VERSION="${K8S_MIN_VERSION:-v1.15.0}"
+          export K8S_MAX_VERSION="${K8S_MAX_VERSION:-v1.19.0}"
+          export WITH_CRIO=${{ env.WITH_CRIO }}
+          
+          # Only run on push/pull_request on main branch
+          if [ ${GITHUB_EVENT_NAME} != 'push' ] || [ ${GITHUB_REF##*/} != 'main' ]; then
+            if [ ${GITHUB_EVENT_NAME} != 'pull_request' ] || [ ${{ github.base_ref }} != 'main' ]; then
+              # Only run k8s tests for crio, K8S_MIN_VERSION, and K8S_MAX_VERSION if there are no relevant changes.
+              if [[ "$WITH_CRIO" -ne 1 && "$K8S_VERSION" != "$K8S_MIN_VERSION" && "$K8S_VERSION" != "$K8S_MAX_VERSION" ]]; then
+                if [ ${{ steps.filter.outputs.k8s }} = 'false' ]; then
+                  echo "SKIP=true" >> $GITHUB_ENV
+                fi
+              fi
+            fi
+          fi
+
+      - name: Downloading image
+        if: ${{ env.SKIP != 'true' }}
+        uses: actions/download-artifact@v3
+        with:
+          name: image
+          path: ./dist
+
+      - name: Load agent image
+        if: ${{ env.SKIP != 'true' }}
+        run: |
+          docker load -i ./dist/image.tar
+
+      - name: Caching cni
+        id: cache-cni
+        if: ${{ env.WITH_CRIO == '1' && env.SKIP != 'true' }}
+        uses: actions/cache@v3
+        with:
+          path: /tmp/cni.tgz
+          key: v2-cni-binaries-${{ env.CNI_VERSION }}
+
+      - name: Downloading cni
+        if: ${{ env.WITH_CRIO == '1' && env.SKIP != 'true' }}
+        run: |
+          if [[ ! -e "/tmp/cni.tgz" ]]; then
+            wget -q -O "/tmp/cni.tgz" https://github.com/containernetworking/cni/releases/download/${{ env.CNI_VERSION }}/cni-amd64-${{ env.CNI_VERSION }}.tgz
+          fi
+          sudo mkdir -p /opt/cni/bin/
+          sudo tar -zxvf /tmp/cni.tgz -C /opt/cni/bin/
+          sudo chmod a+x /opt/cni/bin/*
+
+      - name: Caching cni plugins
+        id: cache-cni-plugins
+        if: ${{ env.WITH_CRIO == '1' && env.SKIP != 'true' }}
+        uses: actions/cache@v3
+        with: 
+          path: /tmp/cni-plugins.tgz
+          key: v2-cni-plugins-${{ env.CNI_PLUGINS_VERSION }}
+
+      - name: Downloading cni_plugins
+        if: ${{ env.WITH_CRIO == '1' && env.SKIP != 'true' }}
+        run: |
+          if [[ ! -e "/tmp/cni-plugins.tgz" ]]; then
+            wget -q -O "/tmp/cni-plugins.tgz" https://github.com/containernetworking/plugins/releases/download/${{ env.CNI_PLUGINS_VERSION }}/cni-plugins-linux-amd64-${{ env.CNI_PLUGINS_VERSION }}.tgz
+          fi
+          sudo mkdir -p /opt/cni/bin/
+          sudo tar -zxvf /tmp/cni-plugins.tgz -C /opt/cni/bin/
+          sudo chmod a+x /opt/cni/bin/*
+
+      - name: Install CRIO
+        if: ${{ env.WITH_CRIO == '1' && env.SKIP != 'true' }}
+        run: .github/scripts/install-crio.sh
+
+      - name: Caching crictl
+        if: ${{ env.SKIP != 'true' }}
+        id: cache-crictl
+        uses: actions/cache@v3
+        with:
+          path: /tmp/crictl.tar.gz
+          key: v2-crictl-binary-${{ env.CRICTL_VERSION }}
+
+      - name: Downloading crictl
+        if: ${{ env.SKIP != 'true' }}
+        run: |
+          if [[ ! -e "/tmp/crictl.tar.gz" ]]; then
+            wget -q -O "/tmp/crictl.tar.gz" https://github.com/kubernetes-sigs/cri-tools/releases/download/${{ env.CRICTL_VERSION }}/crictl-${{ env.CRICTL_VERSION }}-linux-amd64.tar.gz
+          fi
+          sudo tar -zxvf /tmp/crictl.tar.gz -C /usr/local/bin
+          sudo chmod a+x /usr/local/bin/crictl
+
+      - name: Caching kubectl
+        if: ${{ env.SKIP != 'true' }}
+        id: cache-kubectl
+        uses: actions/cache@v3
+        with:
+          path: /tmp/kubectl
+          key: v5-kubectl-binary-${{ env.K8S_VERSION }}
+
+      - name: Downloading kubectl
+        if: ${{ env.SKIP != 'true' }}
+        run: |
+          if [[ ! -e "/tmp/kubectl" ]]; then
+            wget -q -O "/tmp/kubectl" https://storage.googleapis.com/kubernetes-release/release/${{ env.K8S_VERSION }}/bin/linux/amd64/kubectl
+          fi
+          sudo install /tmp/kubectl /usr/local/bin/kubectl
+          sudo chmod a+x /usr/local/bin/kubectl
+
+      - name: Caching minikube
+        if: ${{ env.SKIP != 'true' }}
+        id: cache-minikube
+        uses: actions/cache@v3
+        with:
+          path: /tmp/minikube
+          key: v2-minikube-binary-${{ env.MINIKUBE_VERSION }}
+
+      - name: Downloading minikube
+        if: ${{ env.SKIP != 'true' }}
+        run: |
+          if [[ ! -e "/tmp/minikube" ]]; then
+            wget -q -O "/tmp/minikube" https://storage.googleapis.com/minikube/releases/${{ env.MINIKUBE_VERSION }}/minikube-linux-amd64
+          fi
+          sudo install /tmp/minikube /usr/local/bin/minikube
+          sudo chmod a+x /usr/local/bin/minikube
+
+      - name: Start minikube with CRIO
+        if: ${{ env.WITH_CRIO == '1' && env.SKIP != 'true' }}
+        env:
+          OPTIONS: --container-runtime=crio --network-plugin=cni --cni=bridge --extra-config=kubelet.network-plugin=cni --extra-config=kubelet.cgroup-driver=systemd
+        run: .github/scripts/start-minikube.sh
+
+      - name: Start minikube without CRIO
+        if: ${{ env.WITH_CRIO == '0' && env.SKIP != 'true' }}
+        run: .github/scripts/start-minikube.sh
+
+      - name: Setup python
+        if: ${{ env.SKIP != 'true' }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: ${{ env.REQUIREMENTS_PATH }}
+
+      - name: Install pytest
+        if: ${{ env.SKIP != 'true' }}
+        run: pip install -r "${{ env.REQUIREMENTS_PATH }}"
+
+      - name: Setup k8s test
+        if: ${{ env.SKIP != 'true' }}
+        run: .github/scripts/setup-k8s-tests.sh
+
+      - name: Run pytest
+        if: ${{ env.SKIP != 'true' }}
+        env:
+          MARKERS: kubernetes
+          WORKERS: 2
+          PYTEST_OPTIONS: --no-use-minikube --agent-image-name=localhost:5000/signalfx-agent:latest --kubeconfig=/home/runner/.kube/config --reruns 2
+          TESTS_DIR: ./tests
+        run: .github/scripts/run-pytest.sh
+
+      - name: Uploading pytest result artifacts
+        if: ${{ env.SKIP != 'true' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: k8s-${{ matrix.K8S_VERSION }}-integration-test-result
+          path: |
+            ~/${{ env.RESULT_PATH }}/results.html
+            ~/${{ env.RESULT_PATH }}/results.xml
