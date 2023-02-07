@@ -117,6 +117,7 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       libdbus-1-dev
 
 RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb && \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 467B942D3A79BD29 && \
     dpkg -i mysql-apt-config_0.8.12-1_all.deb && \
     apt-get update && apt-get install -y libmysqlclient-dev libcurl4-gnutls-dev
 
@@ -348,10 +349,10 @@ RUN patch-rpath /opt/root
 # below this are special-purpose.
 FROM scratch as final-image
 
-CMD ["/bin/signalfx-agent"]
-
 COPY --from=collectd /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 ENV SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt
+
+CMD ["/bin/signalfx-agent"]
 
 COPY --from=collectd /etc/nsswitch.conf /etc/nsswitch.conf
 COPY --from=collectd /usr/local/bin/patchelf /bin/

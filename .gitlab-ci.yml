@@ -1,0 +1,41 @@
+default:
+  image: '${DOCKER_CICD_REPO}/ci-container:python-3.9'
+
+stages:
+  - build
+
+.trigger-filter:
+  only:
+    variables:
+      - $CI_COMMIT_TAG =~ /^v4\.[0-9]+\.[0-9]+$/
+  except:
+    - schedules
+
+linux-build:
+  extends: .trigger-filter
+  stage: build
+  needs: []
+  script:
+    - docker login -u $CIRCLECI_QUAY_USERNAME -p $CIRCLECI_QUAY_PASSWORD quay.io
+    - mkdir -p dist
+    - |
+      set -exo pipefail
+      if [[ -n "${CI_COMMIT_TAG:-}" ]]; then
+        export AGENT_IMAGE_NAME="quay.io/signalfx/signalfx-agent"
+        export AGENT_VERSION="${CI_COMMIT_TAG#v}"
+      else
+        export AGENT_IMAGE_NAME="quay.io/signalfx/signalfx-agent-dev"
+        export AGENT_VERSION="$(scripts/current-version)"
+      fi
+      IMAGE="${AGENT_IMAGE_NAME}:${AGENT_VERSION}"
+      PUSH="yes" make image
+      digest=$( docker inspect --format='{{.RepoDigests}}' $IMAGE | sed "s|\[.*@\(sha256:.*\)\]|\1|" )
+      if [[ ! "$digest" =~ ^sha256:[A-Fa-f0-9]{64}$ ]]; then
+        echo "Failed to get repo digest for $IMAGE!"
+        exit 1
+      fi
+      echo -n "$digest" > dist/digest.txt
+      docker save -o dist/image.tar $IMAGE
+  artifacts:
+    paths:
+      - dist

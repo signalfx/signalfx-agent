@@ -2,9 +2,7 @@
 
 set -eo pipefail
 
-[ -f ~/.skip ] && (echo "Found ~/.skip, skipping cri-o installation" && exit 0)
-
-CRIO_VERSION="${CRIO_VERSION:-1.15}"
+CRIO_VERSION="${CRIO_VERSION:-1.18}"
 
 sudo modprobe overlay
 sudo modprobe br_netfilter
@@ -18,9 +16,17 @@ sudo sysctl --system
 
 sudo apt-get update
 sudo apt-get install -y software-properties-common
-sudo add-apt-repository -y ppa:projectatomic/ppa
-sudo apt-get update
-sudo apt-get install -y cri-o-${CRIO_VERSION}
+
+OS=xUbuntu_20.04
+echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+echo "deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$CRIO_VERSION/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.list
+
+curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | sudo apt-key add -
+curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | sudo apt-key add -
+
+sudo apt update
+sudo apt install cri-o cri-o-runc -y
+
 sudo sed -i "s|conmon = .*|conmon = \"$(command -v conmon)\"|" /etc/crio/crio.conf
 sudo mkdir -p /etc/containers
 cat > /tmp/registries.conf <<EOF

@@ -1,1 +1,14 @@
-*   @keitwb @jchengsfx @mstumpfx @molner @asuresh4 @jaysfx
+* @signalfx/gdi-data-collection-approvers @signalfx/gdi-data-collection-maintainers
+
+.github/CODEOWNERS @signalfx/gdi-data-collection-maintainers
+
+#####################################################
+#
+# Docs reviewers
+#
+#####################################################
+
+*.md @signalfx/gdi-docs @signalfx/gdi-data-collection-approvers
+*.rst @signalfx/gdi-docs @signalfx/gdi-data-collection-approvers
+docs/ @signalfx/gdi-docs @signalfx/gdi-data-collection-approvers
+README* @signalfx/gdi-docs @signalfx/gdi-data-collection-approvers
