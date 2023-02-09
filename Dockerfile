@@ -1,4 +1,8 @@
+ARG TARGET_ARCH=amd64
 ARG GO_VERSION=1.18.8
+ARG JDK_VERSION=11.0.17_8
+ARG MAVEN_VERSION=3.6.0
+ARG PYTHON_VERSION=3.8.10
 ARG PIP_VERSION=21.0.1
 
 ###### Agent Build Image ########
@@ -13,7 +17,8 @@ ARG TARGET_ARCH
 ENV PATH=$PATH:/usr/local/go/bin
 RUN cd /tmp &&\
     wget https://go.dev/dl/go${GO_VERSION}.linux-${TARGET_ARCH}.tar.gz &&\
-	tar -C /usr/local -xf go*.tar.gz
+    tar -C /usr/local -xf go*.tar.gz &&\
+    rm -f go*.tar.gz
 
 ENV GOPATH=/go
 WORKDIR /usr/src/signalfx-agent
@@ -40,18 +45,21 @@ RUN AGENT_VERSION=${agent_version} COLLECTD_VERSION=${collectd_version} make sig
 FROM ubuntu:18.04 as java
 
 RUN apt update &&\
-    apt install -y wget maven
+    apt install -y wget
 
 ARG TARGET_ARCH
-ARG JDK_VERSION=11.0.17_8
+ARG JDK_VERSION
+ARG MAVEN_VERSION
 
 ENV OPENJDK_BASE_URL="https://github.com/adoptium/temurin11-binaries/releases/download"
 
 RUN ENCODED_VER=$(echo $JDK_VERSION | sed 's/_/%2B/g') && \
     if [ "$TARGET_ARCH" = "amd64" ]; then \
     OPENJDK_URL="${OPENJDK_BASE_URL}/jdk-${ENCODED_VER}/OpenJDK11U-jdk_x64_linux_hotspot_${JDK_VERSION}.tar.gz"; \
-    else \
+    elif [ "$TARGET_ARCH" = "arm64" ]; then \
     OPENJDK_URL="${OPENJDK_BASE_URL}/jdk-${ENCODED_VER}/OpenJDK11U-jdk_aarch64_linux_hotspot_${JDK_VERSION}.tar.gz"; \
+    else \
+    OPENJDK_URL="${OPENJDK_BASE_URL}/jdk-${ENCODED_VER}/OpenJDK11U-jdk_${TARGET_ARCH}_linux_hotspot_${JDK_VERSION}.tar.gz"; \
     fi && \
     wget -O /tmp/openjdk.tar.gz "$OPENJDK_URL"
 
@@ -68,6 +76,14 @@ RUN mkdir -p /opt/root/jre && \
     cp -rL ${JAVA_HOME}/lib /opt/root/jre/ && \
     cp -rL ${JAVA_HOME}/conf /opt/root/jre/
 
+ENV MAVEN_BASE_URL="https://archive.apache.org/dist/maven/maven-3"
+
+RUN wget -O /tmp/maven.tar.gz ${MAVEN_BASE_URL}/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz && \
+    tar -C /tmp -xzf /tmp/maven.tar.gz && \
+    rm -f /tmp/maven.tar.gz
+
+ENV PATH=$PATH:/tmp/apache-maven-${MAVEN_VERSION}/bin
+
 COPY java/ /usr/src/agent-java/
 RUN cd /usr/src/agent-java/runner &&\
     mvn -V clean install
@@ -75,12 +91,14 @@ RUN cd /usr/src/agent-java/runner &&\
 RUN cd /usr/src/agent-java/jmx &&\
     mvn -V clean package
 
+RUN rm -rf /tmp/apache-maven*
 
-###### Collectd builder image ######
-FROM ubuntu:18.04 as collectd
+
+###### Python bundle builder image ######
+FROM ubuntu:18.04 as python
 
 ARG TARGET_ARCH
-ARG PYTHON_VERSION=3.8.10
+ARG PYTHON_VERSION
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -156,6 +174,7 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
 RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb && \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 467B942D3A79BD29 && \
     dpkg -i mysql-apt-config_0.8.12-1_all.deb && \
+    rm -f mysql-apt-config_0.8.12-1_all.deb && \
     apt-get update && apt-get install -y libmysqlclient-dev libcurl4-gnutls-dev
 
 RUN wget -O /tmp/Python-${PYTHON_VERSION}.tgz https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz &&\
@@ -166,23 +185,22 @@ RUN wget -O /tmp/Python-${PYTHON_VERSION}.tgz https://www.python.org/ftp/python/
     make && make install libinstall && \
     ldconfig
 
-# Compile patchelf statically from source
-RUN cd /tmp &&\
-    wget https://nixos.org/releases/patchelf/patchelf-0.11/patchelf-0.11.tar.gz &&\
-    tar -xf patchelf*.tar.gz &&\
-    cd patchelf-0.11* &&\
-    ./configure LDFLAGS="-static" &&\
-    make &&\
-    make install
+RUN rm -rf /tmp/Python*
 
+
+###### Collectd builder image ######
+FROM python as collectd
+
+ARG TARGET_ARCH
 ARG collectd_version=""
 ARG collectd_commit=""
 
 RUN cd /tmp &&\
     wget https://github.com/signalfx/collectd/archive/${collectd_commit}.tar.gz &&\
-	tar -xvf ${collectd_commit}.tar.gz &&\
-	mkdir -p /usr/src/ &&\
-	mv collectd-${collectd_commit}* /usr/src/collectd
+    tar -xvf ${collectd_commit}.tar.gz &&\
+    mkdir -p /usr/src/ &&\
+    mv collectd-${collectd_commit}* /usr/src/collectd &&\
+    rm -f ${collectd_commit}.tar.gz
 
 # Hack to get our custom version compiled into collectd
 RUN echo "#!/bin/bash" > /usr/src/collectd/version-gen.sh &&\
@@ -201,8 +219,10 @@ ENV JAVA_HOME=/opt/root/jdk
 # exists at /jre
 ENV JAVA_LDFLAGS "-Wl,-rpath -Wl,\$\$\ORIGIN/../../jre/lib/server"
 
-RUN autoreconf -vif &&\
-    ./configure \
+# xencpu plugin is not supported on ppc64le
+RUN DISABLE_XENCPU=""; if [ "$TARGET_ARCH" = "ppc64le" ]; then DISABLE_XENCPU="--disable-xencpu"; fi; \
+    autoreconf -vif &&\
+    ./configure $DISABLE_XENCPU \
         --prefix="/usr" \
         --localstatedir="/var" \
         --sysconfdir="/etc/collectd" \
@@ -251,6 +271,18 @@ RUN make -j`nproc` &&\
 
 COPY scripts/collect-libs /opt/collect-libs
 RUN /opt/collect-libs /opt/deps /usr/sbin/collectd /usr/lib/collectd/
+
+# Compile patchelf statically from source
+RUN cd /tmp &&\
+    wget https://nixos.org/releases/patchelf/patchelf-0.11/patchelf-0.11.tar.gz &&\
+    tar -xf patchelf*.tar.gz &&\
+    cd patchelf-0.11* &&\
+    ./configure LDFLAGS="-static" &&\
+    make &&\
+    make install
+
+RUN rm -rf /tmp/patchelf*
+
 # For some reason libvarnishapi doesn't properly depend on libm, so make it
 # right.
 RUN patchelf --add-needed libm-2.23.so /opt/deps/libvarnishapi.so.1.0.6
@@ -261,9 +293,13 @@ FROM collectd as python-plugins
 
 ARG PIP_VERSION
 
-RUN python3 -m pip install --upgrade pip==$PIP_VERSION && python3 -m pip install yq &&\
-    wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 &&\
-    chmod +x /usr/bin/jq
+RUN apt-get update &&\
+    apt-get install -y jq
+
+RUN python3 -m pip install --upgrade pip==$PIP_VERSION && python3 -m pip install yq
+
+# rust is required for compiling cryptography on ppc64le
+RUN if [ "$TARGET_ARCH" = "ppc64le" ]; then apt-get install -y cargo rustc; fi
 
 # Mirror the same dir structure that exists in the original source
 COPY scripts/get-collectd-plugins.py /opt/scripts/
@@ -298,11 +334,11 @@ FROM ubuntu:18.04 as extra-packages
 
 RUN apt update &&\
     apt install -y \
-	  curl \
-	  host \
-	  iproute2 \
-	  netcat \
-	  netcat.openbsd
+        curl \
+        host \
+        iproute2 \
+        netcat \
+        netcat.openbsd
 
 COPY scripts/collect-libs /opt/collect-libs
 
@@ -364,8 +400,6 @@ RUN patch-rpath /opt/root
 # below this are special-purpose.
 FROM scratch as final-image
 
-CMD ["/bin/signalfx-agent"]
-
 COPY --from=collectd /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 ENV SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt
 
@@ -405,6 +439,8 @@ RUN mkdir -p /run/collectd /var/run/ &&\
 COPY --from=agent-builder /usr/bin/signalfx-agent /bin/signalfx-agent
 
 WORKDIR /
+
+CMD ["/bin/signalfx-agent"]
 
 
 ####### Pandoc Converter ########

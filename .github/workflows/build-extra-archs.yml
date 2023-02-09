@@ -1,0 +1,77 @@
+name: build-extra-archs
+
+on: 
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/build-extra-archs.yml
+      - cmd/**
+      - java/**
+      - pkg/**
+      - python/**
+      - scripts/**
+      - collectd-plugins.yaml
+      - Dockerfile
+      - go.mod
+      - go.sum
+      - Makefile
+      - selfdescribe.json
+  pull_request:
+    paths:
+      - .github/workflows/build-extra-archs.yml
+      - cmd/**
+      - java/**
+      - pkg/**
+      - python/**
+      - scripts/**
+      - collectd-plugins.yaml
+      - Dockerfile
+      - go.mod
+      - go.sum
+      - Makefile
+      - selfdescribe.json
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        ARCH: [ "arm64", "ppc64le" ]
+      fail-fast: false
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: ${{ matrix.ARCH }}
+
+      - name: Build image and bundle
+        env:
+          AGENT_VERSION: latest
+          TARGET_ARCH: ${{ matrix.ARCH }}
+          DOCKER_BUILDKIT: '1'
+        run: |
+          make bundle
+          mkdir -p ./dist
+          docker save -o ./dist/image-${{ matrix.ARCH }}.tar quay.io/signalfx/signalfx-agent-dev:latest-${{ matrix.ARCH }}
+          mv signalfx-agent-latest-${{ matrix.ARCH }}.tar.gz ./dist/
+
+      - name: Uploading image artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: image-${{ matrix.ARCH }}
+          path: ./dist/image-${{ matrix.ARCH }}.tar
+
+      - name: Uploading bundle artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: bundle-${{ matrix.ARCH }}
+          path: ./dist/signalfx-agent-latest-${{ matrix.ARCH }}.tar.gz

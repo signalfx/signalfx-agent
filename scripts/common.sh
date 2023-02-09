@@ -16,7 +16,7 @@ do_docker_build() {
   local operating_system=${5:-"linux"}
   local collectd_commit=${COLLECTD_COMMIT}
   local collectd_version=${COLLECTD_VERSION}
-  local target_arch="amd64"
+  local target_arch=${TARGET_ARCH:-"amd64"}
   if [ "$(uname -m)" == "aarch64" ]; then
     target_arch="arm64"
   fi
@@ -31,8 +31,13 @@ do_docker_build() {
 	pull_flag=""
   fi
 
-  docker build \
-    -t $image_name:$image_tag \
+  if [[ "$target_arch" != "amd64" ]]; then
+    image_tag="${image_tag}-${target_arch}"
+  fi
+
+  docker buildx build \
+    --platform linux/${target_arch} \
+    -o type=image,name=${image_name}:${image_tag},push=false \
     -f $MY_SCRIPT_DIR/../Dockerfile \
     $pull_flag \
     --build-arg agent_version=${agent_version} \

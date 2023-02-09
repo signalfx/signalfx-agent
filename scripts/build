@@ -10,16 +10,21 @@ AGENT_IMAGE_NAME=${AGENT_IMAGE_NAME:-"quay.io/signalfx/signalfx-agent-dev"}
 
 AGENT_VERSION=${AGENT_VERSION:-$($SCRIPT_DIR/current-version)}
 
+TARGET_ARCH=${TARGET_ARCH:-"amd64"}
+
 if [[ "${BUILD_IMAGE:-yes}" = "yes" ]]; then
   do_docker_build ${AGENT_IMAGE_NAME} ${AGENT_VERSION} final-image
 fi
 
 if [[ -n ${BUILD_BUNDLE-} ]]
 then
+  if [[ "$TARGET_ARCH" != "amd64" ]]; then
+    AGENT_VERSION="${AGENT_VERSION}-${TARGET_ARCH}"
+  fi
   OUTPUT=${OUTPUT:-signalfx-agent-${AGENT_VERSION}.tar.gz}
   output_tar=$(basename $OUTPUT .gz)
 
-  cid=$(docker create ${AGENT_IMAGE_NAME}:$AGENT_VERSION true)
+  cid=$(docker create --platform linux/${TARGET_ARCH} ${AGENT_IMAGE_NAME}:${AGENT_VERSION} true)
   tmpdir=$(mktemp -d)
   mkdir $tmpdir/signalfx-agent
   trap "docker rm -f $cid; rm -rf $tmpdir; rm -f $output_tar" EXIT

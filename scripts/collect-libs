@@ -51,7 +51,11 @@ all_links() {
 libs=$(find_deps $binary_paths)
 # Pulling one level of transitive deps is enough for now
 transitive_deps=$(find_deps $libs)
-for lib in /lib/`uname -m`-linux-gnu/libnss_* /lib/`uname -m`-linux-gnu/libnsl* $libs $transitive_deps
+arch=$(uname -m)
+if [ "$arch" = "ppc64le" ]; then
+    arch="powerpc64le"
+fi
+for lib in /lib/${arch}-linux-gnu/libnss_* /lib/${arch}-linux-gnu/libnsl* $libs $transitive_deps
 do
   cp -a $(all_links $lib) $target_path 
   echo "Pulled in $lib" # to $new_path"
