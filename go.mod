@@ -104,7 +104,7 @@ require (
 	go.etcd.io/etcd/client/v2 v2.305.6
 	golang.org/x/net v0.5.0
 	golang.org/x/sync v0.1.0
-	golang.org/x/sys v0.4.0
+	golang.org/x/sys v0.5.0
 	golang.org/x/tools v0.5.0
 	google.golang.org/grpc v1.51.0
 	gopkg.in/fatih/set.v0 v0.1.0
