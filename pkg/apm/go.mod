@@ -3,7 +3,7 @@ module github.com/signalfx/signalfx-agent/pkg/apm
 go 1.18
 
 require (
-	github.com/signalfx/golib/v3 v3.3.47
+	github.com/signalfx/golib/v3 v3.3.48
 	github.com/stretchr/testify v1.8.1
 )
 
