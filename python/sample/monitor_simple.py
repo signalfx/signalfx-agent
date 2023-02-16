@@ -6,6 +6,7 @@ import multiprocessing
 # agent's ERROR log level, so logger is better for non-error messages.
 logger = logging.getLogger(__name__)
 
+
 # `config` is a dict of the configuration provided to the agent, including any
 # custom config options that are useful in this function.
 # `output` is how you get datapoints back to the main agent process.
