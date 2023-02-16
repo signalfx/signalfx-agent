@@ -137,60 +137,75 @@ jobs:
             ~/${{ env.RESULT_PATH }}/results.html
             ~/${{ env.RESULT_PATH }}/results.xml
 
-  dependency_check:
-    name: dependency_check
+  trivy-fs-scan:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run trivy filesystem scan
+        id: trivy-fs-scan
+        uses: aquasecurity/trivy-action@0.9.1
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          skip-dirs: 'deployments,examples,packaging,test-services,tests'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+          exit-code: '1'
+      - name: Generate report
+        if: ${{ failure() && steps.trivy-fs-scan.conclusion == 'failure' }}
+        uses: aquasecurity/trivy-action@0.9.1
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          skip-dirs: 'deployments,examples,packaging,test-services,tests'
+          format: 'sarif'
+          output: 'trivy-fs-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+          exit-code: '0'
+      - name: Upload report to GitHub Security tab
+        if: ${{ failure() && steps.trivy-fs-scan.conclusion == 'failure' }}
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-fs-results.sarif'
+
+  trivy-image-scan:
     runs-on: ubuntu-20.04
     needs: [build]
-    container:
-      image: owasp/dependency-check:6.5.0
-      options: --user root
     steps:
-      - name: Check out the codebase.
-        uses: actions/checkout@v3
-
-      - name: Downloading bundle
-        uses: actions/download-artifact@v3
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
         with:
-          name: bundle
+          name: image
           path: ./dist
-
-      - name: Setup dependency check
-        run: |
-          mkdir -p ./bundle
-          mkdir -p ./reports
-          apk --no-cache add tar
-          tar -C ./bundle -xf ./dist/signalfx-agent-latest.tar.gz
-
-      - name: Get Date
-        id: get-date
-        run: |
-          echo "date=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_OUTPUT
-
-      - name: Caching dependency
-        uses: actions/cache@v3
+      - run: docker load -i ./dist/image.tar
+      - name: Run trivy image scan
+        id: trivy-image-scan
+        uses: aquasecurity/trivy-action@0.9.1
         with:
-          path: |
-            /usr/share/dependency-check/data
-          key: v2-dependency-check-nvd-${{ steps.get-date.outputs.date }}-${{ hashFiles('./.github/workflows/build_and_test.yml') }}
-
-      - name: Run Dependency Check
-        run: |
-          /usr/share/dependency-check/bin/dependency-check.sh \
-            --scan ./bundle \
-            --project "signalfx-agent-latest.tar.gz" \
-            --suppression ./scripts/dependency-check/suppression.xml \
-            --out ./reports/ \
-            --format HTML \
-            --format JUNIT \
-            --junitFailOnCVSS 9 \
-            --failOnCVSS 9 || \
-            (echo -e "\nOne or more critical vulnerabilities were found in the agent bundle.\nCheck the report artifact, fix the issues, run 'make bundle && make dependency-check', and commit the changes when the issues are resolved." && exit 1)
-      
-      - name: Uploading test result artifacts
-        uses: actions/upload-artifact@v3
+          scan-type: 'image'
+          image-ref: 'quay.io/signalfx/signalfx-agent-dev:latest'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+          exit-code: '1'
+      - name: Generate report
+        if: ${{ failure() && steps.trivy-image-scan.conclusion == 'failure' }}
+        uses: aquasecurity/trivy-action@0.9.1
         with:
-          name: dependency-check-result
-          path: reports
+          scan-type: 'image'
+          image-ref: 'quay.io/signalfx/signalfx-agent-dev:latest'
+          format: 'sarif'
+          output: 'trivy-image-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+          exit-code: '0'
+      - name: Upload report to GitHub Security tab
+        if: ${{ failure() && steps.trivy-image-scan.conclusion == 'failure' }}
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-image-results.sarif'
 
   pcf_tile_build:
     name: pcf_tile_build
