@@ -242,8 +242,7 @@ jobs:
 
   integration_test:
     name: integration_test
-    # Running on Ubuntu 18.04 as Collectd python plugin required version GLIBC_2.29 which is not available on ubuntu-latest (20.04)
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     needs: [build]
     timeout-minutes: 60
     strategy:
