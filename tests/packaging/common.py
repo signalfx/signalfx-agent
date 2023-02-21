@@ -231,7 +231,7 @@ def run_win_command(cmd, returncodes=None, shell=True, **kwargs):
     output = proc.stdout.decode("utf-8")
     if returncodes:
         assert proc.returncode in returncodes, output
-    print(output)
+    print(output.encode("utf-8"))
     return proc
 
 
