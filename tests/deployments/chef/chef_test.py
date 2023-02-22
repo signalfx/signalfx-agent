@@ -60,9 +60,13 @@ DOCKERFILES_DIR = SCRIPT_DIR / "images"
 
 DEB_DISTROS = [
     ("debian-9-stretch", INIT_SYSTEMD),
+    ("debian-10-buster", INIT_SYSTEMD),
+    ("debian-11-bullseye", INIT_SYSTEMD),
     ("ubuntu1404", INIT_UPSTART),
     ("ubuntu1604", INIT_SYSTEMD),
     ("ubuntu1804", INIT_SYSTEMD),
+    ("ubuntu2004", INIT_SYSTEMD),
+    ("ubuntu2204", INIT_SYSTEMD),
 ]
 
 RPM_DISTROS = [
