@@ -12,7 +12,11 @@ service_user:
   user.present:
     - name: {{ service_user }}
     - system: True
+{%- if grains['os_family'] == 'Debian' %}
+    - shell: /usr/sbin/nologin
+{% else %}
     - shell: /sbin/nologin
+{% endif %}
     - createhome: False
     - groups:
       - {{ service_group }}

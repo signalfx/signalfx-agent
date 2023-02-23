@@ -1,0 +1,34 @@
+FROM debian:bullseye-slim
+
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
+
+RUN apt-get update &&\
+    apt-get install -yq ca-certificates procps systemd wget libcap2-bin apt-transport-https curl python3-pip python3-paramiko gnupg
+RUN pip3 install -U pip==20.3.4
+
+ARG ANSIBLE_VERSION='==2.4.0'
+RUN pip3 install ansible${ANSIBLE_VERSION}
+
+ENV container docker
+RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i = \   
+    "systemd-tmpfiles-setup.service" ] || rm -f $i; done); \                    
+    rm -f /lib/systemd/system/multi-user.target.wants/*;\ 
+    rm -f /lib/systemd/system/local-fs.target.wants/*; \
+    rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+    rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+    rm -f /lib/systemd/system/anaconda.target.wants/*;
+
+# Keep it from wiping our scratch dir in /tmp/scratch
+RUN rm -f /usr/lib/tmpfiles.d/tmp.conf;
+
+RUN systemctl set-default multi-user.target
+ENV init /lib/systemd/systemd
+
+COPY deployments/ansible/* /opt/playbook/
+COPY tests/deployments/ansible/images/inventory.ini /opt/playbook/
+COPY tests/deployments/ansible/images/playbook.yml /opt/playbook/
+
+VOLUME [ "/sys/fs/cgroup" ]
+
+ENTRYPOINT ["/lib/systemd/systemd"]

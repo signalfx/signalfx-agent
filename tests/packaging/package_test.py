@@ -411,9 +411,12 @@ def test_rpm_package(base_image, init_system):
     "base_image,init_system",
     [
         ("debian-9-stretch", INIT_SYSTEMD),
-        ("ubuntu1404", INIT_UPSTART),
+        ("debian-10-buster", INIT_SYSTEMD),
+        ("debian-11-bullseye", INIT_SYSTEMD),
         ("ubuntu1604", INIT_SYSTEMD),
         ("ubuntu1804", INIT_SYSTEMD),
+        ("ubuntu2004", INIT_SYSTEMD),
+        ("ubuntu2204", INIT_SYSTEMD),
     ],
 )
 def test_deb_package(base_image, init_system):
@@ -442,9 +445,12 @@ def test_rpm_package_upgrade(base_image, init_system):
     "base_image,init_system",
     [
         ("debian-9-stretch", INIT_SYSTEMD),
-        ("ubuntu1404", INIT_UPSTART),
+        ("debian-10-buster", INIT_SYSTEMD),
+        ("debian-11-bullseye", INIT_SYSTEMD),
         ("ubuntu1604", INIT_SYSTEMD),
         ("ubuntu1804", INIT_SYSTEMD),
+        ("ubuntu2004", INIT_SYSTEMD),
+        ("ubuntu2204", INIT_SYSTEMD),
     ],
 )
 def test_deb_package_upgrade(base_image, init_system):

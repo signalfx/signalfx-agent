@@ -40,9 +40,12 @@ APT_MODULE_VERSION = "7.0.0"
 
 DEB_DISTROS = [
     ("debian-9-stretch", INIT_SYSTEMD),
-    ("ubuntu1404", INIT_UPSTART),
+    ("debian-10-buster", INIT_SYSTEMD),
+    ("debian-11-bullseye", INIT_SYSTEMD),
     ("ubuntu1604", INIT_SYSTEMD),
     ("ubuntu1804", INIT_SYSTEMD),
+    ("ubuntu2004", INIT_SYSTEMD),
+    ("ubuntu2204", INIT_SYSTEMD),
 ]
 
 RPM_DISTROS = [
@@ -71,7 +74,7 @@ PUPPET_MODULE_DEST_DIR = "/etc/puppetlabs/code/environments/production/modules/s
 HIERA_SRC_PATH = PUPPET_MODULE_SRC_DIR / "data" / "default.yaml"
 HIERA_DEST_PATH = os.path.join(PUPPET_MODULE_DEST_DIR, "data", "default.yaml")
 
-LINUX_PUPPET_RELEASES = os.environ.get("PUPPET_RELEASES", "5,6").split(",")
+LINUX_PUPPET_RELEASES = os.environ.get("PUPPET_RELEASES", "6,7").split(",")
 WIN_PUPPET_VERSIONS = os.environ.get("PUPPET_VERSIONS", "5.0.0,latest").split(",")
 
 STAGE = os.environ.get("STAGE", "release")
@@ -139,6 +142,9 @@ def run_puppet_agent(cont, init_system, backend, monitors, agent_version, stage,
 )
 @pytest.mark.parametrize("puppet_release", LINUX_PUPPET_RELEASES)
 def test_puppet(base_image, init_system, puppet_release):
+    if base_image == "ubuntu1404" and int(puppet_release) > 6:
+        pytest.skip(f"Puppet release {puppet_release} not supported for ubuntu:14.04")
+
     if (base_image, init_system) in DEB_DISTROS:
         distro_type = "deb"
     else:
