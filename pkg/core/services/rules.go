@@ -148,8 +148,7 @@ type exprVisitor struct {
 	identifiers []string
 }
 
-func (v *exprVisitor) Enter(node *ast.Node) {}
-func (v *exprVisitor) Exit(node *ast.Node) {
+func (v *exprVisitor) Visit(node *ast.Node) {
 	if n, ok := (*node).(*ast.IdentifierNode); ok {
 		v.identifiers = append(v.identifiers, n.Value)
 	}
