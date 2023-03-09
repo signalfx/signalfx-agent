@@ -35,6 +35,7 @@ Required CLI tools:
 
     ```sh
     hammer -t $TAS_JSON cf-login
+    cf target -o system
     cf create-space test-space && cf target -s test-space
     ```
 
