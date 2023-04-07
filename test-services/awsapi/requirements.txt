@@ -1,2 +1,3 @@
 
 sanic==22.9.1
+websockets~=10.0
