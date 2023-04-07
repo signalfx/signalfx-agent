@@ -242,8 +242,7 @@ jobs:
 
   integration_test:
     name: integration_test
-    # Running on Ubuntu 18.04 as Collectd python plugin required version GLIBC_2.29 which is not available on ubuntu-latest (20.04)
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     needs: [build]
     timeout-minutes: 60
     strategy:
@@ -315,6 +314,8 @@ jobs:
           echo "TEST_SERVICES_DIR=$TEST_SERVICES_DIR" >> $GITHUB_ENV
           echo "MARKERS=$MARKERS" >> $GITHUB_ENV
           echo "DEFAULT_TIMEOUT=120" >> $GITHUB_ENV
+          # LD_LIBRARY_PATH is set by actions/setup-python and conflicts with the agent
+          echo "LD_LIBRARY_PATH=" >> $GITHUB_ENV
           sudo apt-get update
           sudo apt-get install -y --only-upgrade ca-certificates
       - name: Run pytest
