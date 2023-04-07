@@ -21724,112 +21724,115 @@
         "": {
           "description": "",
           "metrics": [
-            "gauge.active_state.activating",
-            "gauge.active_state.active",
-            "gauge.active_state.deactivating",
-            "gauge.active_state.failed",
-            "gauge.active_state.inactive",
-            "gauge.active_state.reloading",
-            "gauge.load_state.error",
-            "gauge.load_state.loaded",
-            "gauge.load_state.masked",
-            "gauge.load_state.not-found",
-            "gauge.substate.dead",
-            "gauge.substate.exited",
-            "gauge.substate.failed",
             "gauge.substate.running"
           ]
         },
         "ActiveState": {
           "description": "Metrics which indicate whether a service is currently active or not",
-          "metrics": null
+          "metrics": [
+            "gauge.active_state.activating",
+            "gauge.active_state.active",
+            "gauge.active_state.deactivating",
+            "gauge.active_state.failed",
+            "gauge.active_state.inactive",
+            "gauge.active_state.reloading"
+          ]
         },
         "LoadState": {
           "description": "Metrics which indicate whether a service's unit configuration file has been loaded",
-          "metrics": null
+          "metrics": [
+            "gauge.load_state.error",
+            "gauge.load_state.loaded",
+            "gauge.load_state.masked",
+            "gauge.load_state.not-found"
+          ]
         },
         "SubState": {
           "description": "Metrics which provide further clarification of a service's active state",
-          "metrics": null
+          "metrics": [
+            "gauge.substate.dead",
+            "gauge.substate.exited",
+            "gauge.substate.failed"
+          ]
         }
       },
       "metrics": {
         "gauge.active_state.activating": {
           "type": "gauge",
           "description": "Indicates that the systemd unit/service has previously been inactive but is currently in the process of entering an active state",
-          "group": null,
+          "group": "ActiveState",
           "default": false
         },
         "gauge.active_state.active": {
           "type": "gauge",
           "description": "Indicates that the systemd unit/service is active",
-          "group": null,
+          "group": "ActiveState",
           "default": false
         },
         "gauge.active_state.deactivating": {
           "type": "gauge",
           "description": "Indicates that the systemd unit/service is currently in the process of deactivation",
-          "group": null,
+          "group": "ActiveState",
           "default": false
         },
         "gauge.active_state.failed": {
           "type": "gauge",
           "description": "Indicates that the systemd unit/service is inactive the previous run was not successful",
-          "group": null,
+          "group": "ActiveState",
           "default": false
         },
         "gauge.active_state.inactive": {
           "type": "gauge",
           "description": "Indicates that the systemd unit/service is inactive and the previous run was successful or no previous run has taken place yet",
-          "group": null,
+          "group": "ActiveState",
           "default": false
         },
         "gauge.active_state.reloading": {
           "type": "gauge",
           "description": "Indicates that the systemd unit/service is active and currently reloading its configuration",
-          "group": null,
+          "group": "ActiveState",
           "default": false
         },
         "gauge.load_state.error": {
           "type": "gauge",
           "description": "Indicates that the systemd unit/service configuration failed to load",
-          "group": null,
+          "group": "LoadState",
           "default": false
         },
         "gauge.load_state.loaded": {
           "type": "gauge",
           "description": "Indicates that the systemd unit/service configuration was loaded and parsed successfully",
-          "group": null,
+          "group": "LoadState",
           "default": false
         },
         "gauge.load_state.masked": {
           "type": "gauge",
           "description": "Indicates that the systemd unit/service is currently masked out (i.e. symlinked to /dev/null etc)",
-          "group": null,
+          "group": "LoadState",
           "default": false
         },
         "gauge.load_state.not-found": {
           "type": "gauge",
           "description": "Indicates that the systemd unit/service configuration was not found",
-          "group": null,
+          "group": "LoadState",
           "default": false
         },
         "gauge.substate.dead": {
           "type": "gauge",
           "description": "Indicates that the systemd unit/service died",
-          "group": null,
+          "group": "SubState",
           "default": false
         },
         "gauge.substate.exited": {
           "type": "gauge",
           "description": "Indicates that the systemd unit/service exited",
-          "group": null,
+          "group": "SubState",
           "default": false
         },
         "gauge.substate.failed": {
           "type": "gauge",
           "description": "Indicates that the systemd unit/service failed",
-          "group": null,
+          "group": "SubState",
           "default": false
         },
         "gauge.substate.running": {
