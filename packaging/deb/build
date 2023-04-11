@@ -89,6 +89,5 @@ if [[ "${PUSH_TO_REPO-}" == "yes" ]]; then
 
   ${SCRIPT_DIR}/../../scripts/signing/add_output_to_repo.py $OUTPUT_DIR "deb" $REPO_STAGE \
     --artifactory-user=$ARTIFACTORY_USERNAME --artifactory-token=$ARTIFACTORY_TOKEN \
-    --staging-user=$STAGING_USERNAME --staging-token=$STAGING_TOKEN \
-    --chaperone-token=$CHAPERONE_TOKEN $force
+    $force
 fi

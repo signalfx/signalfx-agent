@@ -36,9 +36,6 @@ parse_args_and_release() {
   local image_digest=
   local artifactory_username="${ARTIFACTORY_USERNAME:-signalfx-agent}"
   local artifactory_token="${ARTIFACTORY_TOKEN-}"
-  local chaperone_token="${CHAPERONE_TOKEN-}"
-  local staging_username="${STAGING_USERNAME:-srv-signalfx-agent}"
-  local staging_token="${STAGING_TOKEN-}"
 
   while [ -n "${1-}" ]; do
     case $1 in
@@ -68,18 +65,6 @@ parse_args_and_release() {
         ;;
       --artifactory-token)
         artifactory_token="$2"
-        shift 1
-        ;;
-      --chaperone-token)
-        chaperone_token="$2"
-        shift 1
-        ;;
-      --staging-user)
-        staging_username="$2"
-        shift 1
-        ;;
-      --staging-token)
-        staging_token="$2"
         shift 1
         ;;
       --push)
@@ -137,14 +122,6 @@ parse_args_and_release() {
         echo "Set the ARTIFACTORY_TOKEN env var or use the '--artifactory-token <token>' option." >&2
         exit 1
       fi
-    fi
-    # fail immediately if releasing to the release/beta stages and the signing/staging credentials are not set
-    if [[ "$stage" != "test" ]] && [[ "$build_all" == "yes" || "$build_deb_package" == "yes" || "$build_rpm_package" == "yes" ]]; then
-      signing_credentials_are_set "$staging_username" "$staging_token" "$chaperone_token" >&2 || exit 1
-    fi
-    # fail immediately if signing packages and not connected to the splunk network
-    if signing_credentials_are_set "$staging_username" "$staging_token" "$chaperone_token" >/dev/null; then
-      curl -sSf https://repo.splunk.com >/dev/null || (echo "Signing packages require that you are connected to the splunk network." >&2 && exit 1)
     fi
   fi
 
@@ -239,9 +216,6 @@ Options:
   --stage test|beta|release                  What kind of release this is.  If not specified, will be inferred from the version
   --artifactory-user <username>              Artifactory username (https://splunk.jfrog.io)
   --artifactory-token <token>                Artifactory token (https://splunk.jfrog.io)
-  --chaperone-token <token>                  Chaperone token (https://chaperone.re.splunkdev.com)
-  --staging-user <username>                  Staging username (https://repo.splunk.com)
-  --staging-token <token>                    Staging token (https://repo.splunk.com)
 
 EOH
 }
@@ -328,9 +302,6 @@ build_and_push_package() {
   PUSH_TO_REPO="no" \
   ARTIFACTORY_USERNAME=$artifactory_username \
   ARTIFACTORY_TOKEN=$artifactory_token \
-  CHAPERONE_TOKEN=$chaperone_token \
-  STAGING_USERNAME=$staging_username \
-  STAGING_TOKEN=$staging_token \
     make ${package_type}-$stage-package
 }
 
@@ -445,30 +416,6 @@ get_image_digest() {
   fi
 
   echo $digest
-}
-
-signing_credentials_are_set() {
-    local staging_username=$1
-    local staging_token=$2
-    local chaperone_token=$3
-
-    if [[ -z "$staging_username" ]]; then
-      echo "Staging username is required to sign packages."
-      echo "Set the STAGING_USERNAME env var or use the '--staging-user <username>' option."
-      return 1
-    fi
-
-    if [[ -z "$staging_token" ]]; then
-      echo "Staging token is required to sign packages."
-      echo "Set the STAGING_TOKEN env var or use the '--staging-token <token>' option."
-      return 1
-    fi
-
-    if [[ -z "$chaperone_token" ]]; then
-      echo "Chaperone token is required to sign packages."
-      echo "Set the CHAPERONE_TOKEN env var or use the '--chaperone-token <token>' option."
-      return 1
-    fi
 }
 
 parse_args_and_release $@
