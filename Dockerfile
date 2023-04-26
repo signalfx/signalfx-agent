@@ -80,7 +80,7 @@ RUN cd /usr/src/agent-java/jmx &&\
 FROM ubuntu:18.04 as collectd
 
 ARG TARGET_ARCH
-ARG PYTHON_VERSION=3.8.10
+ARG PYTHON_VERSION=3.11.3
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -241,9 +241,9 @@ RUN autoreconf -vif &&\
         --disable-silent-rules \
         --disable-static \
         --with-java=${JAVA_HOME} \
-        LIBPYTHON_LDFLAGS="$(python3.8-config --ldflags) -lpython3.8" \
-        LIBPYTHON_CPPFLAGS="$(python3.8-config --includes)" \
-        LIBPYTHON_LIBS="$(python3.8-config --libs) -lpython3.8"
+        LIBPYTHON_LDFLAGS="$(python3.11-config --ldflags) -lpython3.11" \
+        LIBPYTHON_CPPFLAGS="$(python3.11-config --includes)/cpython" \
+        LIBPYTHON_LIBS="$(python3.11-config --libs) -lpython3.11"
 
 # Compile all of collectd first, including plugins
 RUN make -j`nproc` &&\
@@ -285,12 +285,12 @@ RUN python3 -m pip list
 # Remove pip to avoid usage in python monitor and in exec'd container
 RUN python3 -m pip uninstall pip -y
 # Delete all bundled wheels
-RUN find /usr/local/lib/python3.8 -name "*.whl" -delete
+RUN find /usr/local/lib/python3.11 -name "*.whl" -delete
 
 # Delete all compiled python to save space
-RUN find /usr/local/lib/python3.8 -name "*.pyc" -o -name "*.pyo" | xargs rm
+RUN find /usr/local/lib/python3.11 -name "*.pyc" -o -name "*.pyo" | xargs rm
 # We don't support compiling extension modules so don't need this directory
-RUN rm -rf /usr/local/lib/python3.8/config-*-linux-gnu
+RUN rm -rf /usr/local/lib/python3.11/config-*-linux-gnu
 
 
 ####### Extra packages that don't make sense to pull down in any other stage ########
@@ -343,9 +343,9 @@ RUN mkdir -p /opt/root/bin &&\
 COPY --from=collectd /usr/local/bin/patchelf /usr/bin/
 
 # Gather Python dependencies
-COPY --from=python-plugins /usr/local/lib/python3.8 /opt/root/lib/python3.8
-COPY --from=python-plugins /usr/local/lib/libpython3.8.so.1.0 /opt/root/lib
-COPY --from=python-plugins /usr/local/bin/python3.8 /opt/root/bin/python
+COPY --from=python-plugins /usr/local/lib/python3.11 /opt/root/lib/python3.11
+COPY --from=python-plugins /usr/local/lib/libpython3.11.so.1.0 /opt/root/lib
+COPY --from=python-plugins /usr/local/bin/python3.11 /opt/root/bin/python
 
 # Gather compiled collectd plugin libraries
 COPY --from=collectd /usr/sbin/collectd /opt/root/bin/collectd

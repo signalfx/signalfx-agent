@@ -3,7 +3,7 @@ $scriptDir = split-path -parent $MyInvocation.MyCommand.Definition
 . $scriptDir\common.ps1
 
 $BUILD_DIR="$scriptDir\..\..\bundle\signalfx-agent"
-$PYTHON_VERSION="3.8.10"
+$PYTHON_VERSION="3.11.3"
 $PIP_VERSION="21.0.1"
 $NUGET_URL="https://aka.ms/nugetclidl"
 $NUGET_EXE="nuget.exe"
