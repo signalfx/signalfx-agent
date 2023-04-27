@@ -36,42 +36,42 @@ monitors:
        metricPrefix: statsd.appmesh
     ```
   metrics:
-    circuit_breakers.<priority>.cx_open:
+    circuit_breakers.{priority}.cx_open:
       description: Whether the connection circuit breaker is closed (0) or open (1)
       default: false
       type: gauge
-    circuit_breakers.<priority>.cx_pool_open:
+    circuit_breakers.{priority}.cx_pool_open:
       description: Whether the connection pool circuit breaker is closed (0) or open
         (1)
       default: false
       type: gauge
-    circuit_breakers.<priority>.rq_pending_open:
+    circuit_breakers.{priority}.rq_pending_open:
       description: Whether the pending requests circuit breaker is closed (0) or open
         (1)
       default: false
       type: gauge
-    circuit_breakers.<priority>.rq_open:
+    circuit_breakers.{priority}.rq_open:
       description: Whether the requests circuit breaker is closed (0) or open (1)
       default: false
       type: gauge
-    circuit_breakers.<priority>.rq_retry_open:
+    circuit_breakers.{priority}.rq_retry_open:
       description: Whether the retry circuit breaker is closed (0) or open (1)
       default: false
       type: gauge
-    circuit_breakers.<priority>.remaining_cx:
+    circuit_breakers.{priority}.remaining_cx:
       description: Number of remaining connections until the circuit breaker opens
       default: false
       type: gauge
-    circuit_breakers.<priority>.remaining_pending:
+    circuit_breakers.{priority}.remaining_pending:
       description: Number of remaining pending requests until the circuit breaker
         opens
       default: false
       type: gauge
-    circuit_breakers.<priority>.remaining_rq:
+    circuit_breakers.{priority}.remaining_rq:
       description: Number of remaining requests until the circuit breaker opens
       default: false
       type: gauge
-    circuit_breakers.<priority>.remaining_retries:
+    circuit_breakers.{priority}.remaining_retries:
       description: Number of remaining retries until the circuit breaker opens
       default: false
       type: gauge
@@ -282,7 +282,7 @@ monitors:
       description: Total number of HTTP response codes in the 500-599 range
       default: true
       type: cumulative
-    upstream_rq_<___>:
+    upstream_rq_{___}:
       description: Specific HTTP response codes (e.g., 201, 302, etc.)
       default: false
       type: cumulative
@@ -294,11 +294,11 @@ monitors:
       description: Total external origin requests completed
       default: false
       type: cumulative
-    external.upstream_rq_<_xx>:
+    external.upstream_rq_{_xx}:
       description: External origin aggregate HTTP response codes
       default: false
       type: cumulative
-    external.upstream_rq_<_>:
+    external.upstream_rq_{_}:
       description: External origin specific HTTP response codes
       default: false
       type: cumulative
@@ -310,11 +310,11 @@ monitors:
       description: Total internal origin requests completed
       default: false
       type: cumulative
-    internal.upstream_rq_<_xx>:
+    internal.upstream_rq_{_xx}:
       description: Internal origin aggregate HTTP response codes
       default: false
       type: cumulative
-    internal.upstream_rq_<_>:
+    internal.upstream_rq_{_}:
       description: Internal origin specific HTTP response codes
       default: false
       type: cumulative
