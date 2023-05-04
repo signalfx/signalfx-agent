@@ -178,11 +178,11 @@ common:
       type: gauge
     kubernetes.stateful_set.desired:
       description: Number of desired pods in the stateful set (the `spec.replicas` field)
-      default: false
+      default: true
       type: gauge
     kubernetes.stateful_set.ready:
       description: Number of pods created by the stateful set that have the `Ready` condition
-      default: false
+      default: true
       type: gauge
     kubernetes.stateful_set.current:
       description: |
