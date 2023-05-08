@@ -39,7 +39,7 @@ jobs:
 
       - name: Install requirements
         run: |
-          pip install --no-use-pep517 -q -e python
+          pip install -q -e python
           pip install -r "${{ env.REQUIREMENTS_PATH }}"
 
       - name: Run lint
