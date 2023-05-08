@@ -189,6 +189,8 @@ var DefaultMetrics = map[string]bool{
 	KubernetesReplicationControllerDesired:                 true,
 	KubernetesResourceQuotaHard:                            true,
 	KubernetesResourceQuotaUsed:                            true,
+	KubernetesStatefulSetDesired:                           true,
+	KubernetesStatefulSetReady:                             true,
 	OpenshiftAppliedclusterquotaCPUHard:                    true,
 	OpenshiftAppliedclusterquotaCPUUsed:                    true,
 	OpenshiftAppliedclusterquotaMemoryHard:                 true,
