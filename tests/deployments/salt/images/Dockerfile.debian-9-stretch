@@ -1,6 +1,10 @@
 FROM debian:stretch-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
+
+RUN sed -i 's|http://.*.debian.org|http://archive.debian.org|' /etc/apt/sources.list
+RUN sed -i '/stretch-updates/d' /etc/apt/sources.list
+
 RUN apt-get update &&\
     apt-get install -yq ca-certificates procps systemd wget libcap2-bin apt-transport-https curl python3-apt python3-pip python3-dev gnupg
 
