@@ -1,7 +1,11 @@
 FROM debian:stretch-slim
 
+ENV DEBIAN_FRONTEND noninteractive
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
+
+RUN sed -i 's|http://.*.debian.org|http://archive.debian.org|' /etc/apt/sources.list
+RUN sed -i '/stretch-updates/d' /etc/apt/sources.list
 
 RUN apt-get update &&\
     apt-get install -yq ca-certificates procps systemd wget libcap2-bin apt-transport-https curl python3-pip python3-paramiko gnupg
