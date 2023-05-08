@@ -39697,13 +39697,13 @@
           "type": "gauge",
           "description": "Number of desired pods in the stateful set (the `spec.replicas` field)",
           "group": null,
-          "default": false
+          "default": true
         },
         "kubernetes.stateful_set.ready": {
           "type": "gauge",
           "description": "Number of pods created by the stateful set that have the `Ready` condition",
           "group": null,
-          "default": false
+          "default": true
         },
         "kubernetes.stateful_set.updated": {
           "type": "gauge",
@@ -44023,13 +44023,13 @@
           "type": "gauge",
           "description": "Number of desired pods in the stateful set (the `spec.replicas` field)",
           "group": null,
-          "default": false
+          "default": true
         },
         "kubernetes.stateful_set.ready": {
           "type": "gauge",
           "description": "Number of pods created by the stateful set that have the `Ready` condition",
           "group": null,
-          "default": false
+          "default": true
         },
         "kubernetes.stateful_set.updated": {
           "type": "gauge",

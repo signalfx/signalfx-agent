@@ -117,8 +117,8 @@ This monitor will also emit by default any metrics that are not listed below.
     StatefulSet version indicated by `current_revision` property on the
     `kubernetes_uid` dimension for this StatefulSet.
 
- - `kubernetes.stateful_set.desired` (*gauge*)<br>    Number of desired pods in the stateful set (the `spec.replicas` field)
- - `kubernetes.stateful_set.ready` (*gauge*)<br>    Number of pods created by the stateful set that have the `Ready` condition
+ - ***`kubernetes.stateful_set.desired`*** (*gauge*)<br>    Number of desired pods in the stateful set (the `spec.replicas` field)
+ - ***`kubernetes.stateful_set.ready`*** (*gauge*)<br>    Number of pods created by the stateful set that have the `Ready` condition
  - `kubernetes.stateful_set.updated` (*gauge*)<br>    The number of pods created by the StatefulSet controller from the
     StatefulSet version indicated by the `update_revision` property on the
     `kubernetes_uid` dimension for this StatefulSet.
