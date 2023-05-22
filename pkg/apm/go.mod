@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/signalfx/golib/v3 v3.3.48
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.3
 )
 
 require (
