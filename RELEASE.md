@@ -77,13 +77,11 @@ point but for now the process is manual.
    $ ./scripts/update-deployments-version <version>
    ```
 
-1. If the Helm assets have changed bump the chart version number in
+1. If the Helm assets have changed (apart from the agent version updates from
+   the previous step), bump the chart version number in
    [Chart.yaml](deployments/k8s/helm/signalfx-agent/Chart.yaml) and commit/push
    the changes. This can be determined by checking to see if any changes have
    been made in the [Helm directory](deployments/k8s/helm).
-
-1. If there are relevant changes in the [python](./python) directory, bump the
-   version in [setup.py](./python/setup.py) and commit/push the changes.
 
 1. Once you know the next release version, create an annotation tag of the
    form `v<version>` where `<version>` is that version.  E.g. a release of
@@ -133,62 +131,31 @@ point but for now the process is manual.
    1. Ensure that the choco package was pushed to [chocolatey](
       https://community.chocolatey.org/packages/signalfx-agent). Some jobs may take
       a day or two to be started.
+   1. Ensure that `https://dl.signalfx.com/windows/release/msi/SignalFxAgent-<version>-win64.msi`
+      and `https://dl.signalfx.com/windows/release/zip/SignalFxAgent-<version>-win64.zip`
+      were uploaded.
+   1. Ensure that the `https://dl.signalfx.com/signalfx-agent.ps1` and
+      `https://dl.signalfx.com/signalfx-agent.sh` installer scripts were released
+      by comparing the remote files with the local files:
+      ```sh
+      $ curl -sSL https://dl.signalfx.com/signalfx-agent.ps1 | diff - deployments/installer/install.ps1
+      $ curl -sSL https://dl.signalfx.com/signalfx-agent.sh | diff - deployments/installer/install.sh
+      ```
 
-1. Create the `./build/signed` directory in your local repo root.
-
-1. Download the windows zip bundle and MSI from the Github Release to
-   `./build/signed`.
-
-1. Get `us0` realm credentials through Okta.
-   ```
-   $ okta-aws-setup us0
-   ```
-   Select the `signalfx/splunkcloud_account_power` role.
-
-1. Run the release script to push the msi and bundle to S3:
-
-   ```
-   $ scripts/release --stage <STAGE> --push --component windows
-   ```
-
-   Where `<STAGE>` is `test`, `beta`, or `release`.
-
-1. Build and release the certified RedHat container by running:
-
-   ```sh
-   $ scripts/release-redhat <X.Y.Z> <PROJECT_ID> <API_KEY>
-   ```
-
-1. Log into the Red Hat project portal, wait for the image build and scan to
-   complete, publish it, and add the `latest` tag.
-
-1. If the Helm assets have changed then update the repo from `dtools/helm_repo`
-   by running (requires S3 access):
-
-   ```sh
-    AGENT_CHART_DIR=<agent dir>/deployments/k8s/helm/signalfx-agent ./update agent
-    ```
-
-1. If the python code has changed, run the following to release to pypi:
-   ```sh
-   $ scripts/release --stage release --component pypi
-   ```
+1. If the Helm [Chart.yaml](./deployments/k8s/helm/signalfx-agent/Chart.yaml)
+   version was updated from step #5, then update the repo from
+   `dtools/helm_repo` by running (requires S3 access):
+   1. Get `us0` realm credentials through Okta and select the
+      `signalfx/splunkcloud_account_power` role.
+      ```sh
+      $ okta-aws-setup us0
+      ```
+   1. Clone the `dtools` repo if you haven't already.
+   1. Run:
+      ```sh
+      $ cd <dtools repo dir>/helm_repo
+      $ AGENT_CHART_DIR=<agent repo dir>/deployments/k8s/helm/signalfx-agent ./update agent
+      ```
 
 1. Test out the new release by deploying it to a test environment and ensuring
    it works.
-
-1. Update documentation
-   - Integration docs:
-      - Run the script to update the agent tile contents, which is based on the README.
-      ```
-      $ scripts/docs/to-integrations-repo
-      ```
-      - Submit a PR to the repository with the changes, if any exist.
-
-   - Product docs:
-      - Ensure that you have pandoc installed (on Mac you can do `brew install pandoc`).
-      - Run
-      ```
-      $ PRODUCT_DOCS_REPO=<path to product docs repo> scripts/docs/to-product-docs
-      ```
-      - Submit a PR to the repository with the changes, if any exist.
