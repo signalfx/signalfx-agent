@@ -36,7 +36,7 @@ require (
 	github.com/StackExchange/wmi v1.2.1
 	github.com/antonmedv/expr v1.9.0
 	github.com/aws/aws-sdk-go v1.44.184
-	github.com/beevik/ntp v0.3.0
+	github.com/beevik/ntp v1.1.1
 	github.com/cloudfoundry-incubator/uaago v0.0.0-20190307164349-8136b7bbe76e
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
@@ -96,15 +96,15 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/smartystreets/goconvey v1.7.2
 	github.com/snowflakedb/gosnowflake v1.6.22
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.4
 	github.com/ulule/deepcopier v0.0.0-20171107155558-ca99b135e50f
 	github.com/vmware/govmomi v0.30.2
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.etcd.io/etcd/client/v2 v2.305.6
-	golang.org/x/net v0.8.0
+	golang.org/x/net v0.10.0
 	golang.org/x/sync v0.1.0
-	golang.org/x/sys v0.6.0
+	golang.org/x/sys v0.9.0
 	golang.org/x/tools v0.6.0
 	google.golang.org/grpc v1.51.0
 	gopkg.in/fatih/set.v0 v0.1.0
@@ -298,8 +298,8 @@ require (
 	golang.org/x/exp v0.0.0-20230206171751-46f607a40771 // indirect
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/oauth2 v0.3.0 // indirect
-	golang.org/x/term v0.6.0 // indirect
-	golang.org/x/text v0.8.0 // indirect
+	golang.org/x/term v0.8.0 // indirect
+	golang.org/x/text v0.9.0 // indirect
 	golang.org/x/time v0.0.0-20220411224347-583f2d630306 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.99.0 // indirect
