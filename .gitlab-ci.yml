@@ -12,6 +12,7 @@ stages:
 
 include:
   - project: 'core-ee/signing/api-integration'
+    ref: develop
     file: '/templates/.sign-client.yml'
   - project: 'ci-cd/templates'
     ref: master
