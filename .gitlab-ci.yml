@@ -291,7 +291,7 @@ s3-release:
     - win-bundle-sign
     - win-msi-sign
   before_script:
-    - pip install awscli
+    - pip install -r scripts/awscli-requirements.txt
     - *get-artifactory-stage
     - *aws-releaser-role
   script:
