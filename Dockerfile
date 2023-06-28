@@ -422,6 +422,9 @@ RUN mkdir /docs &&\
 ####### Debian Packager #######
 FROM debian:9 as debian-packager
 
+RUN sed -i 's|http://.*.debian.org|http://archive.debian.org|' /etc/apt/sources.list
+RUN sed -i '/stretch-updates/d' /etc/apt/sources.list
+
 RUN apt update &&\
     apt install -y dh-make devscripts dh-systemd apt-utils
 

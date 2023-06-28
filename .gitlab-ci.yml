@@ -49,6 +49,10 @@ include:
     - pip3 install -r scripts/signing/requirements.txt
     - *get-artifactory-stage
 
+.aws-releaser-role: &aws-releaser-role |
+  creds-helper init
+  eval $(creds-helper aws --eval "aws:v1/o11y-infra/role/o11y_gdi_otel_releaser_role")
+
 update-stage-cache:
   stage: update-stage-cache
   needs: []
@@ -130,7 +134,7 @@ linux-build:
 sign-deb:
   extends:
     - .trigger-filter
-    - .submit-request
+    - .submit-signing-request
   stage: sign-packages
   needs:
     - linux-build
@@ -151,7 +155,7 @@ sign-deb:
 sign-rpm:
   extends:
     - .trigger-filter
-    - .submit-request
+    - .submit-signing-request
   stage: sign-packages
   needs:
     - linux-build
@@ -172,7 +176,7 @@ sign-rpm:
 win-bundle-sign:
   extends:
     - .trigger-filter
-    - .submit-request
+    - .submit-signing-request
   stage: sign-packages
   needs:
     - win-bundle-build
@@ -215,7 +219,7 @@ win-msi-build:
 win-msi-sign:
   extends:
     - .trigger-filter
-    - .submit-request
+    - .submit-signing-request
   stage: sign-packages
   needs:
     - win-msi-build
@@ -280,6 +284,27 @@ release-rpm:
     paths:
       - repomd.xml
 
+s3-release:
+  extends: .trigger-filter
+  stage: release
+  dependencies:
+    - win-bundle-sign
+    - win-msi-sign
+  before_script:
+    - pip install -r scripts/awscli-requirements.txt
+    - *get-artifactory-stage
+    - *aws-releaser-role
+  script:
+    - scripts/release --stage $STAGE --push --component windows --force
+    - |
+      # release the installer scripts
+      if [[ "$STAGE" = "release" ]]; then
+        aws s3 cp deployments/installer/install.sh s3://public-downloads--signalfuse-com/signalfx-agent.sh
+        ./scripts/invalidate-cloudfront "/signalfx-agent.sh"
+        aws s3 cp deployments/installer/install.ps1 s3://public-downloads--signalfuse-com/signalfx-agent.ps1
+        ./scripts/invalidate-cloudfront "/signalfx-agent.ps1"
+      fi
+
 win-choco-release:
   extends: .trigger-filter
   stage: release
@@ -335,7 +360,7 @@ win-docker-release:
 sign-apt-metadata:
   extends:
     - .trigger-filter
-    - .submit-request
+    - .submit-signing-request
   stage: sign-metadata
   needs:
     - release-deb
@@ -352,7 +377,7 @@ sign-apt-metadata:
 sign-yum-metadata:
   extends:
     - .trigger-filter
-    - .submit-request
+    - .submit-signing-request
   stage: sign-metadata
   needs:
     - release-rpm

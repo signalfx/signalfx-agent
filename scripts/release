@@ -140,7 +140,7 @@ parse_args_and_release() {
   fi
 
   if [[ "$push" == "yes" ]] && [[ "$push_windows" == "yes" ]]; then
-    push_windows_bundle "$new_version" "$stage" "$push"
+    push_windows_bundle "$new_version" "$stage" "$push" "$force"
     exit 0
   fi
 
@@ -158,12 +158,12 @@ parse_args_and_release() {
 
   if [[ "$build_all" == "yes" ]] || [[ "$build_deb_package" == "yes" ]]; then
     echo "Building and pushing deb package"
-    build_and_push_package "deb" "$stage" "$push" "$artifactory_username" "$artifactory_token" "$chaperone_token" "$staging_username" "$staging_token"
+    build_and_push_package "deb" "$stage" "$push" "$artifactory_username" "$artifactory_token"
   fi
 
   if [[ "$build_all" == "yes" ]] || [[ "$build_rpm_package" == "yes" ]]; then
     echo "Building and pushing rpm package"
-    build_and_push_package "rpm" "$stage" "$push" "$artifactory_username" "$artifactory_token" "$chaperone_token" "$staging_username" "$staging_token"
+    build_and_push_package "rpm" "$stage" "$push" "$artifactory_username" "$artifactory_token"
   fi
 
   if [[ "$stage" != "test" ]] && [[ "$($SCRIPT_DIR/current-version)" != "$new_version" ]]; then
@@ -295,9 +295,6 @@ build_and_push_package() {
   local push=$3
   local artifactory_username=$4
   local artifactory_token=$5
-  local chaperone_token=$6
-  local staging_username=$7
-  local staging_token=$8
 
   PUSH_TO_REPO="no" \
   ARTIFACTORY_USERNAME=$artifactory_username \
@@ -321,19 +318,12 @@ push_windows_bundle() {
   local new_version="$1"
   local stage="$2"
   local push="$3"
+  local force="$4"
   local src_dir="$SCRIPT_DIR/../build"
   local signed_dir="$src_dir/signed"
   local dest_dir="s3://public-downloads--signalfuse-com/windows/$stage"
-  local bundle_path="$src_dir/SignalFxAgent-${new_version}-win64.zip"
-  local signed_bundle_path="$signed_dir/SignalFxAgent-${new_version}-win64.zip"
-  local msi_path="$src_dir/SignalFxAgent-${new_version}-win64.msi"
-  local signed_msi_path="$signed_dir/SignalFxAgent-${new_version}-win64.msi"
-  local tag="v$new_version"
-
-  if [[ "$stage" != "test" ]]; then
-    bundle_path="$signed_bundle_path"
-    msi_path="$signed_msi_path"
-  fi
+  local bundle_path="$signed_dir/SignalFxAgent-${new_version}-win64.zip"
+  local msi_path="$signed_dir/SignalFxAgent-${new_version}-win64.msi"
 
   if [[ ! -f "$bundle_path" ]]; then
     echo "$bundle_path not found!"
@@ -351,17 +341,21 @@ push_windows_bundle() {
   echo -n "$new_version" > "$src_dir/latest.txt"
 
   if [[ "$push" == "yes" ]]; then
-    if aws s3 ls "$dest_dir/zip/SignalFxAgent-${new_version}-win64.zip"; then
-      read -p "SignalFxAgent-${new_version}-win64.zip already exists in $dest_dir/zip/. Overwrite? [y/N] "
-      [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Not pushing windows bundle" >&2 && return 1
+    if [[ "$force" != "yes" ]]; then
+      if aws s3 ls "$dest_dir/zip/SignalFxAgent-${new_version}-win64.zip"; then
+        read -p "SignalFxAgent-${new_version}-win64.zip already exists in $dest_dir/zip/. Overwrite? [y/N] "
+        [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Not pushing windows bundle" >&2 && return 1
+      fi
     fi
     aws s3 cp "$bundle_path" "$dest_dir/zip/SignalFxAgent-${new_version}-win64.zip"
     aws s3 cp "$src_dir/latest.txt" "${dest_dir}/zip/latest/latest.txt"
     $SCRIPT_DIR/invalidate-cloudfront "/windows/$stage/zip/*"
 
-    if aws s3 ls "$dest_dir/msi/SignalFxAgent-${new_version}-win64.msi"; then
-      read -p "SignalFxAgent-${new_version}-win64.msi already exists in $dest_dir/msi/. Overwrite? [y/N] "
-      [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Not pushing windows msi" >&2 && return 1
+    if [[ "$force" != "yes" ]]; then
+      if aws s3 ls "$dest_dir/msi/SignalFxAgent-${new_version}-win64.msi"; then
+        read -p "SignalFxAgent-${new_version}-win64.msi already exists in $dest_dir/msi/. Overwrite? [y/N] "
+        [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Not pushing windows msi" >&2 && return 1
+      fi
     fi
     aws s3 cp "$msi_path" "$dest_dir/msi/SignalFxAgent-${new_version}-win64.msi"
     aws s3 cp "$src_dir/latest.txt" "${dest_dir}/msi/latest/latest.txt"
