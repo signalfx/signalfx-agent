@@ -1,11 +1,17 @@
 >ℹ️&nbsp;&nbsp;SignalFx was acquired by Splunk in October 2019. See [Splunk SignalFx](https://www.splunk.com/en_us/investor-relations/acquisitions/signalfx.html) for more information.
 
+> # :warning: End of Support (EoS) Notice
+> **The SignalFx Smart Agent has reached End of Support.**
+>
+> The [Splunk Distribution of OpenTelemetry Collector](https://docs.splunk.com/Observability/gdi/opentelemetry/opentelemetry.html) is the successor. Smart Agent monitors are available and supported through the [Smart Agent receiver](https://docs.splunk.com/Observability/gdi/opentelemetry/components/smartagent-receiver.html) in the Splunk Distribution of OpenTelemetry Collector.
+>
+> To learn how to migrate, see [Migrate from SignalFx Smart Agent to the Splunk Distribution of OpenTelemetry Collector](https://docs.splunk.com/Observability/gdi/opentelemetry/smart-agent-migration-to-otel-collector.html).
+
+
 # SignalFx Smart Agent
 
 [![GoDoc](https://godoc.org/github.com/signalfx/signalfx-agent?status.svg)](https://godoc.org/github.com/signalfx/signalfx-agent)
 [![CircleCI](https://circleci.com/gh/signalfx/signalfx-agent.svg?style=shield)](https://circleci.com/gh/signalfx/signalfx-agent)
-
-:warning: **SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](./docs/smartagent-deprecation-notice.md)** :warning:
 
 The SignalFx Smart Agent is a metric agent written in Go for monitoring
 infrastructure and application services in a variety of different environments.

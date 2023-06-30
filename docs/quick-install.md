@@ -1,7 +1,12 @@
 <!--- OVERVIEW --->
 # Quick Install
 
-SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](./smartagent-deprecation-notice.md).
+> # :warning: End of Support (EoS) Notice
+> **The SignalFx Smart Agent has reached End of Support.**
+>
+> The [Splunk Distribution of OpenTelemetry Collector](https://docs.splunk.com/Observability/gdi/opentelemetry/opentelemetry.html) is the successor. Smart Agent monitors are available and supported through the [Smart Agent receiver](https://docs.splunk.com/Observability/gdi/opentelemetry/components/smartagent-receiver.html) in the Splunk Distribution of OpenTelemetry Collector.
+>
+> To learn how to migrate, see [Migrate from SignalFx Smart Agent to the Splunk Distribution of OpenTelemetry Collector](https://docs.splunk.com/Observability/gdi/opentelemetry/smart-agent-migration-to-otel-collector.html).
 
 SignalFx Smart Agent Integration installs the Smart Agent application on a single host machine from which you want to collect monitoring data. Smart Agent collects infrastructure monitoring, µAPM, and Kubernetes data.
 
