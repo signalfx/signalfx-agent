@@ -1,6 +1,6 @@
 FROM registry.access.redhat.com/ubi7/ubi-minimal:latest
 
-ARG AGENT_VERSION="5.27.3"
+ARG AGENT_VERSION="5.28.0"
 LABEL name="SignalFx Smart Agent" \
 	  maintainer="SignalFx, Inc." \
 	  vendor="SignalFx, Inc." \
