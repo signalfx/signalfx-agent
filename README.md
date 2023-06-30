@@ -1,5 +1,11 @@
 >ℹ️&nbsp;&nbsp;SignalFx was acquired by Splunk in October 2019. See [Splunk SignalFx](https://www.splunk.com/en_us/investor-relations/acquisitions/signalfx.html) for more information.
 
+> # :warning: End of Support (EOS) Notice
+> **The SignalFx Smart Agent has reached End of Support.**
+>
+> The [Splunk Distribution of OpenTelemetry Collector](https://github.com/signalfx/splunk-otel-collector) is the successor.
+> To learn how to migrate, see [Migrate from SignalFx Smart Agent to the Splunk Distribution of OpenTelemetry Collector](https://docs.splunk.com/Observability/gdi/opentelemetry/smart-agent-migration-to-otel-collector.html).
+
 # SignalFx Smart Agent
 
 [![GoDoc](https://godoc.org/github.com/signalfx/signalfx-agent?status.svg)](https://godoc.org/github.com/signalfx/signalfx-agent)
